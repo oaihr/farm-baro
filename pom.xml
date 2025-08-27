@@ -149,16 +149,16 @@ https://mvnrepository.com/artifact/org.springframework/spring-webmvc -->
 			<groupId>javax.validation</groupId>
 			<artifactId>validation-api</artifactId>
 			<version>2.0.1.Final</version>
-		</dependency> 
-		
+		</dependency>
+
 		<!--https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator -->
 		<dependency>
 			<groupId>org.hibernate.validator</groupId>
 			<artifactId>hibernate-validator</artifactId>
 			<version>6.1.2.Final</version>
 		</dependency>
-		
-		
+
+
 		<!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -173,8 +173,8 @@ https://mvnrepository.com/artifact/org.springframework/spring-webmvc -->
 			<artifactId>commons-fileupload</artifactId>
 			<version>1.5</version>
 		</dependency>
-		
-		
+
+
 		<!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
@@ -198,6 +198,11 @@ https://mvnrepository.com/artifact/org.springframework/spring-webmvc -->
 			<scope>runtime</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20231013</version>
+		</dependency>
 
 	</dependencies>
 </project>
