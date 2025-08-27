@@ -1,0 +1,27 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.chart-wrap {
+    position: relative;
+}
+
+.legend-container {
+    position: static;
+    display: flex;
+    align-items: flex-start;
+    flex-direction: row-reverse;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+}
+
+.legend-color-box {
+    width: 30px;
+    height: 5px;
+    margin-left: 20px;
+}
