@@ -18,7 +18,7 @@ function Home() {
                 <div className='home-logo-search'>
                     <div className="home-search-box">
                         <img src={logo} class="logo" />
-                        <div className=''>
+                        <div className='search-box'>
                             <input
                                 type="text"
                                 className="home-search"
@@ -46,8 +46,8 @@ function Home() {
                             
                             <li className="home-menu-span span">경매
                                 <ul className="home-submenu">
-                                    <li><a href="/travels?category=12">실시간 경매</a></li>
-                                    <li><a href="/travels?category=12">지난 경매</a></li>
+                                    <li><a href="">실시간 경매</a></li>
+                                    <li><a href="">지난 경매</a></li>
                                 </ul>
                             </li>
 

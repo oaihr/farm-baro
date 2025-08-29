@@ -58,6 +58,7 @@
     border-bottom: 1px solid #eee;
 }
 
+
 /* ================= logo, searchBox ================= */
 .logo {
     width: 130px;
@@ -101,6 +102,10 @@
 
 .home-search-btn:hover {
     background-color: #2e5a17;
+}
+
+.search-box{
+    display: flex;
 }
 
 /* login-btn */
