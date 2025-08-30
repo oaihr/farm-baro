@@ -6,31 +6,38 @@
 <mapper namespace="quote_mapper">
 
     <insert id="saveQuoteInfo" parameterType="Quote">
-INSERT INTO CONSUMER_PRICE_DAILY (
-				stand_ymd,
-				grade_name,
-				judge_kind_name, 
-				judge_kind,
-				item_name,
-				item_code,
-				net_sale_price,
-				max_price,
-				min_price,
-				unit,
-				created_time
-		) VALUES ( 
-				#{stand_ymd},
-				#{grade_name},
-				#{judge_kind_name}, 
-				#{judge_kind},
-				#{item_name},
-				#{item_code},
-				#{net_sale_price},
-				#{max_price},
-				#{min_price},
-				#{unit},
-				SYSTIMESTAMP
-		)
+		INSERT INTO CONSUMER_PRICE_DAILY (
+						stand_ymd,
+						grade_name,
+						judge_kind_name, 
+						judge_kind,
+						item_name,
+						item_code,
+						net_sale_price,
+						max_price,
+						min_price,
+						unit,
+						created_time
+				) VALUES ( 
+						#{stand_ymd},
+						#{grade_name},
+						#{judge_kind_name}, 
+						#{judge_kind},
+						#{item_name},
+						#{item_code},
+						#{net_sale_price},
+						#{max_price},
+						#{min_price},
+						#{unit},
+						SYSTIMESTAMP
+				)
     </insert>
+    
+    
+    <select id="checkDay" resultType="Quote" parameterType="String">
+    	select * from CONSUMER_PRICE_DAILY
+		where stand_ymd = #{stand_ymd}
+    </select>
+    
 
 </mapper>

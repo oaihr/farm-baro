@@ -11,5 +11,5 @@ import com.app.dto.quote.QuoteDTO;
 @Service
 public interface QuoteService {
 	
-	public int getQuoteInfo();
+	public String checkDay(QuoteDTO quoteDTO);
 }

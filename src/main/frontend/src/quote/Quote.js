@@ -1,4 +1,6 @@
 import './Quote.css';
+import axios from 'axios';
+import { useState } from "react";
 
 import { Chart as ChartJS } from 'chart.js/auto';
 import { Bar } from 'react-chartjs-2';
@@ -11,6 +13,15 @@ import pig from '../images/pig.png';
 
 function Quote() {
 
+    //YYYYMMDD 날짜형식 저장
+    const today = new Date(); // 년도
+    const year = today.getFullYear(); // 월
+    const month = (today.getMonth() + 1).toString().padStart(2, '0');  // 일
+    const day = today.getDate().toString().padStart(2, '0'); // yyyymmdd
+    const yyyymmdd = `${year}${month}${day}`;
+    document.write(yyyymmdd);
+
+    //그래프
     const labels = ['월', '화', '수', '목', '금', '토', '일'];
     const eventTypeList = ['쓰러짐', '싸움', '기침', '떨림', '침흘림', '꼬리물기', '밀집'];
     const falldownData = [10, 20, 15, 25, 30, 18, 22];

@@ -12,12 +12,11 @@ public class QuoteServiceImpl implements QuoteService{
 
 	@Autowired
 	QuoteDAO quoteDAO;
-	
 
 	@Override
-	public int getQuoteInfo() {
-		// TODO Auto-generated method stub
-		return 0;
+	public String checkDay(QuoteDTO quoteDTO) {
+		String result = quoteDAO.checkDay(quoteDTO);
+		return result;
 	}
 
 	

@@ -21,6 +21,12 @@ public class QuoteDAOImpl implements QuoteDAO{
 		return result;
 	}
 
+	@Override
+	public String checkDay(QuoteDTO quoteDTO) {
+		String result = sqlSessionTemplate.selectOne("quote_mapper.checkDay", quoteDTO);
+		return result;
+	}
+
 
 	
 }
