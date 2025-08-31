@@ -8,7 +8,7 @@ function Header(){
         <div className="home-header">
                 <div className='home-logo-search'>
                     <div className="home-search-box">
-                        <img src={logo} class="logo" />
+                        <img src={logo} className="logo" />
                         <div className='search-box'>
                             <input
                                 type="text"

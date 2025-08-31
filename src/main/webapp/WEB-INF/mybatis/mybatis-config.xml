@@ -10,12 +10,11 @@
 	</settings>
 	
 
-<!-- 
+
 	<typeAliases>
-		<typeAlias type="com.app.dto.user.User" alias="User" />
+		<typeAlias type="com.app.dto.sale.SaleItem" alias="SaleItem" />
 	</typeAliases>
 
- -->
 </configuration>
 
 
