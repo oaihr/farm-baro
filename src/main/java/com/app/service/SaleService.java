@@ -12,4 +12,5 @@ import com.app.dto.sale.SaleItem;
 public interface SaleService {
 	
 	Page<SaleItem> getSalePage(String kind, String part, Pageable pageable);
+	SaleItem getSaleItem(Integer saleId);
 }

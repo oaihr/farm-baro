@@ -3,6 +3,7 @@
 					"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 					
 <mapper namespace="com.app.dao.sale.SaleDAO">
+	
 	<resultMap type="saleItem" id="SaleItemResultMap">
 		<id property="saleItemId" column="sale_item_id" />
 		<result property="judgeKindName" column="judge_kind_name" />
@@ -46,6 +47,7 @@
 				S.sale_status = 'ON'
 		)
 		WHERE rnum BETWEEN #{pageable.offset} + 1 AND #{pageable.offset} + #{pageable.pageSize}
+		ORDER BY SALE_ITEM_ID ASC
 	 	
 	</select>
 	
@@ -57,26 +59,39 @@
             AND SALE_STATUS = 'ON'
     </select>
     
-<!-- 	상세페이지용 -->
-<!-- 	<select id="getSaleList" parameterType="Map" resultType="SaleItem"> -->
-<!-- 		SELECT  -->
-<!-- 			S.SALE_ID, -->
-<!-- 			S.qty, -->
-<!-- 			S.judge_kind_name, -->
-<!-- 			S.cut_name, -->
-<!-- 			S.title, -->
-<!-- 			S.description, -->
-<!-- 			S.seller_id, -->
-<!-- 			I.IMAGE_ID, -->
-<!-- 			I.IMAGE_URL, -->
-<!-- 			I.IS_THUMBNAIL, -->
-<!-- 			I.ORDER_INDEX -->
-<!-- 		FROM SALES S -->
-<!-- 		LEFT JOIN IMAGES I ON S.SALE_ITEM_ID = S.PRODUCT_ID -->
-<!-- 		WHERE  -->
-<!-- 			S.judge_kind_name = #{kind} AND -->
-<!-- 			S.cut_name = #{part} AND -->
-<!-- 			S.sale_status = 'ON' -->
-<!-- 		ORDER BY I.ORDER_INDEX ASC		 -->
-<!-- 	</select> -->
+    <resultMap type="saleItem" id="SaleItemDetailResultMap">
+		<id property="saleItemId" column="sale_item_id" />
+		<result property="title" column="title" />
+		<result property="description" column="description" />
+		<result property="weight" column="weight" />
+		<result property="price" column="price" />
+		<result property="grade" column="grade" />
+		<result property="qty" column="qty" />
+		
+		<collection property="images" ofType="com.app.dto.sale.Image">
+			<id property="imageId" column="image_id" />
+			<result property="imageUrl" column="image_url" />
+			<result property="orderIndex" column="order_index" />
+		</collection>
+	</resultMap>
+	
+	<select id="getSaleItem" parameterType="Integer" resultMap="SaleItemDetailResultMap">
+		SELECT 
+			S.sale_item_id,
+			S.qty,
+			S.title,
+			S.description,				
+			S.weight,
+			S.price,
+			S.grade,
+			I.image_id,
+			I.image_url,
+			I.order_index
+		FROM SALES S
+		INNER JOIN PRODUCT_IMAGES I
+		ON S.sale_item_id = I.product_id
+		WHERE 
+			S.sale_item_id = #{saleId}
+			
+	</select>
 </mapper>

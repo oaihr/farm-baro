@@ -27,6 +27,12 @@ public class SaleServiceImpl implements SaleService{
 		
 		return new PageImpl<>(salePage, pageable, totalCount);
 	}
+
+	@Override
+	public SaleItem getSaleItem(Integer saleId) {
+		SaleItem saleItem = saleDAO.getSaleItem(saleId);
+		return saleItem;
+	}
 	
 	
 

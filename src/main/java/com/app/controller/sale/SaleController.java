@@ -23,7 +23,7 @@ public class SaleController {
 	@Autowired
 	SaleService saleService;
 	
-	@GetMapping("/api/meat/{kind}/{part}")
+	@GetMapping("/api/sale/{kind}/{part}")
 	public Page<SaleItem> getSaleList(@PathVariable String kind, 
 									  @PathVariable String part,
 									  @RequestParam(defaultValue = "0") int page,
@@ -34,5 +34,12 @@ public class SaleController {
 //		List<SaleItem> saleList = saleService.getSaleList(kind, part);
 		Page<SaleItem> salePage = saleService.getSalePage(kind, part, pageable);
 		return salePage;
+	}
+	
+	@GetMapping("/api/sale/detail/{saleId}")
+	public SaleItem getSaleItem(@PathVariable Integer saleId) {
+		
+		SaleItem saleItem = saleService.getSaleItem(saleId);
+		return saleItem;
 	}
 }

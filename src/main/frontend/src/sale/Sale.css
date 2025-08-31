@@ -18,6 +18,10 @@
     margin-top: 20px;
 }
 
+.sales a{
+  text-decoration: none;
+  color: black;
+}
 /* 각 판매 물품 박스 */
 .sale-item {  
   border: 1px solid #ddd;

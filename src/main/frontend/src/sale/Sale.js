@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import './Sale.css';
-
 
 function Sale(){
 
@@ -35,7 +34,7 @@ function Sale(){
         const fetchData = async()=>{
             setLoading(true);
             try{
-                const response = await axios.get(`http://localhost:8080/api/meat/${kind}/${part}?page=${currentPage}`);
+                const response = await axios.get(`http://localhost:8080/api/sale/${kind}/${part}?page=${currentPage}`);
                 setData(response.data.content);
                 setTotalPages(response.data.totalPages);
 
@@ -65,20 +64,22 @@ function Sale(){
             <div className="sales">
             {
                 data.map(item => (
-                    <div className='sale-item' key={item.saleItemId}>
-                        {item.images && item.images.length > 0 && (
-                            <img src={item.images[0].imageUrl} alt={item.title} />
-                        )}
-                        <div className='sale-item-info'>
-                            <div>{item.userName}</div>
-                            <h3>{item.description}</h3>
-                            <div className='sale-item-wt-grade'>
-                                <p>{item.weight}</p>
-                                <p>{item.grade} 등급</p>
+                    <Link to={`/sale/${item.saleItemId}`} key={item.saleItemId}>
+                        <div className='sale-item' key={item.saleItemId}>
+                            {item.images && item.images.length > 0 && (
+                                <img src={item.images[0].imageUrl} alt={item.title} />
+                            )}
+                            <div className='sale-item-info'>
+                                <div>{item.userName}</div>
+                                <h3>{item.description}</h3>
+                                <div className='sale-item-wt-grade'>
+                                    <p>{item.weight}</p>
+                                    <p>{item.grade} 등급</p>
+                                </div>
+                                <div>{item.price.toLocaleString('ko-KR')}원</div>
                             </div>
-                            <div>{item.price.toLocaleString('ko-KR')}원</div>
                         </div>
-                    </div>   
+                    </Link>   
                 ))
             }
             </div>

@@ -15,4 +15,6 @@ public interface SaleDAO {
 	List<SaleItem> getSalePage(@Param("kind") String kind, @Param("part") String part, @Param("pageable") Pageable pageable);
 	
 	long getSaleCount(@Param("kind") String kind, @Param("part") String part);
+	
+	SaleItem getSaleItem(Integer saleId);
 }
