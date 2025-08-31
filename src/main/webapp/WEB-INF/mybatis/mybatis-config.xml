@@ -12,7 +12,7 @@
 
  
 	<typeAliases>
-		<typeAlias type="com.app.dto.quote.QuoteDTO" alias="Quote" />
+		<typeAlias type="com.app.dto.QuoteDTO" alias="Quote" />
 	</typeAliases>
 
  

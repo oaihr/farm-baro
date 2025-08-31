@@ -33,11 +33,16 @@
 				)
     </insert>
     
-    
+    <!-- day -->
     <select id="checkDay" resultType="Quote" parameterType="String">
     	select * from CONSUMER_PRICE_DAILY
 		where stand_ymd = #{stand_ymd}
     </select>
     
+    <!-- month -->
+    
+    
+    
+    <!-- year -->
 
 </mapper>

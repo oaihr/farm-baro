@@ -1,8 +1,12 @@
 package com.app.controller.quote;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.app.dto.quote.QuoteDTO;
 import com.app.service.quote.QuoteService;
@@ -13,28 +17,31 @@ public class QuoteController {
 	@Autowired
 	QuoteService quoteService;
 	
-	@GetMapping("/nodata")
-	public String nodata() {
-		return "redirect:/save";
-	}
-	
-	@GetMapping("/check")
-	public String check(QuoteDTO quoteDTO) {
-		
-		//react에서 넘어온 날짜
-		
-		
-		String day = quoteService.checkDay(quoteDTO); //
-		
-		if() { //조회 정보가 없는 경우
-			
-		} else { //조회 정보가 있는 경우
-			
+	//날짜 데이터 확인 주소
+	@GetMapping("/checkDay")
+	@ResponseBody
+	public String checkDay(@RequestParam("day") String day) {
+
+		if(day == null) {
+			return "redirect:/save";
+		} else {
+			return "redirect:/quote/day";
 		}
 		
-		return "";
 	}
 	
 	
+	//날짜 데이터 있는 경우 react 표기용
+	//day
+	@GetMapping() 
+	public List<QuoteDTO> day() {
+		
+		return null;
+	}
+	
+	//month
+	
+	
+	//year
 	
 }

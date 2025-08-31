@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useState } from "react";
 
 import { Chart as ChartJS } from 'chart.js/auto';
-import { Bar } from 'react-chartjs-2';
+import { Bar, Line } from 'react-chartjs-2';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 import logo from '../images/farmbaro_logo.png';
@@ -14,22 +14,21 @@ import pig from '../images/pig.png';
 function Quote() {
 
     //YYYYMMDD 날짜형식 저장
-    const today = new Date(); // 년도
-    const year = today.getFullYear(); // 월
-    const month = (today.getMonth() + 1).toString().padStart(2, '0');  // 일
-    const day = today.getDate().toString().padStart(2, '0'); // yyyymmdd
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = (today.getMonth() + 1).toString().padStart(2, '0');
+    const day = today.getDate().toString().padStart(2, '0');
     const yyyymmdd = `${year}${month}${day}`;
-    document.write(yyyymmdd);
 
     //그래프
     const labels = ['월', '화', '수', '목', '금', '토', '일'];
-    const eventTypeList = ['쓰러짐', '싸움', '기침', '떨림', '침흘림', '꼬리물기', '밀집'];
-    const falldownData = [10, 20, 15, 25, 30, 18, 22];
-    const crowdData = [5, 12, 8, 15, 10, 7, 11];
-    const total = [15, 32, 23, 40, 40, 25, 33];
+    const eventTypeList = ['저번주', '이번주'];
+    const falldownData = [0, 20, 15, 25, 30, 18, 22];
+    const crowdData = [5, 12, 8, 15, 10, 0, 11];
+    // const total = [15, 32, 23, 40, 40, 25, 33];
     const dataFont = { color: 'red' };
     const objColor = ['#FF6384', '#36A2EB', '#FFCE56', '#9B59B6', '#1ABC9C', '#F39C12', '#2ECC71'];
-    const lineColor = 'rgba(124, 35, 35, 0.4)';
+    // const lineColor = 'rgba(124, 35, 35, 0.4)';
 
     //chart js
     const data = {
@@ -44,36 +43,12 @@ function Quote() {
             order: 1,					//순서 non-important            
         },           //.........생략... 누적 바 차트의 데이터...            
         {
-            label: eventTypeList[6],
+            label: eventTypeList[1],
             data: crowdData,
             datalabels: dataFont,
             backgroundColor: objColor[6],
             borderColor: objColor[6],
             order: 1,
-        },		//누적 bar 차트의 데이터 끝            
-        {
-            label: "전체",		//라인차트 데이터                
-            data: total,		 //날짜 label데이터 순서 출력할 라인 차트의 데이터 리스트                
-            datalabels: {		// 라인차트의 CSS                    
-                color: 'white',
-                // color: lineColor,
-                backgroundColor: 'white',
-                font: { 
-                    size: 13, 
-                    weight: 'bold' 
-                },
-            }, 
-            lineTension: 0.1, // 각 꼭지점 근처 라인의 border-radius(뾰족하게 할지, 둥글게 할지)  0-1 사이의 숫자                
-            backgroundColor: lineColor,
-            borderColor: lineColor,
-            borderDash: [5, 5],
-            borderWidth: 1,
-            fill: false,
-            pointHoverRadius: 0,
-            pointHoverBorderWidth: 0,
-            type: "line",
-            order: 0,
-            pointRadius: 0,  //포인트 스타일 - 포인트 모양의 반지름 0일시, 그려지지않음            
         },
         ],
     };
@@ -100,24 +75,24 @@ function Quote() {
             }, datalabels: {
                 anchor: 'end',  //start , end                 
                 align: 'top',   //top bottom middle 데이터 라벨 표시 위치                
-                formatter: function (value, context) { //데이터 값이 0 이면 출력 안함                    
-                    if (context.dataset.label !== '전체') {
-                        if (value == 0) {
-                            return null;
-                        } else {
-                            return value;
-                        }
-                    } else {
-                        if (value == 0) {
-                            return null;
-                        } else {
-                            let result = value.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
-                            return result;
-                        }
-                    }
-                },
+                // formatter: function (value, context) { //데이터 값이 0 이면 출력 안함                    
+                //     if (context.dataset.label !== '전체') {
+                //         if (value == 0) {
+                //             return null;
+                //         } else {
+                //             return value;
+                //         }
+                //     } else {
+                //         if (value == 0) {
+                //             return null;
+                //         } else {
+                //             let result = value.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
+                //             return result;
+                //         }
+                //     }
+                // },
             }, tooltip: {
-                backgroundColor: 'rgba(124, 35, 35, 0.4)',
+                backgroundColor: 'rgba(35, 124, 72, 0.4)',
                 padding: 10,
                 bodySpacing: 5,     //툴팁 내부의 항목 간격            
             }
@@ -220,14 +195,29 @@ function Quote() {
 
                             </ul>
                         </div>
+
+                        <div className='quote-day'>
+                            <div className='quote-today'>
+                                <p>{yyyymmdd}</p>
+                            </div>
+
+                            <div className='quote-month'>
+                                <p>{yyyymmdd}</p>
+                            </div>
+
+                            <div className='quote-year'>
+                                <p>{yyyymmdd}</p>
+                            </div>
+                        </div>
+
                     </div>
+
 
                 </div>
                 <div className="chart">
-                    <Bar
+                    <Line
                         data={data}
-                        options={options}
-                        plugins={data.plugins} />
+                        options={options} />
                 </div>
 
 
