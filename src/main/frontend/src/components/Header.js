@@ -29,9 +29,9 @@ function Header(){
 
                             <li className="home-menu-span span">시세
                                 <ul className="home-submenu">
-                                    <li><Link to="/quote/beef">소</Link></li>
-                                    <li><Link to="/quote/pork">돼지</Link></li>
-                                    <li><Link to="/quote/chicken">닭</Link></li>
+                                    <li><Link to="/quote/beef">소고기</Link></li>
+                                    <li><Link to="/quote/pork">돼지고기</Link></li>
+                                    <li><Link to="/quote/chicken">닭고기</Link></li>
                                 </ul>
                             </li>
                             
@@ -42,7 +42,7 @@ function Header(){
                                 </ul>
                             </li>
 
-                            <li className="home-menu-span span">소
+                            <li className="home-menu-span span">소고기
                                 <ul className="home-submenu">
                                     <li><Link to="/sale/beef/sirloin">등심</Link></li>
                                     <li><Link to="/sale/beef/tenderloin">안심</Link></li>
@@ -51,7 +51,7 @@ function Header(){
                                 </ul>
                             </li>
 
-                            <li className="home-menu-span span">돼지
+                            <li className="home-menu-span span">돼지고기
                                 <ul className="home-submenu">
                                     <li><Link to="/sale/pork/belly">삼겹살</Link></li>
                                     <li><Link to="/sale/pork/loin">목살</Link></li>                                    
@@ -60,10 +60,10 @@ function Header(){
                                 </ul>
                             </li>
 
-                            <li className="home-menu-span span">닭
+                            <li className="home-menu-span span">닭고기
                                 <ul className="home-submenu">
                                     <li><Link to="/sale/chicken/breast">가슴살</Link></li>                                    
-                                    <li><Link to="/sale/chicken/drumstick">다리</Link></li>
+                                    <li><Link to="/sale/chicken/drumstick">다리살</Link></li>
                                     <li><Link to="/sale/chicken/etc">기타</Link></li>
                                 </ul>
                             </li>

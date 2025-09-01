@@ -46,7 +46,7 @@
 				S.cut_name = #{part} AND
 				S.sale_status = 'ON'
 		)
-		WHERE rnum BETWEEN #{pageable.offset} + 1 AND #{pageable.offset} + #{pageable.pageSize}
+		WHERE rnum BETWEEN #{pageable.offset} + 1 AND #{pageable.offset} + #{pageable.size}
 		ORDER BY SALE_ITEM_ID ASC
 	 	
 	</select>
@@ -67,6 +67,9 @@
 		<result property="price" column="price" />
 		<result property="grade" column="grade" />
 		<result property="qty" column="qty" />
+		<result property="judgeKindName" column="judge_kind_name" />
+		<result property="cutName" column="cut_name" />
+		
 		
 		<collection property="images" ofType="com.app.dto.sale.Image">
 			<id property="imageId" column="image_id" />
@@ -84,6 +87,8 @@
 			S.weight,
 			S.price,
 			S.grade,
+			S.judge_kind_name,
+			S.cut_name,
 			I.image_id,
 			I.image_url,
 			I.order_index

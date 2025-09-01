@@ -1,0 +1,192 @@
+.item-path{
+    display: flex;
+    margin-top: 15px;
+    margin-left: 10px;
+}
+
+.item-path a{
+    text-decoration: none;
+}
+.item-path li{
+    list-style: none;
+    margin-left: 10px;
+    font-size: 15px;
+    color: #87878A;
+}
+.item-info{
+    display: flex;
+    padding: 30px 50px;
+}
+
+.image-slider-container {
+    width: 70%; 
+    position: relative; 
+}
+
+.item-detail-info{
+    width: 50%;
+    padding: 20px;
+    padding-top: 0;
+    margin-left: 80px;
+    border-bottom: 1px solid #ccc;
+}
+
+.item-detail-info h2{
+    margin-bottom: 20px;
+}
+
+.item-detail-info div{
+    display: flex;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.bold-span{
+    font-weight: 600;
+}
+
+.shipping-info{
+    align-items: center;
+    margin-top: 40px;
+}
+
+
+.color-text{
+    color: #e64a19;
+    font-weight: 500;
+}
+
+.shipping-info .shipping-info-detail{
+    display: flex;
+    flex-direction: column;
+    margin-top: 0;
+}
+
+.shipping-info-detail .shipping-info-detail-icon{
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.shipping-info-detail-icon img{
+    width: 1.5rem;
+    margin-right: 5px;
+}
+
+.item-price{
+    font-size: 48px;
+    font-weight: 750;
+    color: #5f1b1c;
+}
+
+.item-detail-info div span, .item-detail-info div p{
+    min-width: 80px;
+}
+
+.traceability-number-btn{
+    margin-left: 10px;
+    padding: 3px 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background-color: white;
+    cursor: pointer;
+}
+
+.traceability-number-btn:hover{
+    background-color: #dfdfdf;
+    font-weight: 500;
+}
+
+.traceability-number div {
+    display: flex;
+    align-items: center; 
+}
+
+
+.qty-controls{
+    display: flex;
+    justify-content: space-between;
+}
+
+.qty-controls p{
+    text-align: center;
+}
+
+.qty-selector{
+    border-bottom: 1px solid #ccc;
+}
+.qty-selector div{
+    align-items: center;
+}
+
+.qty-controls button{
+    width: 45px;
+    height: 45px;
+    font-size: 1.5rem; 
+    line-height: 1;
+    border: 1px solid #ccc;
+    cursor: pointer;    
+}
+
+.qty-controls p{
+    height: 45px;
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.total-price {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.total-price span{
+    font-weight: 700;
+}
+
+.total-price p{
+    font-size: 30px;
+    font-weight: 800;
+    color: #5f1b1c;
+}
+
+/* 장바구니/구매하기 버튼 */
+.action-buttons {
+    display: flex; 
+    gap: 15px; 
+}
+
+.action-buttons button {
+    flex: 1; 
+    padding: 15px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px; 
+    transition: background-color 0.3s; 
+}
+
+
+.cart-button {
+    background-color: #e0e0e0;
+    color: #333;
+}
+
+.cart-button:hover {
+    background-color: #d4d4d4;
+}
+
+.purchase-button {
+    background-color: #38761D; 
+    color: #fff;
+}
+
+.purchase-button:hover {
+    background-color: wheat;
+    color: black;
+}

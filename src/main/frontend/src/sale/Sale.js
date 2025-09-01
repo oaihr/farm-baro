@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import axios from 'axios';
 import './Sale.css';
 
@@ -11,22 +12,9 @@ function Sale(){
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
 
-    const kindNames = {
-        'beef': '소',
-        'chicken': '닭',
-        'pork': '돼지',
-    }
+    const kindNames = useSelector(state => state.meat.kindNames);
+    const partNames = useSelector(state => state.meat.partNames);
 
-    const partNames = {
-        'sirloin': '등심',
-        'tenderloin': '안심',
-        'rib': '갈비',
-        'belly': '삼겹살',
-        'neck': '목살', 
-        'breast': '가슴살',
-        'leg': '다리살',
-        'etc': '기타',
-    }
     const displayKind = kindNames[kind];
     const displayPart = partNames[part];
 
