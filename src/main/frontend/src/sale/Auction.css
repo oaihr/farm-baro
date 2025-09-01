@@ -4,26 +4,46 @@
     box-sizing: border-box;
 }
 
-.sale-main-container{
+.auction-main-container{
   padding: 20px;
 }
 
-.sale-main-container h1{
+.auction-main-container h1{
   margin-bottom: 30px;
 }
-.sales{
+
+.filter-buttons{
+  display: flex;
+  gap: 10px;
+  justify-content: right;
+  margin-right: 20px;
+}
+
+.filter-buttons button{
+  color: #5e5d5d;
+  border-style: none;
+  font-size: 15px;
+  background-color: white;
+  cursor: pointer;
+}
+
+.filter-buttons button.active{
+  font-weight: 600;
+}
+
+.auctions{
     display: grid;
     grid-template-columns: repeat(4, 1fr); /* 4열로 나눔 */
     gap: 20px; /* 아이템 사이 간격 */
     margin-top: 20px;
 }
 
-.sales a{
+.auctions a{
   text-decoration: none;
   color: black;
 }
 /* 각 판매 물품 박스 */
-.sale-item {  
+.auction-item {  
   border: 1px solid #ddd;
   border-radius: 5px;
   padding: 15px;
@@ -32,37 +52,58 @@
   transition: transform 0.3s;
 }
 
-.sale-item:hover {
+.auction-item:hover {
   transform: translateY(-5px);
 }
 
-.sale-item img {
+.auction-item img {
   width: 100%;
   height: auto;
   max-height: 200px;
   object-fit: cover;
 }
 
-.sale-item h3 {
+.auction-item h3 {
   font-size: 1.2rem;
   margin: 10px 0;
 }
 
-.sale-item p {
+.auction-item p {
   color: #555;
   font-size: 0.9rem;
 }
 
-.sale-item-wt-grade{
+.auction-item-wt-grade{
   display: flex;
   justify-content: space-between;
+  margin: 5px 0;
 }
 
-.sale-item-info{
+.weight{
+  font-weight: 600;
+  color: brown;
+}
+
+.auction-item-info{
   padding: 10px;
   padding-top: 10px;
   padding-bottom: 0px;
 }
+
+.auction-price-info{
+  display: flex;
+  justify-content: space-between;
+}
+
+.auction-prices{
+  font-weight: 500;
+}
+
+.current-bid-price{
+  color: #2a5816;
+  font-weight: 500;
+}
+
 /* 페이지네이션 */
 .pagination {
   text-align: center;

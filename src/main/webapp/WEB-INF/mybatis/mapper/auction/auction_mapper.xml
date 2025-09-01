@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>						
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"						
+					"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+					
+<mapper namespace="com.app.dao.auction.AuctionDAO">
+
+	<resultMap type="auctionItem" id="AuctionItemResultMap">
+		<id property="auctionId" column="auction_id" />
+		<result property="judgeKindName" column="judge_kind_name" />
+		<result property="title" column="title" />
+		<result property="description" column="description" />
+		<result property="kind" column="kind" />
+		<result property="initialPrice" column="initial_price" />
+		<result property="buyNowPrice" column="buy_now_price" />
+		<result property="grade" column="grade" />
+		<result property="userName" column="user_name" />
+		<result property="currentBidPrice" column="current_bid_price" />
+		<result property="weight" column="weight" />
+		
+		<collection property="images" ofType="com.app.dto.sale.Image">
+			<id property="imageId" column="IMAGE_ID" />
+			<result property="imageUrl" column="IMAGE_URL" />
+		</collection>
+	</resultMap>
+	
+	<select id="getAuctionPage" parameterType="Map" resultMap="AuctionItemResultMap">
+		SELECT *
+		FROM (
+			SELECT
+				ROW_NUMBER() OVER (ORDER BY A.CREATED_TIME DESC) AS rnum, 
+				A.auction_id,
+				A.judge_kind_name,
+				A.kind,
+				A.title,
+				A.description,				
+				A.initial_price,
+				A.buy_now_price,
+				A.grade,
+				A.current_bid_price,
+				A.weight,
+				I.IMAGE_ID,
+				I.IMAGE_URL,
+				U.user_name
+			FROM AUCTIONS A
+			LEFT JOIN PRODUCT_IMAGES I ON A.auction_id = I.PRODUCT_ID AND I.IS_THUMBNAIL = 'y'
+			INNER JOIN USERS U ON A.seller_id = U.id
+			
+			<where>
+            	A.auction_status = 'ON'
+            
+            <if test="kind != null and kind != ''">
+                AND A.judge_kind_name = #{kind}
+            </if>
+        </where>
+		)
+		WHERE rnum BETWEEN #{pageable.offset} + 1 AND #{pageable.offset} + #{pageable.size}
+		ORDER BY AUCTION_ID ASC	 	
+	</select>
+	
+	<select id="getAuctionCount" resultType="long">
+        SELECT COUNT(*)
+        FROM AUCTIONS
+        <where> 
+        	AUCTION_STATUS = 'ON'
+        	<if test="kind != null and kind != ''">
+                AND judge_kind_name = #{kind}
+            </if>
+        </where>
+    </select>
+
+
+</mapper>
