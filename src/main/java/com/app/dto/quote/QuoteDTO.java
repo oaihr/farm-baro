@@ -7,30 +7,30 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor(access = lombok.AccessLevel.PUBLIC)
 public class QuoteDTO {
-	String stand_ymd;
-	String grade_name;
-	String judge_kind_name;
-	String judge_kind;
-	String item_name;
-	String item_code;
-	String net_sale_price;
-	String max_price;
-	String min_price;
+	String standYmd;
+	String gradeName;
+	String judgeKindName;
+	String judgeKind;
+	String itemName;
+	String itemCode;
+	String netSalePrice;
+	String maxPrice;
+	String minPrice;
 	String unit;
 	
     @Builder
     public QuoteDTO(String stand_ymd, String grade_name, String judge_kind_name, String judge_kind, 
-//    		String item_name,
+    		String item_name,
             String item_code, String net_sale_price, String max_price, String min_price, String unit) {
-        this.stand_ymd = stand_ymd;
-        this.grade_name = grade_name;
-        this.judge_kind_name = judge_kind_name;
-        this.judge_kind = judge_kind;
-//        this.item_name = item_name;
-        this.item_code = item_code;
-        this.net_sale_price = net_sale_price;
-        this.max_price = max_price;
-        this.min_price = min_price;
+        this.standYmd = stand_ymd;
+        this.gradeName = grade_name;
+        this.judgeKindName = judge_kind_name;
+        this.judgeKind = judge_kind;
+        this.itemName = item_name;
+        this.itemCode = item_code;
+        this.netSalePrice = net_sale_price;
+        this.maxPrice = max_price;
+        this.minPrice = min_price;
         this.unit = unit;
     }
 

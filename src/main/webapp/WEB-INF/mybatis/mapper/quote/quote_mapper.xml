@@ -19,15 +19,15 @@
 						unit,
 						created_time
 				) VALUES ( 
-						#{stand_ymd},
-						#{grade_name},
-						#{judge_kind_name}, 
-						#{judge_kind},
-						#{item_name},
-						#{item_code},
-						#{net_sale_price},
-						#{max_price},
-						#{min_price},
+						#{standYmd},
+						#{gradeName},
+						#{judgeKindName}, 
+						#{judgeKind},
+						#{itemName},
+						#{itemCode},
+						#{netSalePrice},
+						#{maxPrice},
+						#{minPrice},
 						#{unit},
 						SYSTIMESTAMP
 				)
@@ -35,10 +35,18 @@
     
     <!-- day -->
     <select id="checkDay" resultType="Quote" parameterType="String">
-    	select * from CONSUMER_PRICE_DAILY
-		where stand_ymd = #{stand_ymd}
+		SELECT * FROM CONSUMER_PRICE_DAILY
+		WHERE stand_ymd = #{standYmd}
+		ORDER BY DBMS_RANDOM.VALUE
+		FETCH FIRST 1 ROWS ONLY
     </select>
     
+    <select id="dayList" resultType="Quote" parameterType="String">
+    	select * from CONSUMER_PRICE_DAILY
+		where stand_ymd = #{standYmd}
+    </select>
+
+
     <!-- month -->
     
     

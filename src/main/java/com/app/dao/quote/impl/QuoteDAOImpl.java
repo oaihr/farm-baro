@@ -21,11 +21,23 @@ public class QuoteDAOImpl implements QuoteDAO{
 		return result;
 	}
 
+	//존재여부 확인
 	@Override
-	public String checkDay(QuoteDTO quoteDTO) {
-		String result = sqlSessionTemplate.selectOne("quote_mapper.checkDay", quoteDTO);
-		return result;
+	public QuoteDTO checkDay(String day) {
+		QuoteDTO dayList = sqlSessionTemplate.selectOne("quote_mapper.checkDay", day);
+		return dayList;
 	}
+
+	@Override
+	public List<QuoteDTO> dayList(String day) {
+		List<QuoteDTO> dayList = sqlSessionTemplate.selectList("quote_mapper.dayList", day);
+		return dayList;
+	}
+
+
+
+
+
 
 
 	

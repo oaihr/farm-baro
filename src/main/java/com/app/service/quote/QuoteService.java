@@ -11,5 +11,9 @@ import com.app.dto.quote.QuoteDTO;
 @Service
 public interface QuoteService {
 	
-	public String checkDay(QuoteDTO quoteDTO);
+	public int saveQuoteInfo(QuoteDTO quoteDTO);
+	public QuoteDTO checkDay(String day);
+	public List<QuoteDTO> dayList(String day);
+
+	
 }
