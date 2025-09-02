@@ -8,8 +8,6 @@
     justify-content: center;
     align-items: center;
     text-align: center;
-    /* overflow: hidden; */
-    /* background-size: cover; */
 }
 
 .main-video {
@@ -29,7 +27,6 @@
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.4);
-    /* 어둡게 조정, 숫자 조절 가능 */
     z-index: 1;
 }
 
@@ -44,52 +41,38 @@
 
 .main h2 {
     font-size: 3.5rem;
-    margin: 2rem, 0;
+    margin: 2rem 0;
     letter-spacing: 3px;
-    /*글자 간격*/
-}
-
-.main p {
-    max-width: 500px;
-    margin: 0 auto;
-    /*글자 위치 조정*/
-    font-size: 1.25rem;
-}
-
-@keyframes upDown {
-
-    /*마우스 아이콘 애니메이션(대체 이모지 : ^^)*/
-    0% {
-        bottom: 1rem;
-    }
-
-    50% {
-        bottom: 1.5rem;
-    }
-
-    100% {
-        bottom: 1rem;
-    }
 }
 
 /* ============================ quote ==========================================*/
-.section .quote::after {
-    content: "";
-    display: block;
-    clear: both;
-}
-
 .section {
     margin: 65px 50px;
 }
 
+/* quote-container에 flexbox 적용 */
+.quote-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.quote {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
 .quote-inner {
+    flex: 1;
     width: 300px;
     border-radius: 12px;
     display: flex;
     justify-content: space-between;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    padding: 2rem;
+    cursor: pointer;
 }
 
 .quote-inner:hover {
@@ -98,33 +81,17 @@
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
 
-.section .quote .quote-inner {
-    width: 30%;
-    padding: 2rem;
-    float: left;
-    margin-right: 5%;
-    cursor: pointer;
-}
-
-.section .quote .quote-inner:last-child {
-    margin-right: 0;
-}
-
 .quote-img {
     width: 70px;
 }
 
-.section .quote .quote-inner h3 {
+.quote-inner h3 {
     font-size: 2rem;
     margin: 1rem 0;
 }
 
-.section .quote .quote-inner p {
+.quote-inner p {
     font-size: 1.05rem;
-}
-
-.section .quote .quote-inner:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .quote-btn {
@@ -133,29 +100,43 @@
 }
 
 
-/* ================= auction & special ================= */
+/* ==================== auction & special ==================== */
 .auction-section,
 .special-section {
     padding: 50px;
     max-width: 1200px;
+    margin: 0 auto;
 }
 
 .auction-section h2,
 .special-section h2 {
-    font-size: 24px;
+    font-size: 2rem;
     font-weight: 700;
     margin-bottom: 20px;
+    text-align: center;
 }
 
+/* ==================== 가로 스크롤 레이아웃 적용 ==================== */
 .auction-list,
 .special-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    display: flex;
+    flex-wrap: nowrap;
     gap: 20px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.auction-list::-webkit-scrollbar,
+.special-list::-webkit-scrollbar {
+    display: none;
 }
 
 .auction-card,
 .special-card {
+    flex-shrink: 0;       
+    width: 260px;         
     background: #fff;
     border: 1px solid #eee;
     border-radius: 10px;
