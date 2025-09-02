@@ -1,11 +1,21 @@
-import logo from './logo.svg';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Header from './components/Header.js';
+import Footer from './components/Footer.js';
+
 import './App.css';
-import MainHome from './home/MainHome';
 import Home from './home/Home';
 
 function App() {
-  //return <MainHome/>; // 구버전
-  return <Home/>;
+
+    return(
+    <Router>
+      <Header />
+        <Routes>
+          <Route path="/" element={<Home />} />
+        </Routes>
+      <Footer />  
+    </Router>
+  )
 }
 
 export default App;
