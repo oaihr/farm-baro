@@ -5,6 +5,7 @@
 
 <mapper namespace="quote_mapper">
 
+<!-- 일자 -->
     <insert id="saveQuoteInfo" parameterType="Quote">
 		INSERT INTO CONSUMER_PRICE_DAILY (
 						stand_ymd,
@@ -33,6 +34,62 @@
 				)
     </insert>
     
+<!-- 월 -->
+	<insert id="saveQuoteMInfo" parameterType="QuoteM">
+		INSERT INTO CONSUMER_PRICE_MONTH (
+						stand_ym,
+						grade_name,
+						judge_kind_name, 
+						judge_kind,
+						item_name,
+						item_code,
+						unit,
+						net_sale_price,
+						avg_year_price,
+						created_time
+				) VALUES ( 
+						#{standYm},
+						#{gradeName},
+						#{judgeKindName}, 
+						#{judgeKind},
+						#{itemName},
+						#{itemCode},
+						#{unit},
+						#{netSalePrice},
+						#{avgYearPrice},					
+						SYSTIMESTAMP
+				)
+    </insert>
+
+<!-- 년도 -->
+	<insert id="saveQuoteYInfo" parameterType="QuoteY">
+		INSERT INTO CONSUMER_PRICE_YEAR (
+						year,
+						grade_name,
+						judge_kind_name, 
+						judge_kind,
+						item_name,
+						item_code,
+						unit,
+						net_sale_price,
+						max_price,
+						min_price,
+						created_time
+				) VALUES ( 
+						#{year},
+						#{gradeName},
+						#{judgeKindName}, 
+						#{judgeKind},
+						#{itemName},
+						#{itemCode},
+						#{unit},
+						#{netSalePrice},
+						#{maxPrice},
+						#{minPrice},					
+						SYSTIMESTAMP
+				)
+    </insert>
+    
     <!-- day -->
     <select id="checkDay" resultType="Quote" parameterType="String">
 		SELECT * FROM CONSUMER_PRICE_DAILY
@@ -48,9 +105,36 @@
 
 
     <!-- month -->
+	<select id="checkDayM" resultType="QuoteM" parameterType="String">
+		SELECT * FROM CONSUMER_PRICE_MONTH
+		WHERE stand_ym = #{standYm}
+		ORDER BY DBMS_RANDOM.VALUE
+		FETCH FIRST 1 ROWS ONLY
+    </select>
     
+    <select id="dayListM" resultType="QuoteM" parameterType="String">
+    	select * from CONSUMER_PRICE_MONTH
+		where stand_ym = #{standYm}
+    </select>
+    
+    <update id="standYmNullUpdate" parameterType="QuoteM">
+		UPDATE CONSUMER_PRICE_MONTH
+		SET stand_ym = #{day}
+		WHERE stand_ym IS NULL
+    </update>
     
     
     <!-- year -->
-
+	<select id="checkDayY" resultType="QuoteY" parameterType="String">
+		SELECT * FROM CONSUMER_PRICE_YEAR
+		WHERE year = #{year}
+		ORDER BY DBMS_RANDOM.VALUE
+		FETCH FIRST 1 ROWS ONLY
+    </select>
+    
+    <select id="dayListY" resultType="QuoteY" parameterType="String">
+    	select * from CONSUMER_PRICE_YEAR
+		where year = #{year}
+    </select>
+    
 </mapper>

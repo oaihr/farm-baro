@@ -6,16 +6,8 @@ import { Chart as ChartJS } from 'chart.js/auto';
 import { Line } from 'react-chartjs-2';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
-import cow from '../images/cow.png';
-import chicken from '../images/chicken.png';
-import pig from '../images/pig.png';
-
-
-
-
 
 function Quote() {
-
 
     // 1. 차트 데이터를 저장할 상태 변수 (전체 데이터와 차트용 데이터 분리)
     const [chartData, setChartData] = useState({
@@ -40,8 +32,15 @@ function Quote() {
         return yesterday;
     });
 
+    // 6. 현재 선택된 기간(일자, 주일, 년도)을 저장할 상태 변수
+    const [activePeriod, setActivePeriod] = useState('day');
+
     // 가격을 한국 원화 형식으로 포맷하는 함수
     const formatPrice = (price) => {
+        // 가격이 숫자 타입이 아닐 경우 예외 처리
+        if (typeof price !== 'number') {
+            return price;
+        }
         return price.toLocaleString('ko-KR') + '원';
     };
 
@@ -53,21 +52,48 @@ function Quote() {
         return `${year}${month}${day}`;
     };
 
+    const formatDateToYYYYMM = (date) => {
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        return `${year}${month}`;
+    };
+
+    const formatDateToYYYY = (date) => {
+        const year = date.getFullYear();
+        return `${year}`;
+    };
     // REST API를 통해 데이터를 가져오는 함수 (실제 API 호출)
     const fetchQuoteData = async (date) => {
         setIsLoading(true);
-        const yyyymmdd = formatDateToYYYYMMDD(date);
+
+        let endpoint = '';
+        let formattedDate = '';
+
+        if (activePeriod === 'day') {
+            formattedDate = formatDateToYYYYMMDD(date);
+            endpoint = `/quote/checkDay?day=${formattedDate}`;
+        } else if (activePeriod === 'month') {
+            formattedDate = formatDateToYYYYMM(date);
+            endpoint = `/quote/checkMonth?day=${formattedDate}`;
+        } else if (activePeriod === 'year') {
+            formattedDate = formatDateToYYYY(date);
+            endpoint = `/quote/checkYear?day=${formattedDate}`;
+        }
 
         try {
-            const response = await axios.get(`/quote/checkDay?day=${yyyymmdd}`);
+            const response = await axios.get(endpoint);
             const responseData = response.data;
             console.log("API로부터 받은 데이터:", responseData);
 
             // 상단 카드 가격 업데이트
             const newPrices = { ...prices };
             meatTypes.forEach(meat => {
-                const meatData = responseData.find(item => item.judgeKind == meat.kind);
-                newPrices[meat.kind] = meatData ? formatPrice(meatData.maxPrice) : '정보 없음';
+                const meatData = responseData.find(item => item.judgeKindName === meat.kind);
+
+                // 월별 데이터일 경우 netSalePrice 사용, 아닐 경우 maxPrice 사용
+                const priceKey = activePeriod === 'month' ? 'netSalePrice' : 'maxPrice';
+
+                newPrices[meat.kind] = meatData ? formatPrice(meatData[priceKey]) : '정보 없음';
             });
             setPrices(newPrices);
 
@@ -84,26 +110,38 @@ function Quote() {
         }
     };
 
-    // activeDate가 변경될 때마다 데이터를 다시 가져옵니다.
+    // activeDate 또는 activePeriod가 변경될 때마다 데이터를 다시 가져옵니다.
     useEffect(() => {
         fetchQuoteData(activeDate);
-    }, [activeDate]);
+    }, [activeDate, activePeriod]);
 
     // activeKind 또는 fullData가 변경될 때마다 차트 데이터를 필터링하고 업데이트합니다.
     useEffect(() => {
         if (chartData.fullData.length === 0) return;
 
-        // 선택된 축종(activeKind)에 따라 데이터 필터링
-        const filteredData = chartData.fullData.filter(item => item.judgeKind == activeKind);
-
+        const filteredData = chartData.fullData.filter(item => item.judgeKindName === activeKind);
         const labels = filteredData.map(item => item.itemName);
-        const maxPrices = filteredData.map(item => item.maxPrice);
-        const minPrices = filteredData.map(item => item.minPrice);
 
-        setChartData(prevData => ({
-            ...prevData,
-            labels: labels,
-            datasets: [
+        let datasets = [];
+
+        // 기간에 따라 다른 데이터셋 설정
+        if (activePeriod === 'month') {
+            // 월별 데이터일 경우 netSalePrice만 사용
+            const netSalePrices = filteredData.map(item => item.netSalePrice);
+            datasets = [
+                {
+                    label: '판매가',
+                    data: netSalePrices,
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                    tension: 0.4,
+                }
+            ];
+        } else {
+            // 일자 또는 년도 데이터일 경우 최고가, 최저가 모두 사용
+            const maxPrices = filteredData.map(item => item.maxPrice);
+            const minPrices = filteredData.map(item => item.minPrice);
+            datasets = [
                 {
                     label: '최고가',
                     data: maxPrices,
@@ -118,9 +156,15 @@ function Quote() {
                     backgroundColor: 'rgba(53, 162, 235, 0.5)',
                     tension: 0.4,
                 },
-            ],
+            ];
+        }
+
+        setChartData(prevData => ({
+            ...prevData,
+            labels: labels,
+            datasets: datasets,
         }));
-    }, [activeKind, chartData.fullData]);
+    }, [activeKind, chartData.fullData, activePeriod]); // activePeriod를 의존성 배열에 추가
 
     // 상단 아이콘 및 종류 정보
     const meatTypes = [
@@ -128,7 +172,6 @@ function Quote() {
         { kind: '돼지', num: '4304', icon: '🐖' },
         { kind: '닭', num: '9901', icon: '🐓' },
     ];
-
 
 
     return (
@@ -140,15 +183,15 @@ function Quote() {
                             <div
                                 key={meat.kind}
                                 className={`quote-inner ${activeKind === meat.kind ? 'active' : ''}`}
-                                onClick={() => setActiveKind(meat.num)}
+                                onClick={() => setActiveKind(meat.kind)}
                             >
                                 <div className="">
                                     <span className='quote-img'>{meat.icon}</span>
                                     <h3>{meat.kind}</h3>
-                                    <p>{prices[meat.kind]}</p>
+                                    <p>{prices[meat.kind]} 원</p>
                                 </div>
                                 <div>
-                                    <p>↓ 1.3</p>
+                                    <p>{ }</p>
                                 </div>
                             </div>
                         ))}
@@ -158,32 +201,44 @@ function Quote() {
 
             <hr className='hr'></hr>
 
-            <div className='quote-kind-select'>
-                <div className='quote-menubar'>
-
-                    <div className='quote-day'>
-                        <div className='quote-today'>
-                            <p></p>
-                            <button
-                                className='btn'
-                                onClick={() => {
-                                    const yesterday = new Date();
-                                    yesterday.setDate(yesterday.getDate() - 1);
-                                    setActiveDate(yesterday);
-                                }}
-                            >어제</button>
-                        </div>
-                        <div className='quote-month'>
-                            <p></p>
-                            <button className='btn' disabled>주일</button>
-                        </div>
-                        <div className='quote-year'>
-                            <p></p>
-                            <button className='btn' disabled>년도</button>
-                        </div>
-                    </div>
+            <div className='quote-day'>
+                <div className='quote-yesterday'>
+                    <button
+                        className={`btn quote-btn ${activePeriod === 'day' ? 'active-btn' : ''}`}
+                        onClick={() => {
+                            const yesterday = new Date();
+                            yesterday.setDate(yesterday.getDate() - 1);
+                            setActiveDate(yesterday);
+                            setActivePeriod('day');
+                        }}
+                    >어제</button>
+                </div>
+                <div className='quote-month'>
+                    <button
+                        className={`btn quote-btn ${activePeriod === 'month' ? 'active-btn' : ''}`}
+                        onClick={() => {
+                            // 한 달 전 날짜
+                            const lastMonth = new Date();
+                            lastMonth.setMonth(lastMonth.getMonth() - 1);
+                            setActiveDate(lastMonth);
+                            setActivePeriod('month');
+                        }}
+                    >저번 달</button>
+                </div>
+                <div className='quote-year'>
+                    <button
+                        className={`btn quote-btn ${activePeriod === 'year' ? 'active-btn' : ''}`}
+                        onClick={() => {
+                            // 년도 데이터 로직 (예: 1년 전 날짜로 설정)
+                            const lastYear = new Date();
+                            lastYear.setFullYear(lastYear.getFullYear() - 1);
+                            setActiveDate(lastYear);
+                            setActivePeriod('year');
+                        }}
+                    >저번 년도</button>
                 </div>
             </div>
+
             <div className="chart">
                 {isLoading ? (
                     <p className="text-gray-500 text-lg animate-pulse">데이터를 가져오는 중입니다...</p>
