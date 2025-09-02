@@ -1,47 +1,40 @@
 <beans:beans
-	xmlns="http://www.springframework.org/schema/mvc"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:beans="http://www.springframework.org/schema/beans"
-	xmlns:context="http://www.springframework.org/schema/context"
-	xsi:schemaLocation="http://www.springframework.org/schema/mvc
-	http://www.springframework.org/schema/mvc/spring-mvc.xsd
-	http://www.springframework.org/schema/beans
-	http://www.springframework.org/schema/beans/spring-beans.xsd
-	http://www.springframework.org/schema/context
-	http://www.springframework.org/schema/context/spring-context.xsd">
+  xmlns:mvc="http://www.springframework.org/schema/mvc"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:beans="http://www.springframework.org/schema/beans"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xsi:schemaLocation="
+    http://www.springframework.org/schema/mvc     http://www.springframework.org/schema/mvc/spring-mvc.xsd
+    http://www.springframework.org/schema/beans   http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+  <!-- 어노테이션 활성화 -->
+  <mvc:annotation-driven/>
+
+	<mvc:cors>
+	  <mvc:mapping
+	      path="/api/**"
+	      allowed-origins="http://localhost:3000"
+	      allowed-methods="GET,POST,PUT,DELETE,PATCH,OPTIONS"
+	      allowed-headers="*"
+	      allow-credentials="true"
+	      max-age="3600"/>
+	</mvc:cors>
 
 
-	<annotation-driven />
+   <!-- 컨트롤러만 스캔 -->
+    <context:component-scan base-package="com.app">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Service"/>
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Repository"/>
+    </context:component-scan>
 
+  <!-- 정적 리소스: /resources/** 만 -->
+  <mvc:resources mapping="/resources/**" location="/resources/"/>
 
-	<context:component-scan base-package="com.app.controller"></context:component-scan>
-	<context:component-scan	base-package="com.app.service"></context:component-scan>
-	<context:component-scan	base-package="com.app.dao"></context:component-scan>
-	<context:component-scan	base-package="com.app.config"></context:component-scan>
-	
-	<!--뷰리졸버 설정 부분 -->
-	<beans:bean
-		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-		<beans:property name="prefix" value="/WEB-INF/views/"></beans:property>
-		<beans:property name="suffix" value=".jsp"></beans:property>
-	</beans:bean>
-	
-	<resources location="/resources/" mapping="/**"></resources>
-
-
-	<annotation-driven>								
-		<message-converters>							
-			<!-- @ResponseBody로 String 처리할때 한글처리 -->						
-			<beans:bean	class="org.springframework.http.converter.StringHttpMessageConverter">					
-				<beans:property name="supportedMediaTypes">					
-					<beans:list>				
-						<beans:value>text/html;charset=UTF-8</beans:value>			
-						<beans:value>application/text;charset=UTF-8</beans:value>			
-						<beans:value>text/plain;charset=UTF-8</beans:value>			
-						<beans:value>application/json;charset=UTF-8</beans:value>			
-					</beans:list>				
-				</beans:property>					
-			</beans:bean>						
-		</message-converters>							
-	</annotation-driven>
+  <!-- JSP 뷰 -->
+  <beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+    <beans:property name="prefix" value="/WEB-INF/views/"/>
+    <beans:property name="suffix" value=".jsp"/>
+  </beans:bean>
 </beans:beans>

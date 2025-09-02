@@ -10,12 +10,18 @@
 	</settings>
 	
 
-<!-- 
-	<typeAliases>
+
+	<!-- <typeAliases>
 		<typeAlias type="com.app.dto.user.User" alias="User" />
 	</typeAliases>
-
  -->
+
+ 
+	 <!-- /WEB-INF/mybatis/mybatis-config.xml -->
+	
+	  
+	
+ 
 </configuration>
 
 
