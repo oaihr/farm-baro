@@ -1,6 +1,7 @@
 package com.app.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -25,6 +26,13 @@ public class AuctionServiceImpl implements AuctionService{
 		long totalCount = auctionDAO.getAuctionCount(kind);
 		
 		return new PageImpl<>(auctionPage, pageable, totalCount);
+	}
+
+	@Override
+	public Optional<AuctionItem> getAuctionItem(Integer auctionId) {
+		
+		Optional<AuctionItem> auctionItem = auctionDAO.getAuctionItem(auctionId);
+		return auctionItem;
 	}
 
 }

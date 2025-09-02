@@ -8,12 +8,11 @@
 		<setting name="mapUnderscoreToCamelCase" value="true" />
 		<setting name="jdbcTypeForNull" value="NULL"/>
 	</settings>
-	
-
 
 	<typeAliases>
 		<typeAlias type="com.app.dto.sale.SaleItem" alias="SaleItem" />
 		<typeAlias type="com.app.dto.auction.AuctionItem" alias="AuctionItem" />
+		<typeAlias type="com.app.dto.auction.Bid" alias="Bid" />
 	</typeAliases>
 
 </configuration>

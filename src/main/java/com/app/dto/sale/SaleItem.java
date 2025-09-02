@@ -18,6 +18,7 @@ public class SaleItem {
 	Integer price;
 	String grade;
 	String userName;
-	
+	String traceabilityNum;
+
 	List<Image> images;
 }

@@ -48,6 +48,7 @@ function Sale(){
     return (
         <div className='sale-main-container'>
             <h1>{displayKind} {displayPart}</h1>
+            <p className='sale-intro'>신선한 고기를 만나보세요</p>
             {/* <pre>{JSON.stringify(data, null, 2)}</pre> */}
             <div className="sales">
             {
@@ -59,12 +60,12 @@ function Sale(){
                             )}
                             <div className='sale-item-info'>
                                 <div>{item.userName}</div>
-                                <h3>{item.description}</h3>
+                                <h3>{item.title}</h3>
                                 <div className='sale-item-wt-grade'>
                                     <p>{item.weight}</p>
                                     <p>{item.grade} 등급</p>
                                 </div>
-                                <div>{item.price.toLocaleString('ko-KR')}원</div>
+                                <div className='sale-item-price'>{item.price.toLocaleString('ko-KR')}원</div>
                             </div>
                         </div>
                     </Link>   

@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import './Auction.css';
+import useRemainingTime from './RemainigTime';
 
 function Auction(){
 
-    
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(0);
@@ -46,7 +46,8 @@ function Auction(){
 
     return(
         <div className='auction-main-container'>
-            <h1>경매</h1>
+            <h1>경매 목록</h1>
+            <p>다양한 축산물 경매 품목을 확인하세요</p>
             {/* <pre>{JSON.stringify(data, null, 2)}</pre>             */}
             <div className='filter-buttons'>
                 <button 
@@ -76,21 +77,21 @@ function Auction(){
                             {item.images && item.images.length > 0 && (
                                 <img src={item.images[0].imageUrl} alt={item.title} />
                             )}
-                            <div className='auction-item-info'>
+                            <div className='auction-item-box'>
                                 <div>{item.userName}</div>
-                                <h3>{item.description}</h3>
+                                <h3>{item.title}</h3>
                                 <div className='auction-item-wt-grade'>
                                     <span className='weight'>{item.weight}</span>
                                     <p className='grade'>{item.grade} 등급</p>
                                 </div>
-                                <div className='auction-price-info'>
-                                    <span className='auction-prices'>시작가</span>
-                                    <span>{item.initialPrice.toLocaleString('ko-KR')}원</span>
-                                </div>
+                                <div className='auction-time'>
+                                    <RemainingTimeDisplay endDate={item.endDate} />
+                                </div>                                 
                                 <div className='auction-price-info'>
                                     <span className='auction-prices'>현재입찰가</span>
                                     <span className='current-bid-price'>{item.currentBidPrice.toLocaleString('ko-KR')}원</span>
                                 </div>
+                                   
                             </div>
                         </div>
                     </Link>   
@@ -110,6 +111,11 @@ function Auction(){
             </div>
         </div>
     );
+}
+
+function RemainingTimeDisplay({ endDate }) {
+    const timeLeft = useRemainingTime(endDate);
+    return <div>{timeLeft}</div>;
 }
 
 export default Auction;

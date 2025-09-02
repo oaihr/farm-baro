@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.app.dto.sale.Image;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.Data;
 
@@ -19,13 +20,16 @@ public class AuctionItem {
 	Integer buyNowPrice;
 	Integer currentBidPrice;
 	Integer bidIncrement;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
 	LocalDateTime startDate;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
 	LocalDateTime endDate;
 	String autoExtend;
 	String sellerId;
 	String grade;
 	String userName;
 	String weight;
+	String traceabilityNum;
 	
 	List<Image> images;
 }

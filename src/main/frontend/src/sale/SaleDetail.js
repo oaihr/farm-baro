@@ -65,8 +65,8 @@ function SaleDetail(){
                     <div className='traceability-number'>
                         <div>
                             <span className='bold-span'>이력번호</span>
-                            <p>002189727536</p>                            
-                            <button className='traceability-number-btn'>축산물 이력정보 &#10095;</button>
+                            <p>{item.traceabilityNum}</p>                            
+                            <a href={`https://mtrace.go.kr/search.do?mtraceNo=${item.traceabilityNum}`} target="_blank"><button className='traceability-number-btn'>축산물 이력정보 &#10095;</button></a>
                         </div>
                     </div>
                     <div className='pack-date'>

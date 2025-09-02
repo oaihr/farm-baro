@@ -6,6 +6,7 @@ import Footer from './components/Footer';
 import Sale from './sale/Sale';
 import SaleDetail from './sale/SaleDetail';
 import Auction from './sale/Auction';
+import AuctionDetail from './sale/AuctionDetail';
 
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
             <Route path="/sale/:kind/:part" element={<Sale />} />
             <Route path="/sale/:saleId" element={<SaleDetail />} />
             <Route path="/auctions/" element={<Auction />} />
+            <Route path="/auction/:auctionId" element={<AuctionDetail />} />
           </Routes>
         <Footer />  
       </Router>

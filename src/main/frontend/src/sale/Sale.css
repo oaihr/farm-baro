@@ -8,8 +8,8 @@
   padding: 20px;
 }
 
-.sale-main-container h1{
-  margin-bottom: 30px;
+.sale-intro{
+  margin-bottom: 50px;
 }
 .sales{
     display: grid;
@@ -56,6 +56,12 @@
 .sale-item-wt-grade{
   display: flex;
   justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.sale-item-price{
+  color: #38761D;
+  font-weight: 500;
 }
 
 .sale-item-info{

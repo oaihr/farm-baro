@@ -69,6 +69,7 @@
 		<result property="qty" column="qty" />
 		<result property="judgeKindName" column="judge_kind_name" />
 		<result property="cutName" column="cut_name" />
+		<result property="traceabilityNum" column="traceability_num" />
 		
 		
 		<collection property="images" ofType="com.app.dto.sale.Image">
@@ -89,6 +90,7 @@
 			S.grade,
 			S.judge_kind_name,
 			S.cut_name,
+			S.traceability_num,
 			I.image_id,
 			I.image_url,
 			I.order_index
