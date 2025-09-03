@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import com.app.dao.home.HomeDAO;
 import com.app.dto.home.AuctionItem;
+import com.app.dto.home.SalesItem;
 
 @Repository
 public class HomeDAOImpl implements HomeDAO{
@@ -19,6 +20,12 @@ public class HomeDAOImpl implements HomeDAO{
 	public List<AuctionItem> autionOnList() {
 		List<AuctionItem> homeList = sqlSessionTemplate.selectList("home_mapper.getAuctionPage");
 		return homeList;
+	}
+
+	@Override
+	public List<SalesItem> getSalesPage() {
+		List<SalesItem> salesList = sqlSessionTemplate.selectList("home_mapper.getSalesPage");
+		return salesList;
 	}
 
 }

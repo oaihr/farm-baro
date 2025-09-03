@@ -11,17 +11,25 @@ import useRemainingTime from './RemainingTime';
 
 function Home() {
 
-        // 1. 상태(State) 변수 정의
+    // 1. 상태(State) 변수 정의
     const [auctionData, setAuctionData] = useState([]);
+    const [saleData, setSaleData] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
     // 2. useEffect를 사용하여 컴포넌트 마운트 시 데이터 가져오기
     useEffect(() => {
         const fetchAuctionData = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/home/homeAuctionTime');
-                console.log(response.data);
-                setAuctionData(response.data); // 받아온 데이터를 상태에 저장
+
+                // 여러 요청
+                const [auctionResponse, saleResponse] = await Promise.all([
+                    axios.get('http://localhost:8080/home/homeAuctionTime'),
+                    axios.get('http://localhost:8080/home/homeSalesInfo')
+                ]);
+
+                setAuctionData(auctionResponse.data);
+                setSaleData(saleResponse.data);
+
             } catch (error) {
                 console.error("경매 데이터를 가져오는 중 오류가 발생했습니다:", error);
             } finally {
@@ -30,7 +38,7 @@ function Home() {
         };
 
         fetchAuctionData();
-    }, []); // 빈 의존성 배열은 컴포넌트가 처음 렌더링될 때 한 번만 실행되도록 합니다.
+    }, []); // 빈 의존성 배열은 컴포넌트가 처음 렌더링될 때 한 번만 실행
 
     return (
         <div className='home-main'>
@@ -113,8 +121,6 @@ function Home() {
                                     ? item.images.find(img => img.isThumbnail === 'Y') || item.images[0]
                                     : null;
 
-                                // 이 부분이 수정된 부분입니다.
-                                // 백엔드 서버 주소와 DB에서 가져온 상대 경로를 결합합니다.
                                 const BASE_URL = 'http://localhost:8080';
                                 const imageUrl = thumbnailImage
                                     ? `${BASE_URL}${thumbnailImage.imageUrl}`
@@ -122,8 +128,8 @@ function Home() {
 
                                 return (
                                     <div key={index} className="auction-card">
-                                        <img src={item.imageUrl} alt={item.title} /> 
-                                        
+                                        <img src={item.imageUrl} alt={item.title} />
+
                                         <h3>{item.title}</h3>
                                         <p>시작가: {item.initialPrice}원{item.unit}</p>
                                         <p className="price-now">현재가: {item.currentBidPrice}원{item.unit}</p>
@@ -136,23 +142,24 @@ function Home() {
                     </div>
                 </div>
 
-                <div className="special-section">
-                    <h2>오늘의 특가</h2>
-                    <div className="special-list">
-                        <div className="special-card">
-                            <img src="" alt="LA갈비" />
-                            <h3>한우 LA갈비</h3>
-                            <p><span className="old-price">45,000원/kg</span> → <span className="new-price">31,500원/kg</span></p>
-                            <button className='quote-btn btn'>장바구니 담기</button>
-                        </div>
-                        <div className="special-card">
-                            <img src="" alt="목살 바비큐" />
-                            <h3>목살 바비큐 세트</h3>
-                            <p><span className="old-price">28,000원/kg</span> → <span className="new-price">21,000원/kg</span></p>
-                            <button className='quote-btn btn'>장바구니 담기</button>
-                        </div>
-                    </div>
+<div className="sale-section">
+    <h2>오늘의 신선판매</h2>
+    <div className="sale-list">
+        {isLoading ? (
+            <p>데이터를 불러오는 중입니다...</p>
+        ) : (
+            saleData.map((item, index) => (
+                <div key={index} className="sale-card">
+                    <img src={item.imageUrl} alt={item.title} />
+                    <h3>{item.title}</h3>
+                    <h5>등급 : {item.grade}</h5>
+                    <p className="price-now">{item.price}원/kg</p>
+                    <button className='quote-btn btn'>장바구니 담기</button>
                 </div>
+            ))
+        )}
+    </div>
+</div>
             </div>
         </div>
     );

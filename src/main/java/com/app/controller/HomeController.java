@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.dto.home.AuctionItem;
+import com.app.dto.home.SalesItem;
 import com.app.service.home.HomeService;
 
 @RestController
@@ -26,6 +27,15 @@ public class HomeController {
 		System.out.println(autionList);
 		
 		return autionList;
+	}
+	
+	@GetMapping("/homeSalesInfo")
+	public List<SalesItem> homeSalesInfo() {
+		
+		List<SalesItem> salesList = homeService.getSalesPage();
+		System.out.println(salesList);
+		
+		return salesList;
 	}
 	
 }
