@@ -1,21 +1,22 @@
 package com.app.mapper;
 
-import java.util.Map;
-
+import com.app.dto.UserDto;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import java.util.List;
 
-import com.app.domain.User;
-
-
+@Mapper
 public interface UserMapper {
-	  int existsByEmail(@Param("email") String email);
-	// 판매자 신규 가입 (USERS 테이블)
-	  void insertSeller(@Param("u") Map<String, Object> u);
-	  User findByEmail(String email);
-	  int insertUser(User u);
-	  User findById(String id);
-	  
-	  int insertBuyer(java.util.Map<String,Object> p);
-
-	  int updatePasswordByEmail(java.util.Map<String,Object> p);
-	}
+    
+    // 사용자 정보 조회
+    UserDto getUserById(@Param("userId") String userId);
+    
+    // 사용자 정보 수정
+    int updateUser(UserDto user);
+    
+    // 사용자 타입별 조회
+    List<UserDto> getUsersByType(@Param("userType") String userType);
+    
+    // 이메일로 사용자 조회
+    UserDto getUserByEmail(@Param("email") String email);
+}

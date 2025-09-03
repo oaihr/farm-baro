@@ -1,97 +1,62 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:tx="http://www.springframework.org/schema/tx"
-       xsi:schemaLocation="
-         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-		 http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
-		
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/context
+http://www.springframework.org/schema/context/spring-context.xsd">
 
 
-	
+	<!-- ioc 컨테이너에 빈 등록 -->
+	<!-- roomDAO bean 등록 -->
+
+	<!-- RoomDAO roomDAO = new RoomDAOImpl() -->
+	<!-- <bean id="roomDAO" class="com.app.dao.room.impl.RoomDAOImpl"></bean> -->
+
+
+	<!-- RoomService 등록 -->
+
+	<!-- RoomService roomService = new RoomServiceImpl() -->
+	<!-- <bean id="roomService" class="com.app.service.room.impl.RoomServiceImpl"> -->
+	<!-- 1. 생성자를 통한 의존성 주입 -->
+	<!-- RoomService roomService = new RoomServiceImpl(roomDAO) -->
+	<!-- <constructor-arg ref="roomDAO"></constructor-arg> -->
+
+	<!-- 2. setter 메소드를 통한 의존성 주입 -->
+	<!-- RoomService roomService = new RoomServiceImpl(); roomService.setRoomDAO(roomDAO); -->
+	<!-- <property name="roomDAO" ref="roomDAO"></property> -->
+	<!-- </bean> -->
 
 	<bean class="org.apache.commons.dbcp2.BasicDataSource" id="data_source">
 		<property name="driverClassName" value="oracle.jdbc.OracleDriver" />
-		<property name="url" value="jdbc:oracle:thin:@//192.168.0.8:1521/orcl"/>
+		<property name="url" value="jdbc:oracle:thin:@192.168.0.8:1521:orcl" />
 		<property name="username" value="scott" />
 		<property name="password" value="tiger" />
 	</bean>
-	
-	
-	<!-- MyBatis: 도메인 타입 별칭 + 매퍼 자동 스캔 -->
+
 	<bean class="org.mybatis.spring.SqlSessionFactoryBean" id="sqlSessionFactory">
 		<property name="dataSource" ref="data_source"></property>
-		<property name="mapperLocations" value="/WEB-INF/mybatis/mapper/**/*_mapper.xml"></property>
-		<property name="configLocation" value="/WEB-INF/mybatis/mybatis-config.xml"></property>
-		<property name="typeAliasesPackage" value="com.app.domain"/>
-			
-	</bean>
-		
-	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-	  <property name="basePackage" value="com.app.mapper"/>
+		<property name="mapperLocations" value="/WEB-INF/mybatis/*Mapper.xml"></property>
+		<property name="configurationProperties">
+			<props>
+				<prop key="mapUnderscoreToCamelCase">true</prop>
+				<prop key="jdbcTypeForNull">NULL</prop>
+			</props>
+		</property>
 	</bean>
 
 	<bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
 		<constructor-arg name="sqlSessionFactory" ref="sqlSessionFactory" />
 	</bean>
-	
-		
-	
-	 <!-- 서비스/리포지토리 스캔은 root-context에서 -->
-	<context:component-scan base-package="com.app.service">
-	  <context:include-filter type="annotation" expression="org.springframework.stereotype.Service"/>
-	  <context:include-filter type="annotation" expression="org.springframework.stereotype.Repository"/>
-	</context:component-scan>
-		
-	
-	<!-- 비밀번호 해시용 -->
-	<bean id="passwordEncoder"
-	      class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder">
-	  <constructor-arg value="10"/>
+
+	<!-- MyBatis 매퍼 스캔 설정 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.app.mapper" />
+		<property name="annotationClass" value="org.apache.ibatis.annotations.Mapper" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
 	</bean>
 	
-	
-	 <!-- 서비스/DAO/@Component 들을 스캔 (컨트롤러는 servlet-context가 스캔하므로 여기선 제외) -->
- 	 <context:component-scan base-package="com.app.service,com.app.dao"/>
-	
-	
-	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
-	  <property name="host" value="smtp.naver.com"/>
-	  <property name="port" value="465"/>
-	  <property name="username" value="gagajooyo@naver.com"/>   <!-- 전체 주소 -->
-	  <property name="password" value="DY1XGNPPT4KD"/>             <!-- 앱 비번 -->
-	  <property name="defaultEncoding" value="UTF-8"/>
-	  <property name="javaMailProperties">
-	    <props>
-	      <prop key="mail.smtp.auth">true</prop>
-	      <prop key="mail.smtp.ssl.enable">true</prop>
-	      <prop key="mail.smtp.starttls.enable">false</prop>   <!-- SSL일 땐 false -->
-	      <prop key="mail.smtp.ssl.trust">smtp.naver.com</prop>
-	      <prop key="mail.smtp.ssl.protocols">TLSv1.2</prop>
-	      <prop key="mail.smtp.timeout">5000</prop>
-	      <prop key="mail.debug">true</prop>
-	    </props>
-	  </property>
-	</bean>
-	
-	
-
-	<!-- TX Manager -->
-	<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-	  <property name="dataSource" ref="data_source"/>
-	</bean>
-	
-	<tx:annotation-driven transaction-manager="txManager"/>
-		
-
-
-		
-		
-	
-	
-	
-	
-	
+	<!-- 서비스 패키지 스캔 설정 -->
+	<context:component-scan base-package="com.app.service" />
 </beans>
