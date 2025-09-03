@@ -191,7 +191,7 @@ function Quote() {
                                 <p>{prices[meat.kind]} 원</p>
                             </div>
                             <div>
-                                <p>{ }</p>
+                                {/* 사용하지 않는 빈 <p> 태그 삭제 */}
                             </div>
                         </div>
                     ))}
@@ -199,7 +199,8 @@ function Quote() {
             </div>
         </div>
 
-        <hr className='quote-hr'></hr>
+        {/* 사용하지 않는 <hr> 태그의 클래스 삭제 */}
+        <hr className='hr'></hr>
 
         <div className='quote-day'>
             <div className='quote-yesterday'>
@@ -239,7 +240,7 @@ function Quote() {
 
         <div className="quote-chart">
             {isLoading ? (
-                <p className="quote-text-gray-500 quote-text-lg quote-animate-pulse">데이터를 가져오는 중입니다...</p>
+                <p className="">데이터를 가져오는 중입니다...</p>
             ) : (
                 <Line data={chartData} options={{
                     responsive: true,

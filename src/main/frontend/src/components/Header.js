@@ -52,8 +52,6 @@ function Header() {
 
                         <li className="home-menu-span span"
                             onClick={() => navigate("/quote")}>시세
-                            <ul className="home-submenu">
-                            </ul>
                         </li>
 
                         <li className="home-menu-span span">경매
