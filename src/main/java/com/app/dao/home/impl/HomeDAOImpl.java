@@ -28,4 +28,16 @@ public class HomeDAOImpl implements HomeDAO{
 		return salesList;
 	}
 
+	@Override
+	public List<AuctionItem> searchAuctions(String keyword) {
+		List<AuctionItem> auctionList = sqlSessionTemplate.selectList("home_mapper.searchAuctions", keyword);
+		return auctionList;
+	}
+
+	@Override
+	public List<SalesItem> searchSales(String keyword) {
+		List<SalesItem> salesList = sqlSessionTemplate.selectList("home_mapper.searchSales", keyword);
+		return salesList;
+	}
+
 }

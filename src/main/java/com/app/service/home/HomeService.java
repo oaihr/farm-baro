@@ -9,4 +9,7 @@ public interface HomeService {
 
 	List<AuctionItem> autionOnList();
 	List<SalesItem> getSalesPage();
+	
+	List<AuctionItem> searchAuctions(String keyword);
+	List<SalesItem> searchSales(String keyword);
 }

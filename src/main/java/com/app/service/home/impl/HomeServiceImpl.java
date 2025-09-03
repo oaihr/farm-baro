@@ -28,4 +28,16 @@ public class HomeServiceImpl implements HomeService{
 		return salesList;
 	}
 
+	@Override
+	public List<AuctionItem> searchAuctions(String keyword) {
+		List<AuctionItem> auctionList = homeDAO.searchAuctions(keyword);
+		return auctionList;
+	}
+
+	@Override
+	public List<SalesItem> searchSales(String keyword) {
+		List<SalesItem> salesList = homeDAO.searchSales(keyword);
+		return salesList;
+	}
+
 }

@@ -4,6 +4,7 @@ import Footer from './components/Footer.js';
 
 import './App.css';
 import Home from './home/Home';
+import HomeSearch from './home/HomeSearch.js';
 
 function App() {
 
@@ -12,6 +13,7 @@ function App() {
       <Header />
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/home/search" element={<HomeSearch />} />
         </Routes>
       <Footer />  
     </Router>

@@ -72,6 +72,33 @@
 		WHERE A.auction_status = 'ON'
 
 	</select>
+	
+	<select id="searchAuctions" resultMap="AuctionItemResultMap">
+	    SELECT
+	        A.auction_id,
+	        A.judge_kind_name,
+	        A.kind,
+	        A.title,
+	        A.description,
+	        A.initial_price,
+	        A.buy_now_price,
+	        A.grade,
+	        A.current_bid_price,
+	        A.weight,
+	        A.end_date,
+	        I.IMAGE_ID,
+	        I.IMAGE_URL,
+	        U.user_name
+	    FROM AUCTIONS A
+	    LEFT JOIN PRODUCT_IMAGES I ON A.auction_id = I.PRODUCT_ID AND
+	    I.IS_THUMBNAIL = 'y'
+	    INNER JOIN USERS U ON A.seller_id = U.id
+	    WHERE 
+	        A.auction_status = 'ON'
+	        AND (A.title LIKE '%' || #{keyword} || '%' OR A.description LIKE '%' || #{keyword} || '%')
+	</select>
+	
+	
 
 	<select id="getSalesPage" resultMap="SalesItemResultMap">
 	    SELECT 
@@ -95,6 +122,30 @@
 	    INNER JOIN USERS U ON S.seller_id = U.id
 	    order by S.created_time
 	</select>
-
+	
+	<select id="searchSales" resultMap="SalesItemResultMap">
+	    SELECT 
+	        S.sale_item_id,
+	        S.qty,
+	        S.sale_status,
+	        S.judge_kind_name,
+	        S.title,
+	        S.description,
+	        S.seller_id,
+	        S.cut_name,
+	        S.price,
+	        S.weight,
+	        S.grade,
+	        S.traceability_num,
+	        S.detail_description,
+	        I.IMAGE_ID,
+	        I.IMAGE_URL
+	    FROM SALES S
+	    LEFT JOIN PRODUCT_IMAGES I ON S.sale_item_id = I.PRODUCT_ID AND I.IS_THUMBNAIL = 'y'
+	    INNER JOIN USERS U ON S.seller_id = U.id
+	    WHERE
+	        (S.title LIKE '%' || #{keyword} || '%' OR S.description LIKE '%' || #{keyword} || '%')
+	    ORDER BY S.created_time
+	</select>
 
 </mapper>

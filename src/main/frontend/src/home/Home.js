@@ -43,10 +43,10 @@ function Home() {
     return (
         <div className='home-main'>
             {/* ====================Main======================== */}
-            <div className='main'>
-                <div className="main-container">
+            <div className='home-main-section'>
+                <div className="home-main-container">
                     <video
-                        className="main-video"
+                        className="home-main-video"
                         autoPlay
                         muted
                         loop
@@ -54,8 +54,8 @@ function Home() {
                     >
                         <source src={mainvideo} type="video/mp4" />
                     </video>
-                    <div className="video-overlay"></div>
-                    <div className='main-content'>
+                    <div className="home-video-overlay"></div>
+                    <div className='home-main-content'>
                         <h4>Welcome</h4>
                         <h2>목장바로</h2>
                     </div>
@@ -64,13 +64,13 @@ function Home() {
 
             {/* ====================quote======================== */}
 
-            <div className="section">
-                <div className="quote-container">
-                    <div className="quote">
+            <div className="home-section">
+                <div className="home-quote-container">
+                    <div className="home-quote">
                         {/* 축종별 시세는 고정된 값으로 두거나, 별도의 API 호출로 처리 가능 */}
-                        <div className="quote-inner">
+                        <div className="home-quote-inner">
                             <div className="">
-                                <img className='quote-img' src={cow} alt="소" />
+                                <img className='home-quote-img' src={cow} alt="소" />
                                 <h3>소</h3>
                                 <p>1.3%</p>
                             </div>
@@ -79,9 +79,9 @@ function Home() {
                             </div>
                         </div>
 
-                        <div className="quote-inner">
+                        <div className="home-quote-inner">
                             <div className="">
-                                <img className='quote-img' src={pig} alt="돼지" />
+                                <img className='home-quote-img' src={pig} alt="돼지" />
                                 <h3>돼지</h3>
                                 <p>1.3%</p>
                             </div>
@@ -90,9 +90,9 @@ function Home() {
                             </div>
                         </div>
 
-                        <div className="quote-inner">
+                        <div className="home-quote-inner">
                             <div className="">
-                                <img className='quote-img' src={chicken} alt="닭" />
+                                <img className='home-quote-img' src={chicken} alt="닭" />
                                 <h3>닭</h3>
                                 <p>1.3%</p>
                             </div>
@@ -109,9 +109,9 @@ function Home() {
             {/* ====================home-body======================== */}
             <div className="home-body">
 
-                <div className="auction-section">
+                <div className="home-auction-section">
                     <h2>실시간 경매</h2>
-                    <div className="auction-list">
+                    <div className="home-auction-list">
                         {/* 3. 로딩 상태에 따라 다른 UI 표시 */}
                         {isLoading ? (
                             <p>데이터를 불러오는 중입니다...</p>
@@ -127,14 +127,14 @@ function Home() {
                                     : 'https://via.placeholder.com/150?text=No+Image';
 
                                 return (
-                                    <div key={index} className="auction-card">
+                                    <div key={index} className="home-auction-card">
                                         <img src={item.imageUrl} alt={item.title} />
 
                                         <h3>{item.title}</h3>
                                         <p>시작가: {item.initialPrice}원{item.unit}</p>
-                                        <p className="price-now">현재가: {item.currentBidPrice}원{item.unit}</p>
+                                        <p className="home-price-now">현재가: {item.currentBidPrice}원{item.unit}</p>
                                         <RemainingTimeDisplay endDate={item.endDate} />
-                                        <button className='quote-btn btn'>입찰하기</button>
+                                        <button className='home-quote-btn btn'>입찰하기</button>
                                     </div>
                                 );
                             })
@@ -142,24 +142,24 @@ function Home() {
                     </div>
                 </div>
 
-<div className="sale-section">
-    <h2>오늘의 신선판매</h2>
-    <div className="sale-list">
-        {isLoading ? (
-            <p>데이터를 불러오는 중입니다...</p>
-        ) : (
-            saleData.map((item, index) => (
-                <div key={index} className="sale-card">
-                    <img src={item.imageUrl} alt={item.title} />
-                    <h3>{item.title}</h3>
-                    <h5>등급 : {item.grade}</h5>
-                    <p className="price-now">{item.price}원/kg</p>
-                    <button className='quote-btn btn'>장바구니 담기</button>
+                <div className="home-sale-section">
+                    <h2>오늘의 신선판매</h2>
+                    <div className="home-sale-list">
+                        {isLoading ? (
+                            <p>데이터를 불러오는 중입니다...</p>
+                        ) : (
+                            saleData.map((item, index) => (
+                                <div key={index} className="home-sale-card">
+                                    <img src={item.imageUrl} alt={item.title} />
+                                    <h3>{item.title}</h3>
+                                    <h5>등급 : {item.grade}</h5>
+                                    <p className="home-price-now">{item.price}원/kg</p>
+                                    <button className='home-quote-btn btn'>장바구니 담기</button>
+                                </div>
+                            ))
+                        )}
+                    </div>
                 </div>
-            ))
-        )}
-    </div>
-</div>
             </div>
         </div>
     );
