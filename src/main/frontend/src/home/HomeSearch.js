@@ -100,7 +100,10 @@ function HomeSearch() {
                     </div>
                 </>
             ) : (
-                <p>검색 결과가 없습니다.</p>
+                <div className='home-noSearch'>
+                    <p>검색 결과가 없습니다.</p>
+                    <img src={noSearch} />
+                </div>
             )}
             <hr className='hr'></hr>
         </div>
