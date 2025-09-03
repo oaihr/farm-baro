@@ -12,7 +12,7 @@
             #{userId},
             #{bidPrice},
             'bid',
-            SYSDATE,
+            #{bidTime},
             SYSDATE
         )
 	</insert>
@@ -22,6 +22,12 @@
         SET BID_STATUS = 'outbid'
         WHERE AUCTION_ID = #{auctionId}
         AND BID_STATUS = 'bid'
+    </update>
+    
+    <update id="updateAuctionCurrentbid">
+        UPDATE AUCTIONS
+        SET CURRENT_BID_PRICE = #{param2}
+        WHERE AUCTION_ID = #{param1}
     </update>
     
 	<select id="getLatestBid">
@@ -34,6 +40,34 @@
 		ON B.USER_ID = U.ID
 		ORDER BY B.BID_TIME DESC
 		FETCH FIRST 1 ROWS ONLY;
+	</select>
+	
+<!-- 	<select id="getUserName" resultType="String"> -->
+<!-- 		SELECT -->
+<!-- 			user_name -->
+<!-- 		FROM users -->
+<!-- 		WHERE ID = #{userId} 	 -->
+<!-- 	</select> -->
+	
+	<select id="getBidHistory" resultType="com.app.dto.auction.BidMessage">
+	    SELECT 
+	        b.auction_id AS auctionId,
+	        b.bid_price AS bidPrice,
+	        b.bid_time AS bidTime,
+	        b.user_id AS userId,
+	        u.user_name AS userName,
+	        (SELECT COUNT(*) FROM bids WHERE auction_id = #{auctionId}) AS totalBids
+	    FROM 
+	        bids b
+	    INNER JOIN 
+	        users u ON b.user_id = u.id
+	    <where> 
+	    	<if test="auctionId != null and auctionId != ''">
+	        	b.auction_id = #{auctionId}
+	        </if>
+	    </where>    
+	    ORDER BY 
+	        b.bid_time DESC
 	</select>
 	
 </mapper>

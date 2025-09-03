@@ -1,10 +1,13 @@
 package com.app.service;
 
+import java.util.List;
+
 import com.app.dto.auction.BidMessage;
 
 public interface BidService {
 	
-	void saveBid(BidMessage bidMessage);
+	List<BidMessage> processBidAndGetLatest(BidMessage bidMessage);
 	
-	BidMessage getLatestBid(Integer auctionId);
+//	BidMessage getLatestBid(Integer auctionId);
+	
 }

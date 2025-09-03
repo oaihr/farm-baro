@@ -5,8 +5,9 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import Sale from './sale/Sale';
 import SaleDetail from './sale/SaleDetail';
-import Auction from './sale/Auction';
-import AuctionDetail from './sale/AuctionDetail';
+import Auction from './sale/auction/Auction';
+import AuctionDetail from './sale/auction/AuctionDetail';
+
 
 
 function App() {

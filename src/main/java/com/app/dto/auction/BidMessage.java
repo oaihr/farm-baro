@@ -7,8 +7,9 @@ import lombok.Data;
 @Data
 public class BidMessage {
 	Integer auctionId;
-	Integer userId;
+	String userId;
 	Integer bidPrice;
 	LocalDateTime bidTime;
 	String userName;
+	Integer totalBids;
 }

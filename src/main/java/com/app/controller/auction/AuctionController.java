@@ -1,11 +1,13 @@
 package com.app.controller.auction;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,8 +15,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.dto.auction.AuctionItem;
-import com.app.dto.sale.SaleItem;
+import com.app.dto.auction.BidMessage;
 import com.app.service.AuctionService;
+import com.app.service.BidService;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
@@ -22,6 +25,8 @@ public class AuctionController {
 	
 	@Autowired
 	AuctionService auctionService;
+	@Autowired
+	BidService bidService;
 	
 	@GetMapping("/api/auction")
 	public Page<AuctionItem> getAuctionList(@RequestParam(defaultValue = "0") int page,
@@ -40,4 +45,18 @@ public class AuctionController {
 		Optional<AuctionItem> auctionItem = auctionService.getAuctionItem(auctionId);
 		return auctionItem;
 	}
+	
+	@GetMapping("/api/auction/current-bid/{auctionId}")
+	public ResponseEntity<Double> getCurrentBidPrice(@PathVariable Integer auctionId){
+		Double currentBid = auctionService.getCurrentBidPrice(auctionId);
+		return ResponseEntity.ok(currentBid);
+	}
+	
+	@GetMapping("/api/auction/bid-history/{auctionId}")
+	public List<BidMessage> getBidHistory(@PathVariable Integer auctionId){
+		List<BidMessage> bidHistory = auctionService.getBidHistory(auctionId);
+		return bidHistory;
+	} 
+	
 }
+

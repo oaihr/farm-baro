@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
-import ImageSlider from './ImageSlider';
+import ImageSlider from './common/ImageSlider';
 import './SaleDetail.css';
 import refridge from '../images/refridge.png';
-import ProductInfoTable from './ProductInfoTable';
+import ProductInfoTable from './common/ProductInfoTable';
 
 function SaleDetail(){
 

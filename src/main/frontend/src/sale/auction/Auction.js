@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import './Auction.css';
-import useRemainingTime from './RemainigTime';
+import useRemainingTime from '../common/RemainigTime';
 
 function Auction(){
 

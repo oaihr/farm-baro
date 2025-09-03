@@ -16,4 +16,6 @@ public interface AuctionDAO {
 	long getAuctionCount(@Param("kind") String kind);
 	
 	Optional<AuctionItem> getAuctionItem(Integer auctionId);
+	
+	Double getCurrentBidPrice(Integer auctionId);
 }

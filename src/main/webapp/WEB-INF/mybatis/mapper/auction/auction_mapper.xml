@@ -123,5 +123,10 @@
 		ON A.seller_id = U.id
 		WHERE A.auction_id = #{auctionId}			
 	</select>
-
+	
+	<select id="getCurrentBidPrice" resultType="Double">
+		SELECT MAX(BID_PRICE)
+		FROM bids
+		WHERE AUCTION_ID = #{auctionId}			
+	</select>
 </mapper>

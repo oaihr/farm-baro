@@ -7,6 +7,7 @@ import lombok.Data;
 @Data
 public class Bid {
 	Integer auctionId;
-	Integer userId;
+	String userId;
 	Integer bidPrice;
+	LocalDateTime bidTime;
 }
