@@ -51,12 +51,13 @@ function HomeSearch() {
                         <div className="home-auction-list">
                             {searchResults.auctions.length > 0 ? (
                                 searchResults.auctions.map((item, index) => {
-                                    const imageUrl = item.imageUrl ? `${BASE_URL}${item.imageUrl}` : 'https://via.placeholder.com/150?text=No+Image';
+                                    const imageUrl = item.images[0].imageUrl ? `${BASE_URL}${item.images[0].imageUrl}` : 'https://via.placeholder.com/150?text=No+Image';
 
                                     return (
                                         <div key={index} className="home-auction-card">
                                             <img src={imageUrl} alt={item.title} />
                                             <h3>{item.title}</h3>
+                                            <hr className='hr'></hr>
                                             <p>시작가: {item.initialPrice}원</p>
                                             <p className="home-price-now">현재가: {item.currentBidPrice}원</p>
                                             <button className='home-quote-btn btn'>입찰하기</button>
@@ -78,12 +79,13 @@ function HomeSearch() {
                         <div className="home-sale-list">
                             {searchResults.sales.length > 0 ? (
                                 searchResults.sales.map((item, index) => {
-                                    const imageUrl = item.imageUrl ? `${BASE_URL}${item.imageUrl}` : 'https://via.placeholder.com/150?text=No+Image';
+                                    const imageUrl = item.images[0].imageUrl ? `${BASE_URL}${item.images[0].imageUrl}` : 'https://via.placeholder.com/150?text=No+Image';
 
                                     return (
                                         <div key={index} className="home-sale-card">
                                             <img src={imageUrl} alt={item.title} />
                                             <h3>{item.title}</h3>
+                                            <hr className='hr'></hr>
                                             <h5>등급 : {item.grade}</h5>
                                             <p className="home-price-now">{item.price}원/kg</p>
                                             <button className='home-quote-btn btn'>장바구니 담기</button>

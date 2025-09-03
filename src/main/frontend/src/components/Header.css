@@ -4,8 +4,6 @@
     box-sizing: border-box;
 }
 
-
-
 .hr {
     margin: 8px 0;
     border: 0;
@@ -64,7 +62,10 @@
     align-items: center;
     gap: 8px;
     justify-content: space-between;
-    /* padding: 10px 0; */
+}
+
+.home-search-box img {
+    cursor: pointer;
 }
 
 .home-search {

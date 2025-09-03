@@ -128,11 +128,11 @@ function Home() {
 
                                 return (
                                     <div key={index} className="home-auction-card">
-                                        <img src={item.imageUrl} alt={item.title} />
-
+                                        <img src={item.images[0].imageUrl} alt={item.title} />
                                         <h3>{item.title}</h3>
-                                        <p>시작가: {item.initialPrice}원{item.unit}</p>
-                                        <p className="home-price-now">현재가: {item.currentBidPrice}원{item.unit}</p>
+                                        <hr className='hr'></hr>
+                                        <p>시작가: {item.initialPrice.toLocaleString()}원{item.unit}</p>
+                                        <p className="home-price-now">현재가: {item.currentBidPrice.toLocaleString()}원{item.unit}</p>
                                         <RemainingTimeDisplay endDate={item.endDate} />
                                         <button className='home-quote-btn btn'>입찰하기</button>
                                     </div>
@@ -150,10 +150,11 @@ function Home() {
                         ) : (
                             saleData.map((item, index) => (
                                 <div key={index} className="home-sale-card">
-                                    <img src={item.imageUrl} alt={item.title} />
+                                    <img src={`http://localhost:8080${item.images[0].imageUrl}`} alt={item.title} />
                                     <h3>{item.title}</h3>
+                                    <hr className='hr'></hr>
                                     <h5>등급 : {item.grade}</h5>
-                                    <p className="home-price-now">{item.price}원/kg</p>
+                                    <p className="home-price-now">{item.price.toLocaleString()}원/kg</p>
                                     <button className='home-quote-btn btn'>장바구니 담기</button>
                                 </div>
                             ))
