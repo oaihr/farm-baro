@@ -18,4 +18,6 @@ public interface AuctionService {
 	Double getCurrentBidPrice(Integer auctionId);
 	
 	List<BidMessage> getBidHistory(Integer auctionId);
+	
+	void closeExpiredAuctions();
 }

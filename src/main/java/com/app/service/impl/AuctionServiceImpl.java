@@ -1,5 +1,6 @@
 package com.app.service.impl;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,6 +51,38 @@ public class AuctionServiceImpl implements AuctionService{
 	public List<BidMessage> getBidHistory(Integer auctionId) {
 		List<BidMessage> bidHistory = bidDAO.getBidHistory(auctionId);
 		return bidHistory;
+	}
+
+	@Override
+	public void closeExpiredAuctions() {
+		List<Integer> expiredAuctions = auctionDAO.findExpiredAuctions(LocalDateTime.now());
+
+		if (expiredAuctions.isEmpty()) {
+			System.out.println("마감할 경매가 없습니다.");
+			return;
+		}
+		
+		for (Integer auctionId : expiredAuctions) {
+            System.out.println("경매 마감 처리 중: " + auctionId);
+            
+            // 최고 입찰자 및 입찰가 조회
+            Double latestBidPrice = auctionDAO.getCurrentBidPrice(auctionId);
+            String topBidderId = null;
+            
+            if (latestBidPrice != null) {
+                // 최고 입찰자가 있을 경우
+                topBidderId = bidDAO.findTopBidderId(auctionId);
+            } 
+            
+            // 경매 상태 DB에 업데이트
+            AuctionItem auctionItem = new AuctionItem();
+            auctionItem.setAuctionId(auctionId);
+            auctionItem.setAuctionStatus("OFF");
+            auctionItem.setWinnerId(topBidderId);
+            auctionDAO.updateAuctionStatusAndWinner(auctionItem);
+            
+            System.out.println("경매 마감 완료: " + auctionId);
+        }		
 	}
 
 }

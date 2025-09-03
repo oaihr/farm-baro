@@ -129,4 +129,19 @@
 		FROM bids
 		WHERE AUCTION_ID = #{auctionId}			
 	</select>
+	
+	<select id="findExpiredAuctions" resultType="Integer">
+		SELECT
+			AUCTION_ID			
+		FROM AUCTIONS
+		WHERE END_DATE &lt;= #{currentTime} AND AUCTION_STATUS = 'ON'
+	</select>
+	
+	<update id="updateAuctionStatusAndWinner">
+        UPDATE AUCTIONS
+        SET 
+        	AUCTION_STATUS = #{auctionStatus},
+        	WINNER_ID = #{winnerId}
+        WHERE AUCTION_ID = #{auctionId}
+    </update>
 </mapper>

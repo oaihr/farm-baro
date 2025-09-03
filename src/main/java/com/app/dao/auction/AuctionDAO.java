@@ -1,5 +1,6 @@
 package com.app.dao.auction;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,4 +19,10 @@ public interface AuctionDAO {
 	Optional<AuctionItem> getAuctionItem(Integer auctionId);
 	
 	Double getCurrentBidPrice(Integer auctionId);
+	
+	List<Integer> findExpiredAuctions(@Param("currentTime") LocalDateTime currentTime);
+	
+	Integer findLatestBidPrice(Integer auctionId);
+	
+	void updateAuctionStatusAndWinner(AuctionItem auctionItem);
 }

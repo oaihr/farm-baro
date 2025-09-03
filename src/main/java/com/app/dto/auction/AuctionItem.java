@@ -30,6 +30,7 @@ public class AuctionItem {
 	String userName;
 	String weight;
 	String traceabilityNum;
+	String winnerId;
 	
 	List<Image> images;
 }

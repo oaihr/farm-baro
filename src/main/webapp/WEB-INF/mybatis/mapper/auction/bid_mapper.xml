@@ -70,4 +70,13 @@
 	        b.bid_time DESC
 	</select>
 	
+	<select id="findTopBidderId">
+		SELECT
+			user_id
+		FROM bids
+		WHERE auction_id = #{auctionId}
+		ORDER BY bid_price DESC, bid_time ASC
+    	FETCH FIRST 1 ROWS ONLY	 
+	</select>
+	
 </mapper>
