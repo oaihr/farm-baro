@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.app.mapper.ProductMapper">
+
+    <resultMap id="ProductResultMap" type="com.app.dto.ProductDto">
+        <id property="saleItemId" column="SALE_ITEM_ID"/>
+        <result property="qty" column="QTY"/>
+        <result property="saleStatus" column="SALE_STATUS"/>
+        <result property="judgeKindName" column="JUDGE_KIND_NAME"/>
+        <result property="cutName" column="CUT_NAME"/>
+        <result property="title" column="TITLE"/>
+        <result property="description" column="DESCRIPTION"/>
+        <result property="detailDescription" column="DETAIL_DESCRIPTION"/>
+        <result property="weight" column="WEIGHT"/>
+        <result property="grade" column="GRADE"/>
+        <result property="traceabilityNum" column="TRACEABILITY_NUM"/>
+        <result property="sellerId" column="SELLER_ID"/>
+        <result property="createdTime" column="CREATED_TIME"/>
+        <result property="sellerName" column="SELLER_NAME"/>
+    </resultMap>
+
+    <!-- 판매자별 상품 목록 조회 -->
+    <select id="getProductsBySeller" resultMap="ProductResultMap">
+        SELECT s.*, u.USER_NAME as SELLER_NAME
+        FROM sales s
+        LEFT JOIN users u ON s.SELLER_ID = u.ID
+        WHERE s.SELLER_ID = #{sellerId}
+        ORDER BY s.CREATED_TIME DESC
+    </select>
+
+    <!-- 상품 상세 조회 -->
+    <select id="getProductById" resultMap="ProductResultMap">
+        SELECT s.*, u.USER_NAME as SELLER_NAME
+        FROM sales s
+        LEFT JOIN users u ON s.SELLER_ID = u.ID
+        WHERE s.SALE_ITEM_ID = #{saleItemId}
+    </select>
+
+    <!-- 상품 검색 -->
+    <select id="searchProducts" resultMap="ProductResultMap">
+        SELECT s.*, u.USER_NAME as SELLER_NAME
+        FROM sales s
+        LEFT JOIN users u ON s.SELLER_ID = u.ID
+        WHERE 1=1
+        <if test="sellerId != null and sellerId != ''">
+            AND s.SELLER_ID = #{sellerId}
+        </if>
+        <if test="productName != null and productName != ''">
+            AND s.TITLE LIKE '%' || #{productName} || '%'
+        </if>
+        <if test="productType != null and productType != ''">
+            AND s.JUDGE_KIND_NAME = #{productType}
+        </if>
+        ORDER BY s.CREATED_TIME DESC
+    </select>
+
+    <!-- 상품 이미지 조회 -->
+    <select id="getProductImages" resultType="string">
+        SELECT IMAGE_URL
+        FROM product_images
+        WHERE PRODUCT_ID = #{productId}
+        AND PRODUCT_TYPE = #{productType}
+        ORDER BY ORDER_INDEX
+    </select>
+
+    <!-- 상품 등록 -->
+    <insert id="insertProduct" parameterType="com.app.dto.ProductDto">
+        INSERT INTO sales (
+            SALE_ITEM_ID, QTY, SALE_STATUS, JUDGE_KIND_NAME, CUT_NAME,
+            TITLE, DESCRIPTION, DETAIL_DESCRIPTION, WEIGHT, GRADE, TRACEABILITY_NUM, SELLER_ID, CREATED_TIME
+        ) VALUES (
+            SALE_ITEM_SEQ.NEXTVAL, #{qty}, #{saleStatus}, #{judgeKindName}, #{cutName},
+            #{title}, #{description}, #{detailDescription}, #{weight}, #{grade}, #{traceabilityNum}, #{sellerId}, SYSTIMESTAMP
+        )
+    </insert>
+
+    <!-- 상품 이미지 등록 -->
+    <insert id="insertProductImage">
+        INSERT INTO product_images (
+            IMAGE_ID, PRODUCT_ID, PRODUCT_TYPE, IMAGE_URL, 
+            IS_THUMBNAIL, ORDER_INDEX, CREATED_TIME
+        ) VALUES (
+            image_seq.NEXTVAL, #{productId}, #{productType}, #{imageUrl},
+            #{isThumbnail}, #{orderIndex}, SYSTIMESTAMP
+        )
+    </insert>
+
+    <!-- 상품 수정 -->
+    <update id="updateProduct" parameterType="com.app.dto.ProductDto">
+        UPDATE sales
+        SET QTY = #{qty},
+            SALE_STATUS = #{saleStatus},
+            JUDGE_KIND_NAME = #{judgeKindName},
+            CUT_NAME = #{cutName},
+            TITLE = #{title},
+            DESCRIPTION = #{description},
+            DETAIL_DESCRIPTION = #{detailDescription},
+            WEIGHT = #{weight},
+            GRADE = #{grade},
+            TRACEABILITY_NUM = #{traceabilityNum}
+        WHERE SALE_ITEM_ID = #{saleItemId}
+    </update>
+
+    <!-- 상품 삭제 -->
+    <delete id="deleteProduct">
+        DELETE FROM sales WHERE SALE_ITEM_ID = #{saleItemId}
+    </delete>
+
+    <!-- 상품 이미지 삭제 -->
+    <delete id="deleteProductImages">
+        DELETE FROM product_images 
+        WHERE PRODUCT_ID = #{productId} AND PRODUCT_TYPE = #{productType}
+    </delete>
+
+</mapper>
