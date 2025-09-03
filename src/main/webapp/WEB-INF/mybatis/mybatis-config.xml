@@ -14,8 +14,10 @@
 	<typeAliases>
 		<typeAlias type="com.app.dto.home.AuctionItem" alias="AuctionItem" />
 		<typeAlias type="com.app.dto.home.SalesItem" alias="SalesItem" />
+		<typeAlias type="com.app.dto.quote.QuoteDTO" alias="Quote" />
+		<typeAlias type="com.app.dto.quote.QuoteDTOM" alias="QuoteM" />
+		<typeAlias type="com.app.dto.quote.QuoteDTOY" alias="QuoteY" />
 	</typeAliases>
-
 
 </configuration>
 

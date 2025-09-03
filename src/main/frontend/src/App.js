@@ -5,6 +5,7 @@ import Footer from './components/Footer.js';
 import './App.css';
 import Home from './home/Home';
 import HomeSearch from './home/HomeSearch.js';
+import Quote from './quote/Quote.js';
 
 function App() {
 
@@ -14,6 +15,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/home/search" element={<HomeSearch />} />
+          <Route path="/quote" element={<Quote />} />
         </Routes>
       <Footer />  
     </Router>

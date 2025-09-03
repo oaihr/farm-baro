@@ -22,8 +22,8 @@ function Header() {
         <div className="home-header">
             <div className='home-logo-search'>
                 <div className="home-search-box">
-                    <img 
-                        src={logo} class="logo" 
+                    <img
+                        src={logo} class="logo"
                         onClick={() => navigate("/")} />
                     <div className='search-box'>
                         <input
@@ -50,11 +50,9 @@ function Header() {
                 <div className='home-menu-container'>
                     <ul className="home-menu">
 
-                        <li className="home-menu-span span">시세
+                        <li className="home-menu-span span"
+                            onClick={() => navigate("/quote")}>시세
                             <ul className="home-submenu">
-                                <li><Link to="/quote/beef">소</Link></li>
-                                <li><Link to="/quote/pork">돼지</Link></li>
-                                <li><Link to="/quote/chicken">닭</Link></li>
                             </ul>
                         </li>
 

@@ -18,6 +18,8 @@
 	<context:component-scan	base-package="com.app.service"></context:component-scan>
 	<context:component-scan	base-package="com.app.dao"></context:component-scan>
 	<context:component-scan	base-package="com.app.config"></context:component-scan>
+	<context:component-scan base-package="com.app.api" />
+	
 	
 	<!--뷰리졸버 설정 부분 -->
 	<beans:bean

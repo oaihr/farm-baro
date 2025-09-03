@@ -6,32 +6,32 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor(access = lombok.AccessLevel.PUBLIC)
-public class QuoteDTO {
-	String standYmd;
+public class QuoteDTOM {
+	String standYm;
 	String gradeName;
 	String judgeKindName;
 	String judgeKind;
 	String itemName;
 	String itemCode;
-	String netSalePrice;
-	String maxPrice;
-	String minPrice;
 	String unit;
+	String netSalePrice;
+	String avgYearPrice;
+	
 	
     @Builder
-    public QuoteDTO(String stand_ymd, String grade_name, String judge_kind_name, String judge_kind, 
+    public QuoteDTOM(String stand_ym, String grade_name, String judge_kind_name, String judge_kind, 
     		String item_name,
-            String item_code, String net_sale_price, String max_price, String min_price, String unit) {
-        this.standYmd = stand_ymd;
+            String item_code, String unit, String net_sale_price, String avg_year_price) {
+        this.standYm = stand_ym;
         this.gradeName = grade_name;
         this.judgeKindName = judge_kind_name;
         this.judgeKind = judge_kind;
         this.itemName = item_name;
         this.itemCode = item_code;
-        this.netSalePrice = net_sale_price;
-        this.maxPrice = max_price;
-        this.minPrice = min_price;
         this.unit = unit;
+        this.netSalePrice = net_sale_price;
+        this.avgYearPrice = avg_year_price;
+        
+        
     }
-
 }
