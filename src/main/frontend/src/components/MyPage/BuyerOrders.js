@@ -14,7 +14,7 @@ const BuyerOrders = () => {
     const fetchOrders = async () => {
         try {
             setLoading(true);
-            const response = await fetch(`http://localhost:8080/mypage/api/buyers/${userId}/orders`);
+            const response = await fetch(`http://localhost:8080/api/mypage/buyers/${userId}/orders`);
             if (response.ok) {
                 const data = await response.json();
                 setOrders(data);

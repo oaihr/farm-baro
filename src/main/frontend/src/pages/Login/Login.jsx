@@ -35,7 +35,9 @@ export default function Login() {
 
       // 로그인 성공: 유저 정보가 오면 홈/마이페이지로 이동
       if (res.status >= 200 && res.status < 300) {
-        navigate("/me", { replace: true });
+        // 로그인 성공 후 원래 요청했던 페이지로 이동
+        const from = state?.from?.pathname || "/me";
+        navigate(from, { replace: true });
       } else {
         setMsg("로그인에 실패했습니다. 잠시 후 다시 시도해 주세요.");
       }

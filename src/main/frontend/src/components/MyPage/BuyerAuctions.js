@@ -14,7 +14,7 @@ const BuyerAuctions = () => {
     const fetchAuctions = async () => {
         try {
             setLoading(true);
-            const response = await fetch(`http://localhost:8080/mypage/api/buyers/${userId}/auctions`);
+            const response = await fetch(`http://localhost:8080/api/mypage/buyers/${userId}/auctions`);
             if (response.ok) {
                 const data = await response.json();
                 setAuctions(data);

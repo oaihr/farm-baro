@@ -1,22 +1,21 @@
 package com.app.controller;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
-@Controller  
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/test")
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"}, allowCredentials = "true")
 public class TestController {
 
-	
-	@GetMapping("/main")
-	public String main() {
-		
-		return "test";
-	}
-	
-	@GetMapping("/test")
-	@ResponseBody
-	public String test() {
-		return "Hello World!";
-	}
+    @GetMapping("/ping")
+    public Map<String, Object> ping() {
+        return Map.of("message", "pong", "timestamp", System.currentTimeMillis());
+    }
+
+    @PostMapping("/echo")
+    public Map<String, Object> echo(@RequestBody Map<String, Object> body) {
+        return Map.of("echo", body, "timestamp", System.currentTimeMillis());
+    }
 }

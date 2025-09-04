@@ -7,7 +7,6 @@ import java.util.Objects;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
@@ -22,12 +21,21 @@ import com.app.service.user.UserService;
 public class UserServiceImpl implements UserService {
 
     @Autowired private UserMapper userMapper;
-    @Autowired private PasswordEncoder passwordEncoder;
+    // @Autowired private PasswordEncoder passwordEncoder; // 임시로 주석 처리
+
+    // 간단한 해시 함수 (개발용 - 실제 운영에서는 BCrypt 사용 권장)
+    private String hashPassword(String rawPassword) {
+        return DigestUtils.md5DigestAsHex(rawPassword.getBytes(StandardCharsets.UTF_8));
+    }
+    
+    private boolean matchesPassword(String rawPassword, String encodedPassword) {
+        return hashPassword(rawPassword).equals(encodedPassword);
+    }
 
     @Override
     public void signup(User u) {
         if (u.getId() == null) u.setId(UUID.randomUUID().toString());
-        u.setPw(passwordEncoder.encode(u.getPw()));
+        u.setPw(hashPassword(u.getPw()));
         userMapper.insertUser(u);
     }
 
@@ -39,7 +47,7 @@ public class UserServiceImpl implements UserService {
         User u = new User();
         u.setId(UUID.randomUUID().toString());
         u.setEmail(email);
-        u.setPw(passwordEncoder.encode(pw));
+        u.setPw(hashPassword(pw));
         u.setUserName(name);
         u.setTel(tel);
         userMapper.insertUser(u);
@@ -57,7 +65,7 @@ public class UserServiceImpl implements UserService {
         // user_mapper.xml 의 <insert id="insertBuyer">가 기대하는 키 이름과 맞춥니다.
         Map<String, Object> p = new HashMap<>();
         p.put("id", UUID.randomUUID().toString());
-        p.put("pw", passwordEncoder.encode(req.getPassword())); // ← passwordEncoder 사용
+        p.put("pw", hashPassword(req.getPassword())); // ← 간단한 해시 함수 사용
         p.put("email", req.getEmail());
         p.put("name", req.getUserName());                       // XML에서 USER_NAME 으로 들어감
         p.put("address", req.getAddress());                     // addr1/addr2 아님!
@@ -74,7 +82,7 @@ public class UserServiceImpl implements UserService {
     public User login(String email, String rawPw) {
         User found = userMapper.findByEmail(email);
         if (found == null) return null;
-        return passwordEncoder.matches(rawPw, found.getPw()) ? found : null;
+        return matchesPassword(rawPw, found.getPw()) ? found : null;
     }
 
     @Override
@@ -114,7 +122,7 @@ public class UserServiceImpl implements UserService {
     public void resetPassword(String email, String rawPass) {
         Map<String, Object> p = new HashMap<>();
         p.put("email", email);
-        p.put("pw", passwordEncoder.encode(rawPass)); // ← passwordEncoder 로 통일
+        p.put("pw", hashPassword(rawPass)); // ← 간단한 해시 함수 사용
         userMapper.updatePasswordByEmail(p);
     }
 }
