@@ -57,6 +57,20 @@ http://www.springframework.org/schema/context/spring-context.xsd">
 		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
 	</bean>
 	
+	<!-- JavaMailSender Bean Configuration -->
+	<bean id="javaMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="smtp.gmail.com" />
+		<property name="port" value="587" />
+		<property name="username" value="YOUR_EMAIL@gmail.com" />
+		<property name="password" value="APP_PASSWORD" />
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.smtp.auth">true</prop>
+				<prop key="mail.smtp.starttls.enable">true</prop>
+			</props>
+		</property>
+	</bean>
+	
 	<!-- 서비스 패키지 스캔 설정 -->
 	<context:component-scan base-package="com.app.service" />
 </beans>

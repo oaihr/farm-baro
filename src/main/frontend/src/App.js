@@ -2,12 +2,15 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import ProtectedRoute from "./components/ProtectedRoute";
+import CorsTest from "./components/CorsTest";
 
 import Sale from "./pages/Sale/Sale";
 import Login from "./pages/Login/Login";
 import Signup from "./pages/Signup/Signup";
 import RoleSelect from "./pages/Signup/RoleSelect";
 import MyPage from "./pages/MyPage";
+import MyPageRedirect from "./components/MyPage/MyPageRedirect.js";
 import BuyerWizard from "./pages/SignupWizard/BuyerWizard";
 import SellerWizard from "./pages/SignupWizard/SellerWizard";
 import SellerApprovals from "./pages/Admin/SellerApprovals";
@@ -40,9 +43,12 @@ function App() {
         <Route path="/" element={<Sale />} />
         <Route path="/sale/:kind/:type" element={<Sale />} />
         
+        {/* CORS 테스트 */}
+        <Route path="/cors-test" element={<CorsTest />} />
+        
         {/* 인증/마이페이지 */}
         <Route path="/login" element={<Login />} />
-        <Route path="/me" element={<MyPage />} />
+        <Route path="/me" element={<MyPageRedirect />} />
 
         {/* 회원가입(역할선택 → 폼) */}
         <Route path="/signup">
@@ -57,23 +63,55 @@ function App() {
 
         {/* 마이페이지 라우트 */}
         <Route path="/mypage/:userType/:userId" element={<MyPage />} />
-        <Route path="/mypage/seller/:userId" element={<SellerMainPage />} />
+        
+        {/* 판매자 마이페이지 - 로그인 인증 필요 */}
+        <Route path="/mypage/seller/:userId" element={
+          <ProtectedRoute allowedRoles={['seller', 'admin']}>
+            <SellerMainPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/mypage/seller/:userId/edit-info" element={
+          <ProtectedRoute allowedRoles={['seller', 'admin']}>
+            <EditInfo />
+          </ProtectedRoute>
+        } />
+        <Route path="/mypage/seller/:userId/orders" element={
+          <ProtectedRoute allowedRoles={['seller', 'admin']}>
+            <OrderList />
+          </ProtectedRoute>
+        } />
+        <Route path="/mypage/seller/:userId/reviews" element={
+          <ProtectedRoute allowedRoles={['seller', 'admin']}>
+            <Reviews />
+          </ProtectedRoute>
+        } />
+        <Route path="/mypage/seller/:userId/inquiries" element={
+          <ProtectedRoute allowedRoles={['seller', 'admin']}>
+            <Inquiries />
+          </ProtectedRoute>
+        } />
+        <Route path="/mypage/seller/:userId/product-register" element={
+          <ProtectedRoute allowedRoles={['seller', 'admin']}>
+            <ProductRegister />
+          </ProtectedRoute>
+        } />
+        
+        {/* 일반 마이페이지 라우트 (구매자용) */}
         <Route path="/mypage/:userType/:userId/edit-info" element={<EditInfo />} />
         <Route path="/mypage/:userType/:userId/orders" element={<OrderList />} />
         <Route path="/mypage/:userType/:userId/reviews" element={<Reviews />} />
         <Route path="/mypage/:userType/:userId/inquiries" element={<Inquiries />} />
         <Route path="/mypage/:userType/:userId/bids" element={<Bids />} />
-        <Route path="/mypage/:userType/:userId/cart" element={<Cart />} />
-        <Route path="/mypage/:userType/:userId/product-register" element={<ProductRegister />} />
-        
+        <Route path="/mypage/:userId/cart" element={<Cart />} />
+
         {/* 구매자 마이페이지 라우트 */}
-        <Route path="/buyer/:userId" element={<BuyerMainPage />} />
-        <Route path="/buyer/:userId/profile" element={<BuyerProfile />} />
-        <Route path="/buyer/:userId/orders" element={<BuyerOrders />} />
-        <Route path="/buyer/:userId/reviews" element={<BuyerReviews />} />
-        <Route path="/buyer/:userId/inquiries" element={<BuyerInquiries />} />
-        <Route path="/buyer/:userId/auctions" element={<BuyerAuctions />} />
-        <Route path="/buyer/:userId/cart" element={<BuyerCart />} />
+        <Route path="/mypage/buyer/:userId" element={<BuyerMainPage />} />
+        <Route path="/mypage/buyer/:userId/profile" element={<BuyerProfile />} />
+        <Route path="/mypage/buyer/:userId/orders" element={<BuyerOrders />} />
+        <Route path="/mypage/buyer/:userId/reviews" element={<BuyerReviews />} />
+        <Route path="/mypage/buyer/:userId/inquiries" element={<BuyerInquiries />} />
+        <Route path="/mypage/buyer/:userId/auctions" element={<BuyerAuctions />} />
+        <Route path="/mypage/buyer/:userId/cart" element={<BuyerCart />} />
 
         {/* 없는 경로는 메인으로 */}
         <Route path="*" element={<Navigate to="/" replace />} />

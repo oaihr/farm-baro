@@ -22,8 +22,8 @@ function Sale() {
               <a href="/mypage/buyer/buyer001" style={{ color: 'blue', textDecoration: 'underline' }}>
                 구매자 마이페이지
               </a>
-              <a href="/mypage/seller/seller001" style={{ color: 'blue', textDecoration: 'underline' }}>
-                판매자 마이페이지
+              <a href="/cors-test" style={{ color: 'green', textDecoration: 'underline' }}>
+                CORS 테스트
               </a>
             </div>
           </div>

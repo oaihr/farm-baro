@@ -8,7 +8,10 @@ function Header(){
         <div className="home-header">
                 <div className='home-logo-search'>
                     <div className="home-search-box">
-                        <img src={logo} className="logo" />
+                    <Link to="/">
+                        <img src={logo} className="logo" alt="홈으로" />
+                    </Link>
+
                         <div className='search-box'>
                             <input
                                 type="text"

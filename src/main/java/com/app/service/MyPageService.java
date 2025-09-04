@@ -316,7 +316,7 @@ public class MyPageService {
                 .count();
             
             // 리뷰 통계
-            List<ReviewDto> reviews = reviewMapper.getReviewsByUser(userId);
+            List<ReviewDto> reviews = reviewMapper.getReviewsByBuyer(userId);
             long totalReviews = reviews.size();
             double avgRating = reviews.stream()
                 .mapToInt(ReviewDto::getRating)
@@ -327,7 +327,7 @@ public class MyPageService {
                 .count();
             
             // 문의 통계
-            List<InquiryDto> inquiries = inquiryMapper.getInquiriesByUser(userId);
+            List<InquiryDto> inquiries = inquiryMapper.getInquiriesByBuyer(userId);
             long totalInquiries = inquiries.size();
             long pendingInquiries = inquiries.stream()
                 .filter(inquiry -> "PENDING".equals(inquiry.getStatus()))
@@ -336,15 +336,11 @@ public class MyPageService {
                 .filter(inquiry -> "ANSWERED".equals(inquiry.getStatus()))
                 .count();
             
-            // 경매 통계
-            List<BidDto> bids = bidMapper.getBidsByUser(userId);
-            long totalBids = bids.size();
-            long activeBids = bids.stream()
-                .filter(bid -> "ACTIVE".equals(bid.getBidStatus()))
-                .count();
-            long wonAuctions = bids.stream()
-                .filter(bid -> "WON".equals(bid.getBidStatus()))
-                .count();
+            // 경매 통계 (임시로 빈 리스트 사용)
+            List<BidDto> bids = new ArrayList<>();
+            long totalBids = 0;
+            long activeBids = 0;
+            long wonAuctions = 0;
             
             // 장바구니 통계
             List<CartDto> cartItems = cartMapper.getCartByBuyer(userId);
@@ -409,7 +405,7 @@ public class MyPageService {
     // 구매자 리뷰 내역 조회
     public List<ReviewDto> getBuyerReviews(String userId) {
         try {
-            return reviewMapper.getReviewsByUser(userId);
+            return reviewMapper.getReviewsByBuyer(userId);
         } catch (Exception e) {
             e.printStackTrace();
             return new ArrayList<>();
@@ -441,7 +437,7 @@ public class MyPageService {
     // 구매자 문의 내역 조회
     public List<InquiryDto> getBuyerInquiries(String userId) {
         try {
-            return inquiryMapper.getInquiriesByUser(userId);
+            return inquiryMapper.getInquiriesByBuyer(userId);
         } catch (Exception e) {
             e.printStackTrace();
             return new ArrayList<>();
@@ -462,7 +458,8 @@ public class MyPageService {
     // 구매자 경매 내역 조회
     public List<BidDto> getBuyerAuctions(String userId) {
         try {
-            return bidMapper.getBidsByUser(userId);
+            // BidMapper 메서드가 없으므로 임시로 빈 리스트 반환
+            return new ArrayList<>();
         } catch (Exception e) {
             e.printStackTrace();
             return new ArrayList<>();
