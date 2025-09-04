@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import com.app.dto.sale.Review;
 import com.app.dto.sale.SaleItem;
 
 @Repository
@@ -16,5 +17,6 @@ public interface SaleDAO {
 	
 	long getSaleCount(@Param("kind") String kind, @Param("part") String part);
 	
-	SaleItem getSaleItem(Integer saleId);
+	SaleItem getSaleItem(Integer saleId);	
+	
 }

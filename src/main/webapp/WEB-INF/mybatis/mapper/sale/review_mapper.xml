@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>						
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"						
+					"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+					
+<mapper namespace="com.app.dao.sale.ReviewDAO">
+
+	<select id="getReviews" resultType="Review">
+		SELECT 
+            R.REVIEW_ID,
+            R.SALE_ITEM_ID, 
+            R.USER_ID,
+            R.RATING,
+            R.REVIEW_COMMENT,
+            R.UPDATED_TIME,
+            U.USER_NAME
+        FROM REVIEWS R
+        INNER JOIN USERS U
+        ON R.USER_ID = U.ID
+        WHERE R.SALE_ITEM_ID = #{param1}
+        ORDER BY R.CREATED_TIME DESC
+        OFFSET #{param3} ROWS
+        FETCH NEXT #{param2} ROWS ONLY			
+	</select>
+	
+	<select id="getReviewCount">
+		SELECT COUNT(*)
+		FROM REVIEWS
+		WHERE SALE_ITEM_ID = #{saleId}
+	</select>
+	
+	
+<!-- 	<insert id="insertReview" parameterType="Review"> -->
+<!--         INSERT INTO REVIEWS ( -->
+<!--         	REVIEW_ID, -->
+<!--             SALE_ITEM_ID, -->
+<!--             USER_ID, -->
+<!--             RATING, -->
+<!--             REVIEW_COMMENT, -->
+<!--             CREATED_TIME -->
+<!--         ) VALUES ( -->
+<!--         	seq_review_id.nextval  -->
+<!--             #{saleItemId}, -->
+<!--             #{userId}, -->
+<!--             #{rating}, -->
+<!--             #{reviewComment}, -->
+<!--             SYSDATE -->
+<!--         ) -->
+<!--     </insert> -->
+    
+    <select id="getReviewById">
+    	SELECT *
+    	FROM REVIEWS
+    	WHERE REVIEW_ID = #{reviewId}
+    </select>
+    
+    
+</mapper>

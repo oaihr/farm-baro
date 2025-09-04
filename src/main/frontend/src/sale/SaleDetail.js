@@ -6,6 +6,7 @@ import ImageSlider from './common/ImageSlider';
 import './SaleDetail.css';
 import refridge from '../images/refridge.png';
 import ProductInfoTable from './common/ProductInfoTable';
+import ReviewList from '../components/ReviewList';
 
 function SaleDetail(){
 
@@ -16,7 +17,7 @@ function SaleDetail(){
     const [totalPrice, setTotalPrice] = useState(0); 
     const kindNames = useSelector(state => state.meat.kindNames);
     const partNames = useSelector(state => state.meat.partNames);
-
+    
     useEffect(()=>{
         const fetchData = async()=>{
             setLoading(true);
@@ -112,7 +113,8 @@ function SaleDetail(){
                     </div>
                 </div>
             </div>
-            <ProductInfoTable title={item.title}/>
+            <ProductInfoTable title={item.title} />
+            <ReviewList saleId={saleId} />
         </div>
     );
 }

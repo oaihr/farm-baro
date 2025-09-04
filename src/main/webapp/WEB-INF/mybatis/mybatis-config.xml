@@ -11,6 +11,7 @@
 
 	<typeAliases>
 		<typeAlias type="com.app.dto.sale.SaleItem" alias="SaleItem" />
+		<typeAlias type="com.app.dto.sale.Review" alias="Review" />
 		<typeAlias type="com.app.dto.auction.AuctionItem" alias="AuctionItem" />
 		<typeAlias type="com.app.dto.auction.Bid" alias="Bid" />
 	</typeAliases>
