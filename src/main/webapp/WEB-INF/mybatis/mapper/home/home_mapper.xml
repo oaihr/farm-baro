@@ -5,7 +5,7 @@
 
 <mapper namespace="home_mapper">
 
-	<resultMap type="AuctionItem" id="AuctionItemResultMap">
+	<resultMap type="com.app.dto.home.AuctionItem" id="AuctionItemResultMap">
 		<id property="auctionId" column="auction_id" />
 		<result property="judgeKindName" column="judge_kind_name" />
 		<result property="title" column="title" />
@@ -25,7 +25,7 @@
 		</collection>
 	</resultMap>
 
-	<resultMap type="SalesItem" id="SalesItemResultMap">
+	<resultMap type="com.app.dto.home.SalesItem" id="SalesItemResultMap">
 		<id property="saleItemId" column="sale_item_id" />
 		<result property="qty" column="qty" />
 		<result property="saleStatus" column="sale_status" />
