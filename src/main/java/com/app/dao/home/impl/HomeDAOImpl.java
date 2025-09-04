@@ -18,25 +18,25 @@ public class HomeDAOImpl implements HomeDAO{
 
 	@Override
 	public List<AuctionItemHome> getAuctionPage() {
-		List<AuctionItemHome> homeList = sqlSessionTemplate.selectList("home_mapper.getAuctionPage");
+		List<AuctionItemHome> homeList = sqlSessionTemplate.selectList("com.app.dao.home.HomeDAO.getAuctionPage");
 		return homeList;
 	}
 
 	@Override
 	public List<SalesItemHome> getSalesPage() {
-		List<SalesItemHome> salesList = sqlSessionTemplate.selectList("home_mapper.getSalesPage");
+		List<SalesItemHome> salesList = sqlSessionTemplate.selectList("com.app.dao.home.HomeDAO.getSalesPage");
 		return salesList;
 	}
 
 	@Override
 	public List<AuctionItemHome> searchAuctions(String keyword) {
-		List<AuctionItemHome> auctionList = sqlSessionTemplate.selectList("home_mapper.searchAuctions", keyword);
+		List<AuctionItemHome> auctionList = sqlSessionTemplate.selectList("com.app.dao.home.HomeDAO.searchAuctions", keyword);
 		return auctionList;
 	}
 
 	@Override
 	public List<SalesItemHome> searchSales(String keyword) {
-		List<SalesItemHome> salesList = sqlSessionTemplate.selectList("home_mapper.searchSales", keyword);
+		List<SalesItemHome> salesList = sqlSessionTemplate.selectList("com.app.dao.home.HomeDAO.searchSales", keyword);
 		return salesList;
 	}
 
