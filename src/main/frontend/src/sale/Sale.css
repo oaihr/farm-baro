@@ -1,0 +1,96 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.sale-main-container{
+  padding: 20px;
+}
+
+.sale-intro{
+  margin-bottom: 50px;
+}
+.sales{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4열로 나눔 */
+    gap: 20px; /* 아이템 사이 간격 */
+    margin-top: 20px;
+}
+
+.sales a{
+  text-decoration: none;
+  color: black;
+}
+/* 각 판매 물품 박스 */
+.sale-item {  
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 15px;
+  text-align: left;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+}
+
+.sale-item:hover {
+  transform: translateY(-5px);
+}
+
+.sale-item img {
+  width: 100%;
+  height: auto;
+  max-height: 200px;
+  object-fit: cover;
+}
+
+.sale-item h3 {
+  font-size: 1.2rem;
+  margin: 10px 0;
+}
+
+.sale-item p {
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.sale-item-wt-grade{
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.sale-item-price{
+  color: #38761D;
+  font-weight: 500;
+}
+
+.sale-item-info{
+  padding: 10px;
+  padding-top: 10px;
+  padding-bottom: 0px;
+}
+/* 페이지네이션 */
+.pagination {
+  text-align: center;
+  margin-top: 30px;
+}
+
+.pagination button {
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  padding: 10px 15px;
+  margin: 0 5px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.pagination button:hover {
+  background-color: #e0e0e0;
+}
+
+.pagination button.active {
+  background-color: #38761D;
+  color: white;
+  border-color: #38761D;
+}

@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans
-http://www.springframework.org/schema/beans/spring-beans.xsd">
-
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context
+		https://www.springframework.org/schema/context/spring-context.xsd
+		http://mybatis.org/schema/mybatis-spring
+		https://mybatis.org/schema/mybatis-spring.xsd">
+		
+	<mybatis-spring:scan base-package="com.app.dao" />
 
 	<!-- ioc 컨테이너에 빈 등록 -->
 	<!-- roomDAO bean 등록 -->
@@ -36,7 +44,7 @@ http://www.springframework.org/schema/beans/spring-beans.xsd">
 		<property name="dataSource" ref="data_source"></property>
 <!--	<property name="mapperLocations" value="/WEB-INF/mybatis/mapper/*.xml"></property> -->
 		<property name="mapperLocations" value="/WEB-INF/mybatis/mapper/**/*_mapper.xml"></property>
-		<property name="configLocation" value="/WEB-INF/mybatis/mybatis-config.xml"></property>
+		<property name="configLocation" value="/WEB-INF/mybatis/mybatis-config.xml"></property>		
 	</bean>
 
 	<bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">

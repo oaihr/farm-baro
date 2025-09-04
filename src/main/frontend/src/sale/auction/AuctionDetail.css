@@ -1,0 +1,193 @@
+
+
+.item-path{
+    display: flex;
+    margin-top: 15px;
+    margin-left: 10px;
+}
+
+.item-path a{
+    text-decoration: none;
+}
+.item-path li{
+    list-style: none;
+    margin-left: 10px;
+    font-size: 15px;
+    color: #87878A;
+}
+
+.auction-item-info{
+    display: flex;
+    padding: 30px 50px;
+}
+
+
+.auction-item-detail-box{
+    width: 50%;
+    padding: 20px;
+    padding-top: 0;
+    margin-left: 80px;
+}
+
+.auction-item-detail-info {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 30px 0;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.detail-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.label {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.value {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.remaining-time-box{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+.remaining-time-box p{
+    font-weight: 500;
+    font-size: 1rem;
+}
+
+
+.traceability-number{
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+.num-span{
+    font-weight: 500;
+}
+
+.divider {
+    border: 0;
+    height: 1px;
+    background-color: #e0e0e0;
+    margin: 30px 0;
+}
+
+.product-description .title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.product-description .description-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #555;
+}
+
+.buy-now-price, .real-time-bid{
+    display: flex;
+    justify-content: space-between;
+    padding: 0 10px;
+}
+
+.buy-now-price{
+    font-size: 1.2rem;
+}
+
+.real-time-bid{
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: #38761D;
+}
+
+/* 입찰 기록 ==================================================== */
+.bid-history-container {
+    width: 100%;
+    max-width: 80%;
+    margin: 40px auto; 
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    background-color: #fcfcfc;
+}
+
+.bid-history-container h2 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e9ecef; 
+    padding-bottom: 8px;
+}
+
+
+.bid-history-table {
+    width: 100%;
+    border-collapse: collapse; 
+    font-size: 14px;
+    color: #555;
+    text-align: center;
+}
+
+
+.bid-history-table thead th {
+    background-color: #007bff; 
+    color: #fff;
+    padding: 12px 10px;
+    border: 1px solid #e0e0e0;
+    font-weight: 600;
+}
+
+
+.bid-history-table tbody tr {
+    border-bottom: 1px solid #e0e0e0;
+    transition: background-color 0.2s ease;
+}
+
+.bid-history-table tbody tr:hover {
+    background-color: #e9ecef; 
+}
+
+
+.bid-history-table tbody td {
+    padding: 12px 10px;
+    border: 1px solid #e0e0e0;
+}
+
+
+.bid-history-table tbody tr:first-child td {
+    font-weight: bold;
+    color: #28a745;
+    background-color: #d4edda; 
+}
+
+
+.status-cell-top {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.status-cell-normal {
+    color: #555;
+}
