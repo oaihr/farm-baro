@@ -24,6 +24,9 @@ import com.app.mapper.ProductMapper;
 import com.app.mapper.ReviewMapper;
 import com.app.mapper.UserMapper;
 
+
+
+
 @Service
 @Transactional
 public class MyPageService {
@@ -116,32 +119,74 @@ public class MyPageService {
         return userMapper.updateUser(user) > 0;
     }
 
+    // ==================== 구매자 마이페이지 서비스 ====================
+
     // 구매자 주문 목록 조회
     public List<OrderDto> getBuyerOrders(String buyerId, String orderStatus) {
-        if (orderStatus != null && !orderStatus.isEmpty()) {
-            return orderMapper.searchBuyerOrders(buyerId, orderStatus);
+        try {
+            if (orderStatus != null && !orderStatus.isEmpty()) {
+                return orderMapper.searchBuyerOrders(buyerId, orderStatus);
+            }
+            return orderMapper.getOrdersByBuyer(buyerId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
         }
-        return orderMapper.getOrdersByBuyer(buyerId);
     }
+
+    // 주문 확정
+    public boolean confirmOrder(Long orderId) {
+        try {
+            int result = orderMapper.confirmOrder(orderId);
+            return result > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // 구매자 리뷰 목록 조회
+    public List<ReviewDto> getBuyerReviews(String buyerId) {
+        try {
+            return reviewMapper.getReviewsByBuyer(buyerId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    // 구매자 문의 목록 조회
+    public List<InquiryDto> getBuyerInquiries(String buyerId) {
+        try {
+            return inquiryMapper.getInquiriesByBuyer(buyerId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    // 장바구니 상품 수량 수정
+    public boolean updateCartQuantity(String userId, Long saleItemId, Integer quantity) {
+        try {
+            int result = cartMapper.updateCartQuantity(userId, saleItemId, quantity);
+            return result > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
+    // ==================== 판매자 마이페이지 서비스 ====================
 
     // 판매자 주문 목록 조회
     public List<OrderDto> getSellerOrders(String sellerId, String orderStatus, String buyerName, String buyerPhone) {
         return orderMapper.searchSellerOrders(sellerId, orderStatus, buyerName, buyerPhone);
     }
 
-    // 주문 확정
-    public boolean confirmOrder(Long saleOrderId) {
-        return orderMapper.confirmOrder(saleOrderId) > 0;
-    }
-
     // 배송 현황 업데이트
     public boolean updateDeliveryStatus(Long saleOrderId, String orderStatus) {
         return orderMapper.updateDeliveryStatus(saleOrderId, orderStatus) > 0;
-    }
-
-    // 구매자 리뷰 목록 조회
-    public List<ReviewDto> getBuyerReviews(String buyerId) {
-        return reviewMapper.getReviewsByBuyer(buyerId);
     }
 
     // 판매자 리뷰 목록 조회
@@ -162,11 +207,6 @@ public class MyPageService {
     // 판매자 리뷰 답글 작성
     public boolean replyToReview(Long reviewId, String sellerReply) {
         return reviewMapper.updateSellerReply(reviewId, sellerReply) > 0;
-    }
-
-    // 구매자 문의 목록 조회
-    public List<InquiryDto> getBuyerInquiries(String buyerId) {
-        return inquiryMapper.getInquiriesByBuyer(buyerId);
     }
 
     // 판매자 문의 목록 조회
@@ -213,11 +253,6 @@ public class MyPageService {
         } else {
             return cartMapper.insertCartItem(cart) > 0;
         }
-    }
-
-    // 장바구니 상품 수량 수정
-    public boolean updateCartQuantity(String userId, Long saleItemId, Integer quantity) {
-        return cartMapper.updateCartQuantity(userId, saleItemId, quantity) > 0;
     }
 
     // 장바구니 상품 삭제
@@ -297,8 +332,6 @@ public class MyPageService {
         stats.put("avgResponseTime", 0.0);
         return stats;
     }
-
-    // ==================== 구매자 마이페이지 서비스 ====================
 
     // 구매자 통계 정보 조회
     public Map<String, Object> getBuyerStats(String userId) {
@@ -381,37 +414,6 @@ public class MyPageService {
         return stats;
     }
 
-    // 구매자 주문 내역 조회
-    public List<OrderDto> getBuyerOrders(String userId) {
-        try {
-            return orderMapper.getOrdersByBuyer(userId);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ArrayList<>();
-        }
-    }
-
-    // 주문 확정
-    public boolean confirmOrder(Long orderId) {
-        try {
-            int result = orderMapper.confirmOrder(orderId);
-            return result > 0;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    // 구매자 리뷰 내역 조회
-    public List<ReviewDto> getBuyerReviews(String userId) {
-        try {
-            return reviewMapper.getReviewsByBuyer(userId);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ArrayList<>();
-        }
-    }
-
     // 리뷰 수정
     public boolean updateReview(ReviewDto review) {
         try {
@@ -434,26 +436,16 @@ public class MyPageService {
         }
     }
 
-    // 구매자 문의 내역 조회
-    public List<InquiryDto> getBuyerInquiries(String userId) {
-        try {
-            return inquiryMapper.getInquiriesByBuyer(userId);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ArrayList<>();
-        }
-    }
-
     // 문의 종료
-    public boolean closeInquiry(Long inquiryId) {
-        try {
-            int result = inquiryMapper.closeInquiry(inquiryId);
-            return result > 0;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
+//    public boolean closeInquiry(Long inquiryId) {
+//        try {
+//            int result = inquiryMapper.closeInquiry(inquiryId);
+//            return result > 0;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return false;
+//        }
+//    }
 
     // 구매자 경매 내역 조회
     public List<BidDto> getBuyerAuctions(String userId) {
@@ -479,16 +471,7 @@ public class MyPageService {
         }
     }
 
-    // 입찰 취소
-    public boolean cancelBid(Long auctionId) {
-        try {
-            int result = bidMapper.cancelBid(auctionId);
-            return result > 0;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
+ 
 
     // 구매자 장바구니 조회
     public List<CartDto> getBuyerCart(String userId) {
@@ -497,17 +480,6 @@ public class MyPageService {
         } catch (Exception e) {
             e.printStackTrace();
             return new ArrayList<>();
-        }
-    }
-
-    // 장바구니 수량 변경
-    public boolean updateCartQuantity(String userId, Long saleItemId, Integer quantity) {
-        try {
-            int result = cartMapper.updateCartQuantity(userId, saleItemId, quantity);
-            return result > 0;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
         }
     }
 
