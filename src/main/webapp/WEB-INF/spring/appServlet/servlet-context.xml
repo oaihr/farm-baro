@@ -1,5 +1,5 @@
-<beans:beans
-	xmlns="http://www.springframework.org/schema/mvc"
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:beans="http://www.springframework.org/schema/beans"
 	xmlns:context="http://www.springframework.org/schema/context"
@@ -26,7 +26,8 @@
 		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 		<beans:property name="prefix" value="/WEB-INF/views/"></beans:property>
 		<beans:property name="suffix" value=".jsp"></beans:property>
-		
+		<beans:property name="order" value="1000" />
+
 	</beans:bean>
 	
 	<resources location="/WEB-INF/resources/" mapping="/**"></resources>

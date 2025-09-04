@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.app.mapper.UserMapper">
+
+    <resultMap id="UserResultMap" type="com.app.dto.UserDto">
+        <id property="id" column="ID"/>
+        <result property="pw" column="PW"/>
+        <result property="email" column="EMAIL"/>
+        <result property="address" column="ADDRESS"/>
+        <result property="tel" column="TEL"/>
+        <result property="userName" column="USER_NAME"/>
+        <result property="userType" column="USER_TYPE"/>
+        <result property="userStatus" column="USER_STATUS"/>
+        <result property="businessNumber" column="BUSINESS_NUMBER"/>
+        <result property="createdTime" column="CREATED_TIME"/>
+        <result property="totalBalance" column="TOTAL_BALANCE"/>
+        <result property="bidDeposit" column="BID_DEPOSIT"/>
+        <result property="provider" column="PROVIDER"/>
+        <result property="providerId" column="PROVIDER_ID"/>
+    </resultMap>
+
+    <select id="getUserById" resultMap="UserResultMap">
+        SELECT * FROM users WHERE ID = #{userId}
+    </select>
+
+    <select id="getUserByEmail" resultMap="UserResultMap">
+        SELECT * FROM users WHERE EMAIL = #{email}
+    </select>
+
+    <select id="getUsersByType" resultMap="UserResultMap">
+        SELECT * FROM users WHERE USER_TYPE = #{userType}
+    </select>
+
+    <update id="updateUser" parameterType="com.app.dto.UserDto">
+        UPDATE users 
+        SET USER_NAME = #{userName},
+            TEL = #{tel},
+            ADDRESS = #{address},
+            EMAIL = #{email}
+            <if test="businessNumber != null">
+            , BUSINESS_NUMBER = #{businessNumber}
+            </if>
+        WHERE ID = #{id}
+    </update>
+
+</mapper>
