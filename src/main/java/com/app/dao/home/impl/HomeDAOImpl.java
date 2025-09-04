@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import com.app.dao.home.HomeDAO;
 import com.app.dto.home.AuctionItemHome;
 import com.app.dto.home.SalesItemHome;
+import com.app.dto.home.UserHome;
 
 @Repository
 public class HomeDAOImpl implements HomeDAO{
@@ -38,6 +39,12 @@ public class HomeDAOImpl implements HomeDAO{
 	public List<SalesItemHome> searchSales(String keyword) {
 		List<SalesItemHome> salesList = sqlSessionTemplate.selectList("com.app.dao.HomeDAO.searchSales", keyword);
 		return salesList;
+	}
+
+	@Override
+	public UserHome findUserIdOfSession(String session) {
+		UserHome user = sqlSessionTemplate.selectOne("com.app.dao.HomeDAO.findUserIdOfSession", session);
+		return user;
 	}
 
 }

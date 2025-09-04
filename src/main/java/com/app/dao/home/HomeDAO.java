@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.app.dto.home.AuctionItemHome;
 import com.app.dto.home.SalesItemHome;
+import com.app.dto.home.UserHome;
 
 public interface HomeDAO {
 
@@ -12,4 +13,6 @@ public interface HomeDAO {
 	
 	List<AuctionItemHome> searchAuctions(String keyword);
 	List<SalesItemHome> searchSales(String keyword);
+	
+	UserHome findUserIdOfSession(String session);
 }

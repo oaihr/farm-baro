@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.app.dto.home.AuctionItemHome;
 import com.app.dto.home.SalesItemHome;
 import com.app.dto.home.SearchResult;
+import com.app.dto.home.UserHome;
 import com.app.service.home.HomeService;
 
 import lombok.Data;
@@ -46,16 +47,23 @@ public class HomeController {
 	@GetMapping("/search")
     public ResponseEntity<SearchResult> search(@RequestParam(name = "keyword") String keyword) {
 
-        // 서비스 메서드를 호출하여 경매 및 판매 데이터를 모두 가져옵니다.
         List<AuctionItemHome> auctionList = homeService.searchAuctions(keyword);
         List<SalesItemHome> salesList = homeService.searchSales(keyword);
 
-        // 두 목록을 SearchResult DTO에 담아 반환
         SearchResult result = new SearchResult();
         result.setAuctions(auctionList);
         result.setSales(salesList);
 
         return ResponseEntity.ok(result);
     }
+	
+	//로그인 정보 확인
+	@GetMapping("/findUser")
+	public UserHome findUser(@RequestParam(name = "session") String session) {
+		
+		UserHome user = homeService.findUserIdOfSession(session);
+		
+		return user;
+	}
 
 }

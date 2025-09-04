@@ -46,7 +46,21 @@
 		</collection>
 	</resultMap>
 
-
+	<resultMap type="UserHome" id="UserResultMapHome">
+	    <id property="id" column="id" />
+	    <result property="pw" column="pw" />
+	    <result property="email" column="email" />
+	    <result property="address" column="address" />
+	    <result property="tel" column="tel" />
+	    <result property="userName" column="user_name" />
+	    <result property="userType" column="user_type" />
+	    <result property="userStatus" column="user_status" />
+	    <result property="businessNumber" column="business_number" />
+	    <result property="totalBalance" column="total_balance" />
+	    <result property="bidDeposit" column="bid_deposit" />
+	    <result property="provider" column="provider" />
+	    <result property="providerId" column="provider_id" />
+	</resultMap>
 
 	<select id="getAuctionPage" resultMap="AuctionItemResultMapHome">
 		SELECT
@@ -147,5 +161,11 @@
 	        (S.title LIKE '%' || #{keyword} || '%' OR S.description LIKE '%' || #{keyword} || '%')
 	    ORDER BY S.created_time
 	</select>
+	
+	<select id="UserHome" resultMap="UserResultMapHome">
+		select * from USERS
+		where id = #{session}
+	</select>
+	
 
 </mapper>

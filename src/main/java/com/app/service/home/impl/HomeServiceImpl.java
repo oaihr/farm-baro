@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.app.dao.home.HomeDAO;
 import com.app.dto.home.AuctionItemHome;
 import com.app.dto.home.SalesItemHome;
+import com.app.dto.home.UserHome;
 import com.app.service.home.HomeService;
 
 @Service
@@ -38,6 +39,12 @@ public class HomeServiceImpl implements HomeService{
 	public List<SalesItemHome> searchSales(String keyword) {
 		List<SalesItemHome> salesList = homeDAO.searchSales(keyword);
 		return salesList;
+	}
+
+	@Override
+	public UserHome findUserIdOfSession(String session) {
+		UserHome user = homeDAO.findUserIdOfSession(session);
+		return user;
 	}
 
 }

@@ -18,6 +18,7 @@ function Header() {
         }
     };
 
+
     return (
         <div className="home-header">
             <div className='home-logo-search'>
