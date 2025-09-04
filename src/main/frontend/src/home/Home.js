@@ -40,11 +40,72 @@ function Home() {
         fetchAuctionData();
     }, []); // 빈 의존성 배열은 컴포넌트가 처음 렌더링될 때 한 번만 실행
 
+
+    //quote 정보
+    const [prices, setPrices] = useState({
+        '소': { price: '00원', icon: cow },
+        '돼지': { price: '00원', icon: pig },
+        '닭': { price: '00원', icon: chicken }
+    });
+
+    const [activeKind, setActiveKind] = useState('소');
+
+    const formatPrice = (price) => {
+        if (typeof price !== 'number') {
+            return price;
+        }
+        return price.toLocaleString('ko-KR') + '원';
+    };
+
+    const formatDateToYYYYMMDD = (date) => {
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        return `${year}${month}${day}`;
+    };
+
+    const fetchYesterdayData = async () => {
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const formattedDate = formatDateToYYYYMMDD(yesterday);
+        const endpoint = `/quote/checkDay?day=${formattedDate}`;
+
+        try {
+            const response = await axios.get(endpoint);
+            const responseData = response.data;
+
+            const newPrices = { ...prices };
+
+            responseData.forEach(item => {
+                const kind = item.judgeKindName;
+                if (newPrices[kind]) {
+                    newPrices[kind] = {
+                        ...newPrices[kind],
+                        price: formatPrice(item.maxPrice)
+                    };
+                }
+            });
+            setPrices(newPrices);
+
+        } catch (error) {
+            console.error("어제 데이터를 가져오는 중 오류가 발생했습니다:", error);
+            const errorPrices = {};
+            Object.keys(prices).forEach(key => {
+                errorPrices[key] = { ...prices[key], price: '정보 없음' };
+            });
+            setPrices(errorPrices);
+        }
+    };
+
+    useEffect(() => {
+        fetchYesterdayData();
+    }, []);
+
     return (
         <div className='home-main'>
             {/* ====================Main======================== */}
             <div className='home-main-section'>
-                <div className="home-main-container">
+                <div>
                     <video
                         className="home-main-video"
                         autoPlay
@@ -62,57 +123,35 @@ function Home() {
                 </div>
             </div>
 
-            {/* ====================quote======================== */}
-
-            <div className="home-section">
-                <div className="home-quote-container">
-                    <div className="home-quote">
-                        {/* 축종별 시세는 고정된 값으로 두거나, 별도의 API 호출로 처리 가능 */}
-                        <div className="home-quote-inner">
-                            <div className="">
-                                <img className='home-quote-img' src={cow} alt="소" />
-                                <h3>소</h3>
-                                <p>1.3%</p>
+            <div className='quote-home-quote'>
+                <div className="quote-section">
+                    <div className="quote">
+                        <h2>어제의 최저가 시세</h2>
+                        <hr className='hr' style={{marginBottom:"70px"}}></hr>
+                        {Object.keys(prices).map((kind) => (
+                            <div
+                                key={kind}
+                                className={`quote-inner ${activeKind === kind}`}
+                                onClick={() => setActiveKind(kind)}
+                            >
+                                <div className="">
+                                    <img src={prices[kind].icon} alt={kind} className='quote-img' />
+                                    <h3>{kind}</h3>
+                                    <p>{prices[kind].price} 원/100g</p>
+                                </div>
                             </div>
-                            <div>
-                                <p>↓ 1.3</p>
-                            </div>
-                        </div>
-
-                        <div className="home-quote-inner">
-                            <div className="">
-                                <img className='home-quote-img' src={pig} alt="돼지" />
-                                <h3>돼지</h3>
-                                <p>1.3%</p>
-                            </div>
-                            <div>
-                                <p>↓ 1.3</p>
-                            </div>
-                        </div>
-
-                        <div className="home-quote-inner">
-                            <div className="">
-                                <img className='home-quote-img' src={chicken} alt="닭" />
-                                <h3>닭</h3>
-                                <p>1.3%</p>
-                            </div>
-                            <div>
-                                <p>↓ 1.3</p>
-                            </div>
-                        </div>
+                        ))}
                     </div>
                 </div>
-            </div>
 
-            <hr className='hr'></hr>
+                <hr className='hr'></hr>
+            </div>
 
             {/* ====================home-body======================== */}
             <div className="home-body">
-
                 <div className="home-auction-section">
                     <h2>실시간 경매</h2>
                     <div className="home-auction-list">
-                        {/* 3. 로딩 상태에 따라 다른 UI 표시 */}
                         {isLoading ? (
                             <p>데이터를 불러오는 중입니다...</p>
                         ) : (

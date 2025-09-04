@@ -109,7 +109,8 @@
 }
 
 .home-auction-section h2,
-.home-sale-section h2 {
+.home-sale-section h2,
+.quote h2 {
     font-size: 2rem;
     font-weight: 700;
     margin-bottom: 20px;
@@ -160,7 +161,7 @@
 }
 
 .home-auction-card h3,
-.home-sale-card h3 {
+.home-sale-card h3{
     font-size: 18px;
     font-weight: 600;
     margin: 10px;
