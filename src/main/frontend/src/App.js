@@ -20,7 +20,6 @@ import MyPage from "./pages/MyPage";
 import MyPageRedirect from "./components/MyPage/MyPageRedirect.js";
 import BuyerWizard from "./pages/SignupWizard/BuyerWizard";
 import SellerWizard from "./pages/SignupWizard/SellerWizard";
-import SellerApprovals from "./pages/Admin/SellerApprovals";
 
 // 마이페이지 컴포넌트들
 import EditInfo from './components/MyPage/EditInfo.js';
@@ -56,10 +55,11 @@ function App() {
           <Route path="/sale/:saleId" element={<SaleDetail />} />
           <Route path="/auctions/" element={<Auction />} />
           <Route path="/auction/:auctionId" element={<AuctionDetail />} />
-
           {/* 인증/마이페이지 */}
           <Route path="/login" element={<Login />} />
           <Route path="/me" element={<MyPageRedirect />} />
+
+
 
           {/* 회원가입(역할선택 → 폼) */}
           <Route path="/signup">
@@ -126,6 +126,7 @@ function App() {
 
           {/* 없는 경로는 메인으로 */}
           <Route path="*" element={<Navigate to="/" replace />} />
+
         </Routes>
         <Footer />
       </Router>

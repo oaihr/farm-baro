@@ -1,32 +1,51 @@
 package com.app.exception;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.mail.MailAuthenticationException;
+import org.springframework.mail.MailSendException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.mail.MailAuthenticationException;
-import org.springframework.mail.MailSendException;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
 
-    /* 공통 응답 바디 */
-    private ResponseEntity<Map<String,Object>> resp(HttpStatus s, String msg, Map<String,String> errors){
-        Map<String,Object> b = new LinkedHashMap<>();
-        b.put("ok", false);
-        b.put("message", msg);
-        if (errors != null && !errors.isEmpty()) b.put("errors", errors);
-        return ResponseEntity.status(s).body(b);
+  /* 공통 응답 바디 */
+  private ResponseEntity<Map<String,Object>> resp(HttpStatus s, String msg, Map<String,String> errors){
+    Map<String,Object> b = new LinkedHashMap<>();
+    b.put("ok", false);
+    b.put("message", msg);
+    if (errors != null && !errors.isEmpty()) b.put("errors", errors);
+    return ResponseEntity.status(s).body(b);
+  }
+
+  /** @RequestBody + @Valid 실패 / 폼 바인딩 실패 둘 다 처리 */
+  @ExceptionHandler({ MethodArgumentNotValidException.class, BindException.class })
+  public ResponseEntity<Map<String,Object>> handleBindErrors(Exception ex){
+    Map<String,String> errors = new LinkedHashMap<>();
+    if (ex instanceof MethodArgumentNotValidException) {
+      MethodArgumentNotValidException manve = (MethodArgumentNotValidException) ex;
+      for (FieldError fe : manve.getBindingResult().getFieldErrors()) {
+        errors.put(fe.getField(), fe.getDefaultMessage());
+      }
+    } else if (ex instanceof BindException) {
+      BindException be = (BindException) ex;
+      for (FieldError fe : be.getBindingResult().getFieldErrors()) {
+        errors.put(fe.getField(), fe.getDefaultMessage());
+      }
     }
 
     /** @RequestBody + @Valid 실패 / 폼 바인딩 실패 둘 다 처리 */
@@ -113,4 +132,5 @@ public class ApiExceptionHandler {
         // e.printStackTrace(); // 개발 중만
         return resp(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다.", null);
     }
+  }
 }

@@ -1,25 +1,99 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import './SellerMainPage.css';
+import ProductRegistration from './ProductRegistration';
+import OrderList from './OrderList';
+import ReviewManagement from './ReviewManagement';
+import InquiryManagement from './InquiryManagement';
+import ProfileEdit from './ProfileEdit';
 
 const SellerMainPage = () => {
     const { userId } = useParams();
     const [activeTab, setActiveTab] = useState('dashboard');
+    const [userInfo, setUserInfo] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [editing, setEditing] = useState(false);
+    const [editData, setEditData] = useState({
+        businessNumber: '',
+        specialty: '농산물 판매'
+    });
     
-    // 임시 데이터 (나중에 API로 교체)
-    const userInfo = {
-        ID: 'seller001',
-        USERNAME: '테스트용 닉네임1',
-        EMAIL: 'seller1@example.com',
-        TEL: '010-3456-7890',
-        ADDRESS: '경기도 성남시',
-        BUSINESS_NUMBER: '123-45-67890',
-        TOTAL_SALES: 200000,
-        AVAILABLE_BALANCE: 100000,
-        COUPONS: 3,
-        POINTS: 5000,
-        PENDING_ORDERS: 2
+    // 세션에서 사용자 정보 가져오기
+    const fetchUserInfo = async () => {
+        try {
+            const response = await fetch('/api/auth/me', {
+                credentials: 'include'
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setUserInfo(data);
+                // 편집 데이터 초기화
+                setEditData({
+                    businessNumber: data.businessNumber || '',
+                    specialty: '농산물 판매'
+                });
+            }
+        } catch (error) {
+            console.error('사용자 정보 조회 오류:', error);
+        } finally {
+            setLoading(false);
+        }
     };
+
+    useEffect(() => {
+        fetchUserInfo();
+    }, []);
+    
+    // 편집 모드 토글
+    const toggleEdit = () => {
+        setEditing(!editing);
+    };
+    
+    // 편집 데이터 저장
+    const saveEdit = async () => {
+        try {
+            const response = await fetch('/api/mypage/seller/update-info', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    businessNumber: editData.businessNumber,
+                    specialty: editData.specialty
+                })
+            });
+            
+            if (response.ok) {
+                // 사용자 정보 다시 가져오기
+                await fetchUserInfo();
+                setEditing(false);
+                alert('정보가 성공적으로 업데이트되었습니다.');
+            } else {
+                alert('정보 업데이트에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('정보 업데이트 오류:', error);
+            alert('정보 업데이트 중 오류가 발생했습니다.');
+        }
+    };
+    
+    // 편집 취소
+    const cancelEdit = () => {
+        setEditData({
+            businessNumber: userInfo.businessNumber || '',
+            specialty: '농산물 판매'
+        });
+        setEditing(false);
+    };
+    
+    if (loading) {
+        return <div>로딩 중...</div>;
+    }
+    
+    if (!userInfo) {
+        return <div>사용자 정보를 불러올 수 없습니다.</div>;
+    }
 
     const orderStats = {
         pending: 1,
@@ -68,8 +142,8 @@ const SellerMainPage = () => {
         <div className="seller-main-container">
             {/* 헤더 */}
             <div className="header">
-                <h1>내 계정</h1>
-                <p>고기 판매자 정보와 활동을 한 곳에서 관리하세요</p>
+                <h1>판매자 마이페이지</h1>
+                <p>판매자 정보와 활동을 한 곳에서 관리하세요</p>
             </div>
 
             {/* 탭 메뉴 */}
@@ -102,37 +176,103 @@ const SellerMainPage = () => {
             <div className="user-summary">
                 <div className="summary-left">
                     <div className="user-profile">
-                        <h3>{userInfo.USERNAME}</h3>
+                        <h3>{userInfo.name}</h3>
                         <span className="badge">SELLER</span>
+                        <div style={{marginTop: '10px'}}>
+                            {editing ? (
+                                <>
+                                    <button onClick={saveEdit} style={{
+                                        backgroundColor: '#4CAF50', 
+                                        color: 'white', 
+                                        border: 'none', 
+                                        padding: '8px 16px', 
+                                        borderRadius: '4px', 
+                                        marginRight: '10px',
+                                        cursor: 'pointer'
+                                    }}>
+                                        저장
+                                    </button>
+                                    <button onClick={cancelEdit} style={{
+                                        backgroundColor: '#f44336', 
+                                        color: 'white', 
+                                        border: 'none', 
+                                        padding: '8px 16px', 
+                                        borderRadius: '4px',
+                                        cursor: 'pointer'
+                                    }}>
+                                        취소
+                                    </button>
+                                </>
+                            ) : (
+                                <button onClick={toggleEdit} style={{
+                                    backgroundColor: '#2196F3', 
+                                    color: 'white', 
+                                    border: 'none', 
+                                    padding: '8px 16px', 
+                                    borderRadius: '4px',
+                                    cursor: 'pointer'
+                                }}>
+                                    정보 수정
+                                </button>
+                            )}
+                        </div>
                     </div>
                     <div className="user-details">
-                        <p>📧 {userInfo.EMAIL}</p>
-                        <p>📱 {userInfo.TEL}</p>
-                        <p>📍 {userInfo.ADDRESS}</p>
-                        <p>🏢 사업자번호: {userInfo.BUSINESS_NUMBER}</p>
-                        <p>🥩 전문 분야: 한우, 돼지고기, 닭고기</p>
+                        <p>📧 {userInfo.email}</p>
+                        <p>📱 {userInfo.tel || '전화번호 없음'}</p>
+                        <p>📍 {userInfo.address || '주소 없음'}</p>
+                        <p>🏢 사업자번호: 
+                            {editing ? (
+                                <input 
+                                    type="text" 
+                                    value={editData.businessNumber} 
+                                    onChange={(e) => setEditData({...editData, businessNumber: e.target.value})}
+                                    placeholder="사업자번호를 입력하세요"
+                                    style={{marginLeft: '10px', padding: '5px', border: '1px solid #ccc', borderRadius: '3px'}}
+                                />
+                            ) : (
+                                ` ${userInfo.businessNumber || '미등록'}`
+                            )}
+                        </p>
+                        <p>🥩 전문 분야: 
+                            {editing ? (
+                                <select 
+                                    value={editData.specialty} 
+                                    onChange={(e) => setEditData({...editData, specialty: e.target.value})}
+                                    style={{marginLeft: '10px', padding: '5px', border: '1px solid #ccc', borderRadius: '3px'}}
+                                >
+                                    <option value="농산물 판매">농산물 판매</option>
+                                    <option value="축산물 판매">축산물 판매</option>
+                                    <option value="수산물 판매">수산물 판매</option>
+                                    <option value="가공식품 판매">가공식품 판매</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            ) : (
+                                ` ${editData.specialty}`
+                            )}
+                        </p>
                     </div>
                     <div className="sales-info">
-                        <p>고객님의 총 매출은 <strong>{userInfo.TOTAL_SALES.toLocaleString()}원</strong>입니다.</p>
-                        <p>사용 가능 금액: <strong>{userInfo.AVAILABLE_BALANCE.toLocaleString()}원</strong></p>
-                        <p>고기 품질 등급: <strong>프리미엄</strong></p>
-                        <p>주요 판매 품목: <strong>한우, 돼지고기, 닭고기</strong></p>
+                        <p>총 매출: <strong>0원</strong></p>
+                        <p>사용 가능 금액: <strong>0원</strong></p>
+                        <p>판매자 등급: <strong>신규</strong></p>
+                        <p>주요 판매 품목: <strong>농산물</strong></p>
                     </div>
                 </div>
                 <div className="summary-right">
                     <div className="summary-stats">
-                                                        <div className="stat-card">
-                                    <div className="stat-number">{userInfo.COUPONS}</div>
-                                    <div className="stat-label">고기 할인</div>
-                                </div>
-                                                        <div className="stat-card">
-                                    <div className="stat-number">{userInfo.POINTS.toLocaleString()}</div>
-                                    <div className="stat-label">고기 적립</div>
-                                </div>
-                                                        <div className="stat-card">
-                                    <div className="stat-number">{userInfo.PENDING_ORDERS}</div>
-                                    <div className="stat-label">주문 대기</div>
-                                </div>
+                        <div className="stat-card">
+                            <div className="stat-number">0</div>
+                            <div className="stat-label">할인 쿠폰</div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-number">0</div>
+                            <div className="stat-label">적립 포인트</div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-number">0</div>
+                            <div className="stat-label">주문 대기</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -205,6 +345,75 @@ const SellerMainPage = () => {
                         </div>
                     ))}
                 </div>
+            </div>
+
+            {/* 탭 네비게이션 */}
+            <div className="tab-navigation">
+                <button 
+                    className={`tab-btn ${activeTab === 'dashboard' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('dashboard')}
+                >
+                    🏠 대시보드
+                </button>
+                <button 
+                    className={`tab-btn ${activeTab === 'product-registration' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('product-registration')}
+                >
+                    🥩 상품 등록
+                </button>
+                <button 
+                    className={`tab-btn ${activeTab === 'orders' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('orders')}
+                >
+                    📋 주문 현황
+                </button>
+                <button 
+                    className={`tab-btn ${activeTab === 'reviews' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('reviews')}
+                >
+                    ⭐ 리뷰 확인
+                </button>
+                <button 
+                    className={`tab-btn ${activeTab === 'inquiries' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('inquiries')}
+                >
+                    ❓ 문의 답변
+                </button>
+                <button 
+                    className={`tab-btn ${activeTab === 'profile-edit' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('profile-edit')}
+                >
+                    👤 정보 수정
+                </button>
+            </div>
+
+            {/* 탭 컨텐츠 */}
+            <div className="tab-content">
+                {activeTab === 'dashboard' && (
+                    <div className="dashboard-content">
+                        {/* 기존 대시보드 내용 */}
+                    </div>
+                )}
+                
+                {activeTab === 'product-registration' && (
+                    <ProductRegistration />
+                )}
+                
+                {activeTab === 'orders' && (
+                    <OrderList />
+                )}
+                
+                {activeTab === 'reviews' && (
+                    <ReviewManagement />
+                )}
+                
+                {activeTab === 'inquiries' && (
+                    <InquiryManagement />
+                )}
+                
+                {activeTab === 'profile-edit' && (
+                    <ProfileEdit />
+                )}
             </div>
         </div>
     );

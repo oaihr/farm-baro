@@ -3,9 +3,11 @@ package com.app.controller;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,9 +17,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.app.dto.BidDto;
@@ -29,9 +33,12 @@ import com.app.dto.ReviewDto;
 import com.app.dto.UserDto;
 import com.app.service.MyPageService;
 
-@Controller
+@RestController
 @RequestMapping("/mypage")
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"}, allowCredentials = "true")
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"}, 
+             allowCredentials = "true",
+             allowedHeaders = "*",
+             methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS})
 public class MyPageController {
 
 	@Autowired
@@ -484,13 +491,8 @@ public class MyPageController {
 			if (imageFiles != null && imageFiles.length > 0) {
 				for (MultipartFile imageFile : imageFiles) {
 					if (imageFile != null && !imageFile.isEmpty()) {
-						// 이미지 파일명을 상품 정보에 저장
-						String imageFileName = imageFile.getOriginalFilename();
-						// TODO: 실제 파일 저장 로직 구현 필요
-						// File uploadDir = new File("uploads/");
-						// if (!uploadDir.exists()) uploadDir.mkdirs();
-						// File dest = new File(uploadDir.getAbsolutePath() + File.separator + imageFileName);
-						// imageFile.transferTo(dest);
+						// 이미지 파일 저장 로직은 추후 구현 예정
+						// String imageFileName = imageFile.getOriginalFilename();
 					}
 				}
 			}
@@ -545,13 +547,8 @@ public class MyPageController {
 			if (imageFiles != null && imageFiles.length > 0) {
 				for (MultipartFile imageFile : imageFiles) {
 					if (imageFile != null && !imageFile.isEmpty()) {
-						// 이미지 파일명을 상품 정보에 저장
-						String imageFileName = imageFile.getOriginalFilename();
-						// TODO: 실제 파일 저장 로직 구현 필요
-						// File uploadDir = new File("uploads/");
-						// if (!uploadDir.exists()) uploadDir.mkdirs();
-						// File dest = new File(uploadDir.getAbsolutePath() + File.separator + imageFileName);
-						// imageFile.transferTo(dest);
+						// 이미지 파일 저장 로직은 추후 구현 예정
+						// String imageFileName = imageFile.getOriginalFilename();
 					}
 				}
 			}
@@ -607,7 +604,20 @@ public class MyPageController {
     @ResponseBody
     public ResponseEntity<List<OrderDto>> getBuyerOrders(@PathVariable String userId) {
         try {
-            List<OrderDto> orders = myPageService.getBuyerOrders(userId);
+            List<OrderDto> orders = myPageService.getBuyerOrdersWithExceptionHandling(userId);
+            return ResponseEntity.ok(orders);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    // 판매자 주문 내역 조회
+    @GetMapping("/api/sellers/{userId}/orders")
+    @ResponseBody
+    public ResponseEntity<List<OrderDto>> getSellerOrders(@PathVariable String userId) {
+        try {
+            List<OrderDto> orders = myPageService.getSellerOrdersWithExceptionHandling(userId);
             return ResponseEntity.ok(orders);
         } catch (Exception e) {
             e.printStackTrace();
@@ -805,7 +815,8 @@ public class MyPageController {
         try {
             @SuppressWarnings("unchecked")
             List<Long> itemIds = (List<Long>) removeData.get("itemIds");
-            boolean result = myPageService.removeCartItems(itemIds);
+            String userId = (String) removeData.get("userId");
+            boolean result = myPageService.removeCartItems(userId, itemIds);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             e.printStackTrace();
@@ -828,6 +839,33 @@ public class MyPageController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().build();
+        }
+    }
+
+    // 판매자 정보 업데이트 API
+    @PostMapping("/api/mypage/seller/update-info")
+    @ResponseBody
+    public ResponseEntity<?> updateSellerInfo(@RequestBody Map<String, Object> updateData, HttpSession session) {
+        try {
+            String userId = (String) session.getAttribute("LOGIN_ID");
+            if (userId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "로그인이 필요합니다."));
+            }
+            
+            String businessNumber = (String) updateData.get("businessNumber");
+            String specialty = (String) updateData.get("specialty");
+            
+            // MyPageService에 업데이트 메서드 호출
+            boolean result = myPageService.updateSellerInfo(userId, businessNumber, specialty);
+            
+            if (result) {
+                return ResponseEntity.ok(Map.of("message", "정보가 성공적으로 업데이트되었습니다."));
+            } else {
+                return ResponseEntity.badRequest().body(Map.of("message", "정보 업데이트에 실패했습니다."));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(Map.of("message", "오류가 발생했습니다: " + e.getMessage()));
         }
     }
 }

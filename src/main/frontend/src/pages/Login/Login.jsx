@@ -26,10 +26,10 @@ export default function Login() {
     setLoading(true);
 
     try {
-      // 서버 요구 스키마: { email, password }
+      // 서버 요구 스키마: { email, password } (백엔드에서 email 필드로 받지만 ID/이메일 모두 처리)
      const res = await http.post(
   "/api/auth/login",
-  { email: email.trim(), password, keep },
+  { email: email.trim(), password, keep }, // 이메일로 로그인
   { withCredentials: true }              // ★ 세션 쿠키 받기
 );
 
