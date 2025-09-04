@@ -3,9 +3,9 @@
 			"-//mybatis.org//DTD mapper 3.0//EN"
 			"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="home_mapper">
+<mapper namespace="com.app.dao.HomeDAO">
 
-	<resultMap type="AuctionItem" id="AuctionItemResultMap">
+	<resultMap type="AuctionItemHome" id="AuctionItemResultMapHome">
 		<id property="auctionId" column="auction_id" />
 		<result property="judgeKindName" column="judge_kind_name" />
 		<result property="title" column="title" />
@@ -25,7 +25,7 @@
 		</collection>
 	</resultMap>
 
-	<resultMap type="SalesItem" id="SalesItemResultMap">
+	<resultMap type="SalesItemHome" id="SalesItemResultMapHome">
 		<id property="saleItemId" column="sale_item_id" />
 		<result property="qty" column="qty" />
 		<result property="saleStatus" column="sale_status" />
@@ -48,7 +48,7 @@
 
 
 
-	<select id="getAuctionPage" resultMap="AuctionItemResultMap">
+	<select id="getAuctionPage" resultMap="AuctionItemResultMapHome">
 		SELECT
 		A.auction_id,
 		A.judge_kind_name,
@@ -73,7 +73,7 @@
 
 	</select>
 	
-	<select id="searchAuctions" resultMap="AuctionItemResultMap">
+	<select id="searchAuctions" resultMap="AuctionItemResultMapHome">
 	    SELECT
 	        A.auction_id,
 	        A.judge_kind_name,
@@ -100,7 +100,7 @@
 	
 	
 
-	<select id="getSalesPage" resultMap="SalesItemResultMap">
+	<select id="getSalesPage" resultMap="SalesItemResultMapHome">
 	    SELECT 
 	        S.sale_item_id,
 	        S.qty,
@@ -123,7 +123,7 @@
 	    order by S.created_time
 	</select>
 	
-	<select id="searchSales" resultMap="SalesItemResultMap">
+	<select id="searchSales" resultMap="SalesItemResultMapHome">
 	    SELECT 
 	        S.sale_item_id,
 	        S.qty,
