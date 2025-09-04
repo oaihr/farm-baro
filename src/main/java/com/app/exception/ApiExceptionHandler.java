@@ -1,21 +1,24 @@
 package com.app.exception;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.mail.MailAuthenticationException;
+import org.springframework.mail.MailSendException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.mail.MailAuthenticationException;
-import org.springframework.mail.MailSendException;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
@@ -33,11 +36,13 @@ public class ApiExceptionHandler {
   @ExceptionHandler({ MethodArgumentNotValidException.class, BindException.class })
   public ResponseEntity<Map<String,Object>> handleBindErrors(Exception ex){
     Map<String,String> errors = new LinkedHashMap<>();
-    if (ex instanceof MethodArgumentNotValidException manve) {
+    if (ex instanceof MethodArgumentNotValidException) {
+      MethodArgumentNotValidException manve = (MethodArgumentNotValidException) ex;
       for (FieldError fe : manve.getBindingResult().getFieldErrors()) {
         errors.put(fe.getField(), fe.getDefaultMessage());
       }
-    } else if (ex instanceof BindException be) {
+    } else if (ex instanceof BindException) {
+      BindException be = (BindException) ex;
       for (FieldError fe : be.getBindingResult().getFieldErrors()) {
         errors.put(fe.getField(), fe.getDefaultMessage());
       }

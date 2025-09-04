@@ -1,46 +1,138 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
 <mapper namespace="com.app.mapper.UserMapper">
 
-    <resultMap id="UserResultMap" type="com.app.dto.UserDto">
-        <id property="id" column="ID"/>
-        <result property="pw" column="PW"/>
-        <result property="email" column="EMAIL"/>
-        <result property="address" column="ADDRESS"/>
-        <result property="tel" column="TEL"/>
-        <result property="userName" column="USER_NAME"/>
-        <result property="userType" column="USER_TYPE"/>
-        <result property="userStatus" column="USER_STATUS"/>
-        <result property="businessNumber" column="BUSINESS_NUMBER"/>
-        <result property="createdTime" column="CREATED_TIME"/>
-        <result property="totalBalance" column="TOTAL_BALANCE"/>
-        <result property="bidDeposit" column="BID_DEPOSIT"/>
-        <result property="provider" column="PROVIDER"/>
-        <result property="providerId" column="PROVIDER_ID"/>
-    </resultMap>
+<!-- 
+  ☆ alias 대신 FQCN
+  <resultMap id="UserMap" type="com.app.domain.User">
+    <id     column="ID"             property="id"/>
+    <result column="PW"             property="pw"/>
+    <result column="EMAIL"          property="email"/>
+    <result column="ADDRESS"        property="address"/>
+    <result column="TEL"            property="tel"/>
+    <result column="USER_NAME"      property="userName"/>
+    <result column="USER_TYPE"      property="userType"/>
+    <result column="USER_STATUS"    property="userStatus"/>
+    <result column="BUSINESS_NUMBER" property="businessNumber"/>
+    <result column="CREATED_TIME"   property="createdTime" jdbcType="TIMESTAMP"/>
+    <result column="PROVIDER"       property="provider"/>
+    <result column="PROVIDER_ID"    property="providerId"/>
+    <result column="TOTAL_BALANCE"  property="totalBalance" jdbcType="NUMERIC"/>
+    <result column="BID_DEPOSIT"    property="bidDeposit"   jdbcType="NUMERIC"/>
+  </resultMap>
 
-    <select id="getUserById" resultMap="UserResultMap">
-        SELECT * FROM users WHERE ID = #{userId}
-    </select>
+  <select id="findById" parameterType="java.lang.String" resultMap="UserMap">
+    SELECT *
+    FROM USERS
+    WHERE ID = #{id}
+  </select>
 
-    <select id="getUserByEmail" resultMap="UserResultMap">
-        SELECT * FROM users WHERE EMAIL = #{email}
-    </select>
+  <select id="findByEmail" parameterType="java.lang.String" resultMap="UserMap">
+    SELECT *
+    FROM USERS
+    WHERE EMAIL = #{email}
+  </select> -->
+  
+  <select id="findById" parameterType="string" resultType="com.app.domain.User">
+  SELECT
+    ID           AS id,
+    PW           AS pw,
+    EMAIL        AS email,
+    ADDRESS      AS address,
+    TEL          AS tel,
+    USER_NAME    AS userName,
+    USER_TYPE    AS userType,
+    USER_STATUS  AS userStatus,
+    BUSINESS_NUMBER AS businessNumber,
+    CREATED_TIME AS createdTime,
+    TOTAL_BALANCE AS totalBalance,
+    BID_DEPOSIT   AS bidDeposit,
+    PROVIDER     AS provider,
+    PROVIDER_ID  AS providerId
+  FROM USERS
+  WHERE ID = #{id}
+</select>
 
-    <select id="getUsersByType" resultMap="UserResultMap">
-        SELECT * FROM users WHERE USER_TYPE = #{userType}
-    </select>
+  <select id="findByEmail" parameterType="string" resultType="com.app.domain.User">
+  SELECT
+    ID           AS id,
+    PW           AS pw,
+    EMAIL        AS email,
+    ADDRESS      AS address,
+    TEL          AS tel,
+    USER_NAME    AS userName,
+    USER_TYPE    AS userType,
+    USER_STATUS  AS userStatus,
+    BUSINESS_NUMBER AS businessNumber,
+    CREATED_TIME AS createdTime,
+    TOTAL_BALANCE AS totalBalance,
+    BID_DEPOSIT   AS bidDeposit,
+    PROVIDER     AS provider,
+    PROVIDER_ID  AS providerId
+  FROM USERS
+  WHERE EMAIL = #{email}
+</select>
 
-    <update id="updateUser" parameterType="com.app.dto.UserDto">
-        UPDATE users 
-        SET USER_NAME = #{userName},
-            TEL = #{tel},
-            ADDRESS = #{address},
-            EMAIL = #{email}
-            <if test="businessNumber != null">
-            , BUSINESS_NUMBER = #{businessNumber}
-            </if>
-        WHERE ID = #{id}
-    </update>
+  <select id="existsByEmail" parameterType="string" resultType="int">
+    SELECT COUNT(*)
+    FROM USERS
+    WHERE EMAIL = #{email}
+  </select>
+
+  <!-- User 도메인 객체 삽입 -->
+  <insert id="insertUser" parameterType="com.app.domain.User">
+    INSERT INTO USERS
+      (ID, PW, EMAIL, ADDRESS, TEL, USER_NAME, USER_TYPE, USER_STATUS,
+       CREATED_TIME, TOTAL_BALANCE, BID_DEPOSIT, PROVIDER, PROVIDER_ID)
+    VALUES
+      (#{id}, #{pw}, #{email}, #{address}, #{tel}, #{userName}, #{userType}, 
+       COALESCE(#{userStatus}, 'ACTIVE'), SYSTIMESTAMP, 
+       COALESCE(#{totalBalance}, 0), COALESCE(#{bidDeposit}, 0), 
+       #{provider}, #{providerId})
+  </insert>
+  
+    <!-- 판매자 가입: USERS 테이블에 바로 INSERT -->
+	
+  <insert id="insertSeller" parameterType="map">
+    INSERT INTO USERS
+     (ID, PW, EMAIL, ADDRESS, TEL, USER_NAME, USER_TYPE, USER_STATUS,
+      BUSINESS_NUMBER, CREATED_TIME, TOTAL_BALANCE, BID_DEPOSIT, PROVIDER, PROVIDER_ID)
+    VALUES
+     (#{id}, #{pw}, #{email}, #{address}, #{tel}, #{userName},
+      'SELLER', 'PENDING', #{brn}, SYSTIMESTAMP, 0, 0, NULL, NULL)
+  </insert>
+  
+  <!-- 구매자 가입 -->
+<insert id="insertBuyer" parameterType="map">
+  INSERT INTO USERS
+    (ID, PW, EMAIL, USER_NAME, ADDRESS, TEL,
+     USER_TYPE, USER_STATUS, CREATED_TIME, TOTAL_BALANCE, BID_DEPOSIT, PROVIDER, PROVIDER_ID)
+  VALUES
+    (#{id}, #{pw}, #{email}, #{name}, #{address}, #{tel},
+     'BUYER', 'ACTIVE', SYSTIMESTAMP, 0, 0, NULL, NULL)
+</insert>
+
+
+<!-- ID 존재 여부 -->
+<select id="existsById" parameterType="string" resultType="int">
+  SELECT COUNT(*)
+  FROM USERS
+  WHERE ID = #{id}
+</select>
+
+<!-- 비밀번호 재설정 -->
+<update id="updatePasswordByEmail" parameterType="map">
+  UPDATE USERS
+     SET PW = #{pw}
+   WHERE EMAIL = #{email}
+</update>
+
+<!-- 판매자 정보 업데이트 -->
+<update id="updateSellerInfo" parameterType="map">
+  UPDATE USERS
+     SET BUSINESS_NUMBER = #{businessNumber,jdbcType=VARCHAR}
+   WHERE ID = #{userId}
+</update>
 
 </mapper>

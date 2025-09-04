@@ -337,7 +337,6 @@ public class MyPageService {
                 .count();
             
             // 경매 통계 (임시로 빈 리스트 사용)
-            List<BidDto> bids = new ArrayList<>();
             long totalBids = 0;
             long activeBids = 0;
             long wonAuctions = 0;
@@ -381,8 +380,8 @@ public class MyPageService {
         return stats;
     }
 
-    // 구매자 주문 내역 조회
-    public List<OrderDto> getBuyerOrders(String userId) {
+    // 구매자 주문 내역 조회 (예외 처리 포함)
+    public List<OrderDto> getBuyerOrdersWithExceptionHandling(String userId) {
         try {
             return orderMapper.getOrdersByBuyer(userId);
         } catch (Exception e) {
@@ -391,8 +390,19 @@ public class MyPageService {
         }
     }
 
-    // 주문 확정
-    public boolean confirmOrder(Long orderId) {
+    // 판매자 주문 목록 조회 (예외 처리 포함)
+    public List<OrderDto> getSellerOrdersWithExceptionHandling(String userId) {
+        try {
+            List<OrderDto> orders = orderMapper.getOrdersBySeller(userId);
+            return orders;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    // 주문 확정 (예외 처리 포함)
+    public boolean confirmOrderWithExceptionHandling(Long orderId) {
         try {
             int result = orderMapper.confirmOrder(orderId);
             return result > 0;
@@ -402,8 +412,8 @@ public class MyPageService {
         }
     }
 
-    // 구매자 리뷰 내역 조회
-    public List<ReviewDto> getBuyerReviews(String userId) {
+    // 구매자 리뷰 내역 조회 (예외 처리 포함)
+    public List<ReviewDto> getBuyerReviewsWithExceptionHandling(String userId) {
         try {
             return reviewMapper.getReviewsByBuyer(userId);
         } catch (Exception e) {
@@ -434,8 +444,8 @@ public class MyPageService {
         }
     }
 
-    // 구매자 문의 내역 조회
-    public List<InquiryDto> getBuyerInquiries(String userId) {
+    // 구매자 문의 내역 조회 (예외 처리 포함)
+    public List<InquiryDto> getBuyerInquiriesWithExceptionHandling(String userId) {
         try {
             return inquiryMapper.getInquiriesByBuyer(userId);
         } catch (Exception e) {
@@ -444,10 +454,10 @@ public class MyPageService {
         }
     }
 
-    // 문의 종료
+    // 문의 종료 (상태 업데이트로 대체)
     public boolean closeInquiry(Long inquiryId) {
         try {
-            int result = inquiryMapper.closeInquiry(inquiryId);
+            int result = inquiryMapper.updateInquiryStatus(inquiryId, "CLOSED");
             return result > 0;
         } catch (Exception e) {
             e.printStackTrace();
@@ -469,8 +479,7 @@ public class MyPageService {
     // 경매 결제 처리
     public boolean processAuctionPayment(Long auctionId, String paymentMethod, Double amount) {
         try {
-            // 실제 결제 시스템 연동 로직 구현 필요
-            // 현재는 성공으로 처리
+            // 결제 시스템 연동 로직 (추후 구현 예정)
             System.out.println("경매 결제 처리: " + auctionId + ", " + paymentMethod + ", " + amount);
             return true;
         } catch (Exception e) {
@@ -479,11 +488,12 @@ public class MyPageService {
         }
     }
 
-    // 입찰 취소
+    // 입찰 취소 (임시 구현 - BidMapper에 해당 메서드가 없음)
     public boolean cancelBid(Long auctionId) {
         try {
-            int result = bidMapper.cancelBid(auctionId);
-            return result > 0;
+            // BidMapper에 cancelBid 메서드 추가 필요 (추후 구현 예정)
+            System.out.println("입찰 취소 요청: " + auctionId + " (임시 구현)");
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -500,8 +510,8 @@ public class MyPageService {
         }
     }
 
-    // 장바구니 수량 변경
-    public boolean updateCartQuantity(String userId, Long saleItemId, Integer quantity) {
+    // 장바구니 수량 변경 (예외 처리 포함)
+    public boolean updateCartQuantityWithExceptionHandling(String userId, Long saleItemId, Integer quantity) {
         try {
             int result = cartMapper.updateCartQuantity(userId, saleItemId, quantity);
             return result > 0;
@@ -522,15 +532,13 @@ public class MyPageService {
         }
     }
 
-    // 선택된 장바구니 상품들 삭제
-    public boolean removeCartItems(List<Long> itemIds) {
+    // 선택된 장바구니 상품들 삭제 (개선된 구현)
+    public boolean removeCartItems(String userId, List<Long> saleItemIds) {
         try {
-            // 실제로는 배치 삭제가 더 효율적이지만, 현재는 개별 삭제로 구현
             boolean allSuccess = true;
-            for (Long itemId : itemIds) {
-                // itemId에서 userId와 saleItemId를 추출하는 로직 필요
-                // 현재는 간단히 처리
-                allSuccess = allSuccess && true; // 실제 구현 필요
+            for (Long saleItemId : saleItemIds) {
+                int result = cartMapper.deleteCartItem(userId, saleItemId);
+                allSuccess = allSuccess && (result > 0);
             }
             return allSuccess;
         } catch (Exception e) {
@@ -542,10 +550,25 @@ public class MyPageService {
     // 장바구니 결제
     public boolean checkoutCart(List<Long> itemIds, Double totalAmount, String paymentMethod) {
         try {
-            // 실제 결제 시스템 연동 로직 구현 필요
-            // 현재는 성공으로 처리
+            // 결제 시스템 연동 로직 (추후 구현 예정)
             System.out.println("장바구니 결제: " + itemIds + ", " + totalAmount + ", " + paymentMethod);
             return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // 판매자 정보 업데이트
+    public boolean updateSellerInfo(String userId, String businessNumber, String specialty) {
+        try {
+            Map<String, Object> params = new HashMap<>();
+            params.put("userId", userId);
+            params.put("businessNumber", businessNumber);
+            params.put("specialty", specialty);
+            
+            int result = userMapper.updateSellerInfo(params);
+            return result > 0;
         } catch (Exception e) {
             e.printStackTrace();
             return false;

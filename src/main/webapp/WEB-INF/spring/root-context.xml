@@ -37,7 +37,7 @@ http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<bean class="org.mybatis.spring.SqlSessionFactoryBean" id="sqlSessionFactory">
 		<property name="dataSource" ref="data_source"></property>
-		<property name="mapperLocations" value="/WEB-INF/mybatis/*Mapper.xml"></property>
+		<property name="mapperLocations" value="/WEB-INF/mybatis/**/*Mapper.xml"></property>
 		<property name="configurationProperties">
 			<props>
 				<prop key="mapUnderscoreToCamelCase">true</prop>

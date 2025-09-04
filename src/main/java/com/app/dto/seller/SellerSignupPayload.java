@@ -12,6 +12,7 @@ public class SellerSignupPayload {
     private String name;
     private String email;
     private String pass;
+    private String tel;  // 전화번호 추가
   }
 
   @Data

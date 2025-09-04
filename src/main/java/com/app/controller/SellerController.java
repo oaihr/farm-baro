@@ -1,5 +1,24 @@
 package com.app.controller;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Map;
+
+import javax.servlet.http.HttpSession;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.app.dto.seller.EmailReq;
 import com.app.dto.seller.EmailVerifyReq;
 import com.app.dto.seller.SellerSignupPayload;
@@ -7,19 +26,8 @@ import com.app.mapper.UserMapper;
 import com.app.service.user.email.EmailService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import javax.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-
 import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.nio.file.*;
-import java.util.*;
 
 @RestController
 @RequestMapping("/api/sellers")
@@ -99,12 +107,4 @@ public class SellerController {
 		}
 	}
 
-	// ★ 디버그용: 프론트-서버 핸드셰이크 확인 (원인 좁히기)
-	@PostMapping(path = "/debug/parse", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public Map<String, Object> debugParse(@RequestPart("payload") String payloadJson,
-			@RequestPart(value = "brnFile", required = false) MultipartFile file) throws Exception {
-		SellerSignupPayload p = new ObjectMapper().readValue(payloadJson, SellerSignupPayload.class);
-		return Map.of("email", p.getBasic().getEmail(), "brn", p.getBusiness().getBrn(), "hasFile", file != null,
-				"fileName", file != null ? file.getOriginalFilename() : null);
-	}
 }

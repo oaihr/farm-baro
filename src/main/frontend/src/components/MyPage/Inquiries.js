@@ -32,15 +32,56 @@ const Inquiries = () => {
     const fetchInquiries = async () => {
         try {
             setLoading(true);
-            const response = await fetch(`http://localhost:8080/mypage/seller/${userId}/inquiries`);
-            if (response.ok) {
-                const data = await response.json();
-                setInquiries(data);
-                setFilteredInquiries(data);
-            } else {
-                console.error('문의 목록 조회 실패');
-                setMessage('문의 목록을 불러오는데 실패했습니다.');
+            
+            // 실제 API 호출 시도 (현재는 구현되지 않음)
+            try {
+                const response = await fetch(`http://localhost:8080/mypage/seller/${userId}/inquiries`, {
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const responseText = await response.text();
+                    if (responseText && responseText !== 'error') {
+                        try {
+                            const data = JSON.parse(responseText);
+                            setInquiries(data);
+                            setFilteredInquiries(data);
+                            return;
+                        } catch (parseError) {
+                            console.log('JSON 파싱 실패, 더미 데이터 사용:', parseError);
+                        }
+                    }
+                }
+            } catch (apiError) {
+                console.log('API 호출 실패, 더미 데이터 사용:', apiError);
             }
+            
+            // API가 구현되지 않은 경우 더미 데이터 사용
+            const dummyInquiries = [
+                {
+                    id: 1,
+                    productName: '신선한 사과',
+                    buyerName: '구매자1',
+                    title: '배송 문의',
+                    content: '언제쯤 배송이 가능한가요?',
+                    inquiryDate: '2025-09-03',
+                    status: 'PENDING',
+                    sellerReply: null
+                },
+                {
+                    id: 2,
+                    productName: '고급 쌀',
+                    buyerName: '구매자2',
+                    title: '상품 문의',
+                    content: '유기농 인증서가 있나요?',
+                    inquiryDate: '2025-09-02',
+                    status: 'ANSWERED',
+                    sellerReply: '네, 유기농 인증서가 있습니다. 상품 상세페이지에서 확인하실 수 있습니다.'
+                }
+            ];
+            setInquiries(dummyInquiries);
+            setFilteredInquiries(dummyInquiries);
+            
         } catch (error) {
             console.error('문의 목록 조회 오류:', error);
             setMessage('문의 목록 조회 중 오류가 발생했습니다.');

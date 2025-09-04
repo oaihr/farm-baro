@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
-import CorsTest from "./components/CorsTest";
 
 import Sale from "./pages/Sale/Sale";
 import Login from "./pages/Login/Login";
@@ -13,7 +12,6 @@ import MyPage from "./pages/MyPage";
 import MyPageRedirect from "./components/MyPage/MyPageRedirect.js";
 import BuyerWizard from "./pages/SignupWizard/BuyerWizard";
 import SellerWizard from "./pages/SignupWizard/SellerWizard";
-import SellerApprovals from "./pages/Admin/SellerApprovals";
 
 // 마이페이지 컴포넌트들
 import EditInfo from './components/MyPage/EditInfo.js';
@@ -43,8 +41,6 @@ function App() {
         <Route path="/" element={<Sale />} />
         <Route path="/sale/:kind/:type" element={<Sale />} />
         
-        {/* CORS 테스트 */}
-        <Route path="/cors-test" element={<CorsTest />} />
         
         {/* 인증/마이페이지 */}
         <Route path="/login" element={<Login />} />
@@ -58,18 +54,19 @@ function App() {
           <Route path="seller" element={<SellerWizard />} />
         </Route>
 
-        {/* 관리자승인 */}
-        <Route path="/admin/sellers" element={<SellerApprovals/>} />
 
-        {/* 마이페이지 라우트 */}
-        <Route path="/mypage/:userType/:userId" element={<MyPage />} />
-        
-        {/* 판매자 마이페이지 - 로그인 인증 필요 */}
+        {/* 판매자 마이페이지 - 로그인 인증 필요 (더 구체적인 경로를 먼저 배치) */}
         <Route path="/mypage/seller/:userId" element={
           <ProtectedRoute allowedRoles={['seller', 'admin']}>
             <SellerMainPage />
           </ProtectedRoute>
         } />
+        
+        {/* 구매자 마이페이지 라우트 */}
+        <Route path="/mypage/buyer/:userId" element={<MyPage />} />
+        
+        {/* 기타 마이페이지 라우트 */}
+        <Route path="/mypage/:userType/:userId" element={<MyPage />} />
         <Route path="/mypage/seller/:userId/edit-info" element={
           <ProtectedRoute allowedRoles={['seller', 'admin']}>
             <EditInfo />

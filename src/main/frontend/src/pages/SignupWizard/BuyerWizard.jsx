@@ -25,6 +25,7 @@ export default function BuyerWizard() {
   const pct = useMemo(() => (step / 3) * 100, [step]);
 
   const [f, setF] = useState({
+   id: "",            // 사용자 닉네임
    name: "",          // 프론트에서 쓰는 표시용
    email: "",
    password: "",
@@ -46,6 +47,7 @@ export default function BuyerWizard() {
   const [leftSec, setLeftSec]     = useState(0);      // 남은 초
   const [emailVerified, setEmailVerified] = useState(false);
   const [sending, setSending] = useState(false);
+  const [emailChecked, setEmailChecked] = useState(false);  // 이메일 중복 체크 완료 여부
 
   // 추가: 필수 약관 동의 완료 여부
 const allRequiredAgreed = useMemo(
@@ -74,6 +76,7 @@ useEffect(() => {
 
 
    const validateAllStep1 = (state = f) => ({
+   id:        state.id?.trim() ? "" : "닉네임을 입력하세요",
    name:      vName((state.name ?? "")),
    email:     vEmail((state.email ?? "")),
    password:  vPass((state.password ?? "")),
@@ -85,8 +88,12 @@ useEffect(() => {
    const v = name === "tel" ? formatPhone(value) : (type === "checkbox" ? checked : value);
    setF((p) => {
      const next = { ...p, [name]: v };
-     if (step === 1 && ["name","email","password","birth"].includes(name)) {
+     if (step === 1 && ["id","name","email","password","birth"].includes(name)) {
        setErrors(validateAllStep1(next));
+     }
+     // 이메일이 변경되면 중복 체크 상태 초기화
+     if (name === "email") {
+       setEmailChecked(false);
      }
      return next;
    });
@@ -95,7 +102,7 @@ useEffect(() => {
  const onBlur = (e) => {
    const { name } = e.target;
    setTouched((p) => ({ ...p, [name]: true }));
-   if (step === 1 && ["name","email","password","birth"].includes(name)) {
+   if (step === 1 && ["id","name","email","password","birth"].includes(name)) {
      setErrors(validateAllStep1());
    }
  };
@@ -103,10 +110,39 @@ useEffect(() => {
   // ------ 단계별 유효성 ------
   const okStep1 = !Object.values(validateAllStep1()).some(Boolean);
 
+  // --- 이메일 중복 체크
+const checkEmailDuplicate = async () => {
+  if (!f.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)) {
+    return alert("이메일 형식이 올바르지 않습니다.");
+  }
+  setSending(true);
+  try {
+    const { data } = await http.post("/api/auth/check-email", { email: f.email.trim() });
+    if (data.exists) {
+      alert("이미 사용 중인 이메일입니다.");
+      setEmailChecked(false);
+    } else {
+      alert("사용 가능한 이메일입니다.");
+      setEmailChecked(true);
+    }
+  } catch (e) {
+    console.error("email check error:", e);
+    const status = e?.response?.status;
+    const msg = e?.response?.data?.message || e.message;
+    alert(`이메일 중복 체크 실패\n(status: ${status ?? "N/A"})\n${msg}`);
+    setEmailChecked(false);
+  } finally {
+    setSending(false);
+  }
+};
+
   // --- 이메일 전송
 const askEmail = async () => {
   if (!f.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)) {
     return alert("이메일 형식이 올바르지 않습니다.");
+  }
+  if (!emailChecked) {
+    return alert("먼저 이메일 중복 체크를 완료해주세요.");
   }
   setSending(true);
   try {
@@ -180,15 +216,13 @@ const submit = async () => {
   if (!emailVerified) return alert("이메일 인증을 완료해주세요."); // ★ 여기 phone → email
   try {
     await http.post("/api/auth/signup/buyer", { 
-      name: f.name.trim(),
-     email: f.email.trim(),
-     password: f.password,        // 서버에서 해시
-     birth: f.birth,
-     tel: f.tel.replace(/\D/g, ""),// 숫자만
-     zip: f.zip,
-     addr1: f.addr1,
-     addr2: f.addr2,
-     agreeMarketing: f.agreeMarketing
+      id: f.id.trim(),             // 사용자가 입력한 닉네임
+      userName: f.name.trim(),
+      email: f.email.trim(),
+      password: f.password,        // 서버에서 해시
+      tel: f.tel,                  // 하이픈 포함된 전화번호
+      address: `${f.zip} ${f.addr1} ${f.addr2}`.trim(), // 주소 합치기
+      agreeMarketing: f.agreeMarketing
     });
     alert("가입이 완료되었습니다. 로그인해주세요.");
     window.location.replace("/login");
@@ -205,13 +239,16 @@ const submit = async () => {
    // ------ 단계 전환 ------
   const next = () => {
     if (step === 1 && !okStep1) {
-      setTouched({ name:true, email:true, password:true, birth:true });
+      setTouched({ id:true, name:true, email:true, password:true, birth:true });
       setErrors(validateAllStep1());
-      const first = ["name","email","password","birth"].find(k => validateAllStep1()[k]);
+      const first = ["id","name","email","password","birth"].find(k => validateAllStep1()[k]);
       if (first) {
         document.querySelector(`[name="${first}"]`)?.scrollIntoView({ behavior:"smooth", block:"center" });
       }
       return;
+    }
+    if (step === 1 && !emailChecked) {
+      return alert("이메일 중복 체크를 완료해주세요.");
     }
     if (step === 2 &&  !emailVerified) {
       return alert("이메일 인증을 완료해주세요.");
@@ -233,6 +270,12 @@ const submit = async () => {
       {step === 1 && (
         <div className="card">
           <div className="row">
+            <label>닉네임</label>
+            <input name="id" placeholder="사용할 닉네임을 입력하세요" value={f.id} onChange={onChange}
+onBlur={onBlur} className={errors.id && touched.id ? "invalid" : ""} />
+{errors.id && touched.id && <p className="err">{errors.id}</p>}
+          </div>
+          <div className="row">
             <label>이름</label>
             <input name="name" placeholder="이름을 입력하세요" value={f.name} onChange={onChange}
 onBlur={onBlur} className={errors.name && touched.name ? "invalid" : ""} />
@@ -240,9 +283,15 @@ onBlur={onBlur} className={errors.name && touched.name ? "invalid" : ""} />
           </div>
           <div className="row">
             <label>이메일</label>
-            <input name="email" type="email" placeholder="이메일을 입력하세요" value={f.email} onChange={onChange}
+            <div className="hstack">
+              <input name="email" type="email" placeholder="이메일을 입력하세요" value={f.email} onChange={onChange}
 onBlur={onBlur} className={errors.email && touched.email ? "invalid" : ""} />
-{errors.email && touched.email && <p className="err">{errors.email}</p>}
+              <button type="button" onClick={checkEmailDuplicate} disabled={sending || !f.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)}>
+                중복체크
+              </button>
+            </div>
+            {errors.email && touched.email && <p className="err">{errors.email}</p>}
+            {emailChecked && <p className="ok">✅ 사용 가능한 이메일입니다</p>}
           </div>
           <div className="row">
             <label>비밀번호</label>
@@ -255,6 +304,10 @@ onBlur={onBlur} className={errors.email && touched.email ? "invalid" : ""} />
             <input name="birth" placeholder="YYYYMMDD" value={f.birth} onChange={onChange} maxLength={8} inputMode="numeric"
  onBlur={onBlur} className={errors.birth && touched.birth ? "invalid" : ""} />
 {errors.birth && touched.birth && <p className="err">{errors.birth}</p>}
+          </div>
+          <div className="row">
+            <label>전화번호</label>
+            <input name="tel" placeholder="010-1234-5678" value={f.tel} onChange={onChange} maxLength={13} />
           </div>
         </div>
       )}
