@@ -24,10 +24,12 @@ const BuyerMainPage = () => {
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('overview');
 
-    // 사용자 정보 가져오기
+    // 사용자 정보 가져오기 (세션에서)
     const fetchUserInfo = async () => {
         try {
-            const response = await fetch(`http://localhost:8080/api/mypage/users/${userId}`);
+            const response = await fetch('/api/auth/me', {
+                credentials: 'include'
+            });
             if (response.ok) {
                 const data = await response.json();
                 setUserInfo(data);
@@ -37,14 +39,32 @@ const BuyerMainPage = () => {
         }
     };
 
-    // 통계 정보 가져오기
+    // 통계 정보 가져오기 (임시로 기본값 설정)
     const fetchStats = async () => {
         try {
-            const response = await fetch(`http://localhost:8080/api/mypage/buyers/${userId}/stats`);
-            if (response.ok) {
-                const data = await response.json();
-                setStats(data);
-            }
+            // 실제 API가 구현되면 여기서 호출
+            // const response = await fetch(`/api/mypage/buyers/${userId}/stats`);
+            // if (response.ok) {
+            //     const data = await response.json();
+            //     setStats(data);
+            // }
+            
+            // 임시로 기본값 설정
+            setStats({
+                orders: 0,
+                completedOrders: 0,
+                pendingOrders: 0,
+                reviews: 0,
+                avgRating: 0.0,
+                fiveStarReviews: 0,
+                inquiries: 0,
+                pendingInquiries: 0,
+                answeredInquiries: 0,
+                bids: 0,
+                activeBids: 0,
+                wonAuctions: 0,
+                cartItems: 0
+            });
         } catch (error) {
             console.error('통계 정보 조회 오류:', error);
         }
@@ -99,15 +119,15 @@ const BuyerMainPage = () => {
     ];
 
     if (loading) {
-        return <div className="loading">구매자 마이페이지를 불러오는 중...</div>;
+        return <div className="loading">마이페이지를 불러오는 중...</div>;
     }
 
     return (
         <div className="buyer-main-container">
             {/* 헤더 */}
             <div className="header">
-                <h1>구매자 마이페이지</h1>
-                <p>안녕하세요, {userInfo?.USERNAME || '구매자'}님! 오늘도 좋은 하루 되세요.</p>
+                <h1>{userInfo?.name || '사용자'} 마이페이지</h1>
+                <p>안녕하세요, {userInfo?.name || '사용자'}님! 오늘도 좋은 하루 되세요.</p>
             </div>
 
             {/* 탭 메뉴 */}
@@ -165,16 +185,16 @@ const BuyerMainPage = () => {
             {/* 사용자 요약 정보 */}
             <div className="user-summary">
                 <div className="summary-left">
-                    <h3>{userInfo?.USERNAME || '구매자'}</h3>
+                    <h3>{userInfo?.name || '구매자'}</h3>
                     <div className="badge">구매자</div>
                     <div className="user-details">
-                        <p>📧 {userInfo?.EMAIL || '이메일 없음'}</p>
-                        <p>📱 {userInfo?.TEL || '전화번호 없음'}</p>
-                        <p>📍 {userInfo?.ADDRESS || '주소 없음'}</p>
+                        <p>📧 {userInfo?.email || '이메일 없음'}</p>
+                        <p>📱 {userInfo?.tel || '전화번호 없음'}</p>
+                        <p>📍 {userInfo?.address || '주소 없음'}</p>
                     </div>
                     <div className="purchase-info">
-                        <p><strong>총 구매액:</strong> {userInfo?.TOTAL_BALANCE || 0}원</p>
-                        <p><strong>입찰 보증금:</strong> {userInfo?.BID_DEPOSIT || 0}원</p>
+                        <p><strong>총 구매액:</strong> {userInfo?.totalBalance || 0}원</p>
+                        <p><strong>입찰 보증금:</strong> {userInfo?.bidDeposit || 0}원</p>
                     </div>
                 </div>
                 <div className="summary-stats">

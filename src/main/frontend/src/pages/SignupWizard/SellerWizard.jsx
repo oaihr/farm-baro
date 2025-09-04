@@ -18,6 +18,12 @@ const formatBrn = (s) => {
   if (d.length < 6) return `${d.slice(0, 3)}-${d.slice(3)}`;
   return `${d.slice(0, 3)}-${d.slice(3, 5)}-${d.slice(5)}`;
 };
+const formatPhone = (s) => {
+  const d = s.replace(/\D/g, "").slice(0, 11);
+  if (d.length < 4) return d;
+  if (d.length < 8) return `${d.slice(0,3)}-${d.slice(3)}`;
+  return `${d.slice(0,3)}-${d.slice(3,7)}-${d.slice(7)}`;
+};
 
 export default function SellerWizard() {
   const navigate = useNavigate();
@@ -36,6 +42,7 @@ export default function SellerWizard() {
   const [emailVerified, setEmailVerified] = useState(false);
   const [pass, setPass] = useState("");
   const [pass2, setPass2] = useState("");
+  const [tel, setTel] = useState("");
   const [agree, setAgree] = useState({ t1: false, t2: false, t3: false });
 
   const [submitting, setSubmitting] = useState(false);
@@ -204,7 +211,7 @@ export default function SellerWizard() {
     setSubmitting(true);
 
     const payload = {
-      basic: { name, email, pass },
+      basic: { name, email, pass, tel },
       business: { brn, sellerType, repName, zip, addr1, addr2, traceNo },
       settlement: { accHolder, bank, accNo },
     };
@@ -335,6 +342,16 @@ export default function SellerWizard() {
               {pass2 && pass !== pass2 && <div className="err">비밀번호가 일치하지 않습니다</div>}
             </div>
 
+            <div className="row">
+              <label>전화번호</label>
+              <input
+                value={tel}
+                onChange={(e) => setTel(formatPhone(e.target.value))}
+                placeholder="010-1234-5678"
+                maxLength={13}
+              />
+            </div>
+
             <div className="agreements">
               <label className="check">
                 <input
@@ -390,7 +407,7 @@ export default function SellerWizard() {
             </div>
 
             <div className="row">
-              <label>사업자등록번호</label>
+              <label>사업자등록번호 (선택사항)</label>
               <div className="hstack">
                 <input
                   value={brn}

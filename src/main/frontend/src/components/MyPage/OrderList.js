@@ -20,24 +20,26 @@ const OrderList = () => {
     ];
 
     const quickActions = [
-        { icon: '📦', label: '주문 처리', action: 'process' },
-        { icon: '🚚', label: '배송 시작', action: 'ship' },
-        { icon: '📝', label: '운송장 등록', action: 'tracking' },
-        { icon: '💰', label: '환불 처리', action: 'refund' },
-        { icon: '📊', label: '주문 통계', action: 'stats' }
+        { icon: '⚡', label: '빠른 주문 처리', action: 'process', description: '대기 중인 주문을 빠르게 처리합니다' },
+        { icon: '🚚', label: '배송 시작', action: 'ship', description: '주문을 배송 상태로 변경합니다' },
+        { icon: '📋', label: '운송장 등록', action: 'tracking', description: '운송장 번호를 등록합니다' },
+        { icon: '💸', label: '환불 처리', action: 'refund', description: '환불 요청을 처리합니다' },
+        { icon: '📈', label: '실적 분석', action: 'stats', description: '주문 통계를 확인합니다' }
     ];
 
     // 주문 목록 가져오기
     const fetchOrders = async () => {
         try {
             setLoading(true);
-            const response = await fetch(`http://localhost:8080/mypage/seller/${userId}/orders`);
+            const response = await fetch(`http://localhost:8080/mypage/api/sellers/${userId}/orders`, {
+                credentials: 'include'
+            });
             if (response.ok) {
                 const data = await response.json();
                 setOrders(data);
                 setFilteredOrders(data);
             } else {
-                console.error('주문 목록 조회 실패');
+                console.error('주문 목록 조회 실패:', response.status, response.statusText);
                 setMessage('주문 목록을 불러오는데 실패했습니다.');
             }
         } catch (error) {
@@ -174,19 +176,19 @@ const OrderList = () => {
     const handleQuickAction = (action) => {
         switch(action) {
             case 'process':
-                setMessage('주문 처리 기능을 사용하려면 개별 주문의 "처리하기" 버튼을 클릭하세요.');
+                setMessage('⚡ 빠른 주문 처리: 대기 중인 주문을 찾아서 처리하세요!');
                 break;
             case 'ship':
-                setMessage('배송 시작 기능을 사용하려면 개별 주문의 "배송시작" 버튼을 클릭하세요.');
+                setMessage('🚚 배송 시작: 처리 완료된 주문을 배송 상태로 변경하세요!');
                 break;
             case 'tracking':
-                setMessage('운송장 등록 기능은 준비 중입니다.');
+                setMessage('📋 운송장 등록: 배송 중인 주문에 운송장 번호를 입력하세요!');
                 break;
             case 'refund':
-                setMessage('환불 처리 기능은 준비 중입니다.');
+                setMessage('💸 환불 처리: 환불 요청이 있는 주문을 확인하세요!');
                 break;
             case 'stats':
-                setMessage('주문 통계는 상단의 통계 카드를 확인하세요.');
+                setMessage('📈 실적 분석: 상단의 통계 카드에서 실시간 주문 현황을 확인하세요!');
                 break;
             default:
                 break;
@@ -194,7 +196,7 @@ const OrderList = () => {
         
         setTimeout(() => {
             setMessage('');
-        }, 3000);
+        }, 4000);
     };
 
     return (
@@ -228,9 +230,11 @@ const OrderList = () => {
                         key={index} 
                         className="quick-action-card" 
                         onClick={() => handleQuickAction(action.action)}
+                        title={action.description}
                     >
                         <div className="action-icon">{action.icon}</div>
                         <div className="action-label">{action.label}</div>
+                        <div className="action-description">{action.description}</div>
                     </button>
                 ))}
             </div>

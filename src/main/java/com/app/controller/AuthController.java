@@ -1,24 +1,30 @@
 // com.app.controller.AuthController.java
 package com.app.controller;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.*;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.mail.MailAuthenticationException;
-import org.springframework.mail.MailSendException;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+
+import javax.servlet.http.HttpSession;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.DigestUtils;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.app.domain.User;
 import com.app.dto.auth.LoginRequest;
 import com.app.dto.auth.SignupRequest;
-// import com.app.mapper.UserMapper; // 임시로 주석 처리
-// import com.app.service.user.UserService; // 임시로 주석 처리
+import com.app.service.user.UserService;
 import com.app.service.user.email.EmailService;
 
-import javax.servlet.http.HttpSession;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -27,7 +33,7 @@ import java.util.Map;
 public class AuthController {
 
   private final EmailService emailService;   // 인증메일 발송/검증 (requestId + code 방식)
-  // private final UserService userService;     // 가입/비번변경 비즈니스 로직 - 임시로 주석 처리
+  private final UserService userService;     // 가입/비번변경 비즈니스 로직
   // private final UserMapper userMapper;       // 중복체크, 로그인 조회 - 임시로 주석 처리
   private final HttpSession session;
 
@@ -96,12 +102,35 @@ public class AuthController {
   }
 
   // ===========================
+  // 이메일 중복 체크
+  // ===========================
+  @PostMapping("/check-email")
+  public ResponseEntity<?> checkEmail(@RequestBody Map<String, String> body) {
+    try {
+      String email = body.get("email");
+      if (email == null || email.trim().isEmpty()) {
+        return ResponseEntity.badRequest().body(Map.of("ok", false, "message", "이메일을 입력해주세요."));
+      }
+      
+      boolean exists = userService.findByEmail(email.trim()) != null;
+      return ResponseEntity.ok(Map.of("ok", true, "exists", exists, "message", 
+        exists ? "이미 사용 중인 이메일입니다." : "사용 가능한 이메일입니다."));
+    } catch (Exception e) {
+      return ResponseEntity.badRequest().body(Map.of("ok", false, "message", e.getMessage()));
+    }
+  }
+
+  // ===========================
   // 구매자 회원가입 (DB 저장)
   // ===========================
   @PostMapping("/signup/buyer")
   public ResponseEntity<?> signupBuyer(@RequestBody SignupRequest req) {
-    // 임시로 성공 반환 (개발용)
-    return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("ok", true));
+    try {
+      userService.registerBuyer(req);
+      return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("ok", true));
+    } catch (Exception e) {
+      return ResponseEntity.badRequest().body(Map.of("ok", false, "message", e.getMessage()));
+    }
   }
 
   // ===========================
@@ -119,11 +148,29 @@ public class AuthController {
   // ===========================
   @PostMapping("/login")
   public ResponseEntity<?> login(@RequestBody LoginRequest req, HttpSession session) {
-    // 임시로 성공 반환 (개발용)
-    session.setAttribute("LOGIN_ID", "temp_user_id");
-    session.setAttribute("LOGIN_EMAIL", req.getEmail());
-    session.setAttribute("LOGIN_NAME", "임시 사용자");
-    return ResponseEntity.ok().build();
+    try {
+      User user = userService.login(req.getEmail(), req.getPassword());
+      if (user != null) {
+        session.setAttribute("LOGIN_ID", user.getId());
+        session.setAttribute("LOGIN_EMAIL", user.getEmail());
+        session.setAttribute("LOGIN_NAME", user.getUserName());
+        session.setAttribute("LOGIN_TYPE", user.getUserType());
+        
+        // 디버깅용 로그
+        System.out.println("=== 로그인 성공 ===");
+        System.out.println("LOGIN_ID: " + user.getId());
+        System.out.println("LOGIN_EMAIL: " + user.getEmail());
+        System.out.println("LOGIN_NAME: " + user.getUserName());
+        System.out.println("LOGIN_TYPE: " + user.getUserType());
+        System.out.println("세션 ID: " + session.getId());
+        
+        return ResponseEntity.ok().build();
+      } else {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "이메일 또는 비밀번호가 올바르지 않습니다."));
+      }
+    } catch (Exception e) {
+      return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+    }
   }
 
   // ===========================
@@ -140,14 +187,44 @@ public class AuthController {
   // ===========================
   @GetMapping("/me")
   public ResponseEntity<?> me(HttpSession session) {
+    // 디버깅용 로그
+    System.out.println("=== /api/auth/me 호출 ===");
+    System.out.println("세션 ID: " + session.getId());
+    System.out.println("LOGIN_ID: " + session.getAttribute("LOGIN_ID"));
+    System.out.println("LOGIN_EMAIL: " + session.getAttribute("LOGIN_EMAIL"));
+    System.out.println("LOGIN_NAME: " + session.getAttribute("LOGIN_NAME"));
+    System.out.println("LOGIN_TYPE: " + session.getAttribute("LOGIN_TYPE"));
+    
     Object id = session.getAttribute("LOGIN_ID");
-    if (id == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-    return ResponseEntity.ok(
-        Map.of(
-            "id", id,
-            "email", session.getAttribute("LOGIN_EMAIL"),
-            "name", session.getAttribute("LOGIN_NAME")
-        )
-    );
+    if (id == null) {
+      System.out.println("세션에 LOGIN_ID가 없음 - UNAUTHORIZED 반환");
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+    
+    try {
+      // 데이터베이스에서 실제 사용자 정보 가져오기
+      User user = userService.findById(id.toString());
+      if (user == null) {
+        System.out.println("사용자를 찾을 수 없음: " + id);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+      }
+      
+      Map<String, Object> userInfo = Map.of(
+          "id", user.getId(),
+          "email", user.getEmail(),
+          "name", user.getUserName(),
+          "userType", user.getUserType(),
+          "tel", user.getTel() != null ? user.getTel() : "",
+          "address", user.getAddress() != null ? user.getAddress() : "",
+          "businessNumber", user.getBusinessNumber() != null ? user.getBusinessNumber() : ""
+      );
+      
+      System.out.println("사용자 정보 반환: " + userInfo);
+      return ResponseEntity.ok(userInfo);
+    } catch (Exception e) {
+      System.out.println("사용자 정보 조회 오류: " + e.getMessage());
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
   }
 }

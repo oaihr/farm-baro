@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { http } from '../../api/http';
 
 const MyPageRedirect = () => {
     const navigate = useNavigate();
@@ -11,19 +12,19 @@ const MyPageRedirect = () => {
 
     const redirectToUserMyPage = async () => {
         try {
-            // 로컬 스토리지에서 사용자 정보 가져오기
-            const userInfo = localStorage.getItem('userInfo');
+            // 세션에서 사용자 정보 가져오기
+            const response = await http.get('/api/auth/me');
+            const userInfo = response.data;
             
-            if (userInfo) {
-                const user = JSON.parse(userInfo);
-                const userType = user.userType || user.role;
-                const userId = user.userId || user.id;
+            if (userInfo && userInfo.id) {
+                const userType = userInfo.userType;
+                const userId = userInfo.id;
                 
                 if (userType && userId) {
                     // 사용자 타입에 따라 적절한 마이페이지로 리다이렉트
-                    if (userType === 'buyer') {
+                    if (userType === 'BUYER') {
                         navigate(`/mypage/buyer/${userId}`, { replace: true });
-                    } else if (userType === 'seller') {
+                    } else if (userType === 'SELLER') {
                         navigate(`/mypage/seller/${userId}`, { replace: true });
                     } else {
                         // 기본적으로 buyer로 처리

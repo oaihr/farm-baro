@@ -1,9 +1,13 @@
 package com.app.mapper;
 
-import com.app.dto.UserDto;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import java.util.List;
+
+import com.app.domain.User;
+import com.app.dto.UserDto;
 
 @Mapper
 public interface UserMapper {
@@ -19,4 +23,29 @@ public interface UserMapper {
     
     // 이메일로 사용자 조회
     UserDto getUserByEmail(@Param("email") String email);
+    
+    // ==================== UserServiceImpl에서 사용하는 메서드들 ====================
+    
+    // User 도메인 객체용 메서드들
+    User findById(@Param("id") String id);
+    User findByEmail(@Param("email") String email);
+    int insertUser(User user);
+    
+    // 구매자 가입
+    int insertBuyer(Map<String, Object> params);
+    
+    // 판매자 가입
+    int insertSeller(Map<String, Object> params);
+    
+    // 이메일 존재 여부 확인
+    int existsByEmail(@Param("email") String email);
+    
+    // ID 존재 여부 확인
+    int existsById(@Param("id") String id);
+    
+    // 비밀번호 업데이트
+    int updatePasswordByEmail(Map<String, Object> params);
+    
+    // 판매자 정보 업데이트
+    int updateSellerInfo(Map<String, Object> params);
 }
