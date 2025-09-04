@@ -41,7 +41,9 @@ function Header() {
                         <button className="home-search-btn">검색</button>
                     </div>
                     <div>
-                        <button className="home-login-btn btn">로그인</button>
+                        <button 
+                            className="home-login-btn btn"
+                            onClick={() => navigate("/login")} >로그인</button>
                     </div>
                 </div>
             </div>

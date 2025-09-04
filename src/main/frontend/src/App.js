@@ -31,6 +31,7 @@ import Cart from './components/MyPage/Cart.js';
 import ProductRegister from './components/MyPage/ProductRegister.js';
 import SellerMainPage from './components/MyPage/SellerMainPage.js';
 
+
 // 구매자 마이페이지 컴포넌트들
 import BuyerMainPage from './components/MyPage/BuyerMainPage.js';
 import BuyerProfile from './components/MyPage/BuyerProfile.js';
@@ -69,8 +70,6 @@ function App() {
             <Route path="seller" element={<SellerWizard />} />
           </Route>
 
-          {/* 관리자승인 */}
-          <Route path="/admin/sellers" element={<SellerApprovals />} />
 
           {/* 마이페이지 라우트 */}
           <Route path="/mypage/:userType/:userId" element={<MyPage />} />
