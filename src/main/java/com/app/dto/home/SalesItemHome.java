@@ -5,7 +5,7 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class SalesItem {
+public class SalesItemHome {
 
 	int saleItemId;
 	int qty;
