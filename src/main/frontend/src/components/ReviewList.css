@@ -86,16 +86,19 @@
     background-color: #f9f9f9;
 }
 
-.review-table .review-title {
-    text-align: left; /* 제목은 왼쪽 정렬 */
-    padding-left: 20px;
-    color: #333;
+.expandable-row{
+    
     cursor: pointer;
 }
 
-.review-table .review-title:hover {
-    text-decoration: underline;
+.review-table .review-title {
+    text-align: left;
+    padding-left: 20px;
+    color: #333;
+    font-weight: 400;
+    font-size: 1rem;
 }
+
 
 .review-table .no-reviews {
     padding: 50px 0;
@@ -103,8 +106,24 @@
     font-size: 16px;
 }
 
+.review-images-container{
+    max-width: 70%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.review-images-container img{
+    width: 100%;
+}
+
+.expanded-content-container p{
+    margin-top: 10px;
+    text-align: left;
+}
+
 /* Pagination */
-.pagination {
+.review-pagination {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -112,7 +131,7 @@
     gap: 5px; /* 버튼 사이 간격 */
 }
 
-.pagination button {
+.review-pagination button {
     padding: 8px 12px;
     border: 1px solid #ddd;
     background-color: #fff;
@@ -120,22 +139,22 @@
     font-size: 14px;
     border-radius: 4px;
     transition: background-color 0.2s, border-color 0.2s;
-    min-width: 38px; /* 버튼 최소 너비 */
+    min-width: 38px;
 }
 
-.pagination button:hover:not(.active):not(:disabled) {
+.review-pagination button:hover:not(.active):not(:disabled) {
     background-color: #f0f0f0;
     border-color: #bbb;
 }
 
-.pagination button.active {
-    background-color: #333;
+.review-pagination button.active {
+    background-color: #38761D;
     color: #fff;
-    border-color: #333;
+    border-color: #38761D;
     font-weight: bold;
 }
 
-.pagination button:disabled {
+.review-pagination button:disabled {
     cursor: not-allowed;
     opacity: 0.5;
     background-color: #f8f8f8;

@@ -62,7 +62,7 @@ function SaleDetail(){
                 </div>
                 <div className='item-detail-info'>
                     <h2>{item.title}</h2>
-                    <p className='item-price'>{item.price.toLocaleString('ko-KR')}원</p>
+                    <p className='item-detail-price'>{item.price.toLocaleString('ko-KR')}원</p>
                     <div className='traceability-number'>
                         <div>
                             <span className='bold-span'>이력번호</span>
@@ -103,7 +103,7 @@ function SaleDetail(){
                             </div>
                         </div>
                     </div>
-                    <div className='total-price'>
+                    <div className='detail-total-price'>
                         <span>총 상품 금액</span>
                         <p>{totalPrice.toLocaleString('ko-KR')}원</p>
                     </div>

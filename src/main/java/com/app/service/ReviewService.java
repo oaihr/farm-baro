@@ -9,6 +9,6 @@ import com.app.dto.sale.Review;
 
 public interface ReviewService {
 	Page<Review> getReviews(int saleId, Pageable pageable);
-	Review getReviewById(Integer userId);
+	Review getReviewById(Integer reviewId);
 	
 }

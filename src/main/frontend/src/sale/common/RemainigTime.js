@@ -30,9 +30,9 @@ const useRemainingTime = (endDateValue) => {
                 const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((difference % (1000 * 60)) / 1000);
 
-                const formatNumber = (num) => num.toString().padStart(2, '0');
+                const formatNumber = (num) => num < 10 ? String(num) : String(num).padStart(2, '0');
 
-                setRemainingTime(`${days}일 ${formatNumber(hours)}시간 ${formatNumber(minutes)}분 ${formatNumber(seconds)}초`);
+                setRemainingTime(`${days === 0 ? '' : days + '일 '} ${formatNumber(hours)}시간 ${formatNumber(minutes)}분 ${formatNumber(seconds)}초`);
             }
         };
 

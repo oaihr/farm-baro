@@ -1,6 +1,7 @@
 package com.app.dto.sale;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.Data;
 
@@ -13,6 +14,7 @@ public class Review {
 	Integer rating;
 	String reviewComment;
 	LocalDateTime updatedTime;
-	Integer views;
 	String title;
+	
+	List<Image> images;
 }

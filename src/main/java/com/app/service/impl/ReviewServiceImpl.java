@@ -28,8 +28,8 @@ public class ReviewServiceImpl implements ReviewService{
 	    return new PageImpl<>(reviews, pageable, totalReviews);
 	}
 	
-	public Review getReviewById(Integer userId) {
-		Review review = reviewDAO.getReviewById(userId);
+	public Review getReviewById(Integer reviewId) {
+		Review review = reviewDAO.getReviewById(reviewId);
 		return review;
 	}
 }

@@ -286,7 +286,7 @@ onBlur={onBlur} className={errors.name && touched.name ? "invalid" : ""} />
             <div className="hstack">
               <input name="email" type="email" placeholder="이메일을 입력하세요" value={f.email} onChange={onChange}
 onBlur={onBlur} className={errors.email && touched.email ? "invalid" : ""} />
-              <button type="button" onClick={checkEmailDuplicate} disabled={sending || !f.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)}>
+              <button type="button" className="buyer-button" onClick={checkEmailDuplicate} disabled={sending || !f.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)}>
                 중복체크
               </button>
             </div>
@@ -319,7 +319,7 @@ onBlur={onBlur} className={errors.email && touched.email ? "invalid" : ""} />
      <div className="hstack">
        <input name="email" value={f.email} readOnly />
 
-       <button type="button" onClick={askEmail} disabled={sending || (leftSec > 0 && !emailVerified)}>
+       <button type="button" className="buyer-button" onClick={askEmail} disabled={sending || (leftSec > 0 && !emailVerified)}>
         {leftSec > 0 && !emailVerified ? `재전송 (${fmt(leftSec)})` : "인증메일 보내기"}</button>
 
      </div>
@@ -329,7 +329,7 @@ onBlur={onBlur} className={errors.email && touched.email ? "invalid" : ""} />
             <div className="hstack">
               <input placeholder="6자리" value={code} onChange={(e)=>setCode(e.target.value.replace(/\D/g,"").slice(0,6))} maxLength={6} />
 
-       <button type="button" onClick={verifyEmail} disabled={sending || !code || leftSec <= 0 || emailVerified}>인증</button>
+       <button type="button" className="buyer-button" onClick={verifyEmail} disabled={sending || !code || leftSec <= 0 || emailVerified}>인증</button>
 
       </div>
 {!emailVerified && leftSec > 0 && (
@@ -349,7 +349,7 @@ onBlur={onBlur} className={errors.email && touched.email ? "invalid" : ""} />
             <label>주소</label>
             <div className="hstack">
               <input name="zip" placeholder="우편번호" value={f.zip} onChange={onChange} />
-              <button type="button" onClick={openPostcode}>주소 검색</button>
+              <button type="button" className="buyer-button" onClick={openPostcode}>주소 검색</button>
             </div>
             <input name="addr1" placeholder="기본 주소" value={f.addr1} onChange={onChange} />
             <input name="addr2" placeholder="상세 주소를 입력하세요" value={f.addr2} onChange={onChange} />
@@ -390,10 +390,10 @@ onBlur={onBlur} className={errors.email && touched.email ? "invalid" : ""} />
       <div className="actions">
   {step > 1 ? <button className="ghost" onClick={prev}>이전</button> : <span/>}
   {step < 3 ? (
-    <button onClick={next}>다음</button>
+    <button className="buyer-button" onClick={next}>다음</button>
   ) : (
     // disabled 대신 aria-disabled로 외형만 흐리게 (클릭은 허용)
-    <button onClick={submit} aria-disabled={!allRequiredAgreed}
+    <button className="buyer-button" onClick={submit} aria-disabled={!allRequiredAgreed}
             title={!allRequiredAgreed ? "필수 약관 동의 필요" : ""}>
       가입
     </button>

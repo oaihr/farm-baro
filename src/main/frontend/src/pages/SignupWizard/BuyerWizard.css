@@ -67,7 +67,7 @@
 }
 .hstack{display:flex;gap:8px}
 .hstack > input{flex:1}
-button{height:44px;border:0;border-radius:10px;background:var(--green);color:#fff;padding:0 18px;cursor:pointer}
+.buyer-button{height:44px;border:0;border-radius:10px;background:var(--green);color:#fff;padding:0 18px;cursor:pointer}
 button.ghost{background:#fff;color:#111827;border:1px solid var(--border)}
 .agreements{margin-top:8px;border-top:1px dashed var(--border);padding-top:12px}
 .check{display:flex;align-items:center;gap:8px;margin:6px 0}

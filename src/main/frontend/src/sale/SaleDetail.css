@@ -74,7 +74,7 @@
     margin-right: 5px;
 }
 
-.item-price{
+.item-detail-price{
     font-size: 48px;
     font-weight: 750;
     color: #5f1b1c;
@@ -91,6 +91,7 @@
     border: 1px solid #ccc;
     background-color: white;
     cursor: pointer;
+    color: black;
 }
 
 .traceability-number-btn:hover{
@@ -138,17 +139,17 @@
     align-items: center;
 }
 
-.total-price {
+.detail-total-price {
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
-.total-price span{
+.detail-total-price span{
     font-weight: 700;
 }
 
-.total-price p{
+.detail-total-price p{
     font-size: 30px;
     font-weight: 800;
     color: #5f1b1c;

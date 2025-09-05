@@ -59,8 +59,9 @@ public class SaleController {
         return reviewService.getReviews(saleId, pageable);
 	}
 	
-//	public Review getReviewById(@PathVariable Integer userID) {
-//		Review review = reviewService.getReviewById(userID);
-//		return review;
-//	}
+	@GetMapping("/api/review/{reviewId}")
+	public Review getReviewById(@PathVariable Integer reviewId) {
+		Review review = reviewService.getReviewById(reviewId);
+		return review;
+	}
 }
