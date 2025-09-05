@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 import com.app.dao.home.HomeDAO;
 import com.app.dto.home.AuctionItemHome;
 import com.app.dto.home.SalesItemHome;
-import com.app.dto.home.UserHome;
 
 @Repository
 public class HomeDAOImpl implements HomeDAO{
@@ -19,25 +18,25 @@ public class HomeDAOImpl implements HomeDAO{
 
 	@Override
 	public List<AuctionItemHome> getAuctionPage() {
-		List<AuctionItemHome> homeList = sqlSessionTemplate.selectList("com.app.dao.HomeDAO.getAuctionPage");
+		List<AuctionItemHome> homeList = sqlSessionTemplate.selectList("com.app.dao.home.HomeDAO.getAuctionPage");
 		return homeList;
 	}
 
 	@Override
 	public List<SalesItemHome> getSalesPage() {
-		List<SalesItemHome> salesList = sqlSessionTemplate.selectList("com.app.dao.HomeDAO.getSalesPage");
+		List<SalesItemHome> salesList = sqlSessionTemplate.selectList("com.app.dao.home.HomeDAO.getSalesPage");
 		return salesList;
 	}
 
 	@Override
 	public List<AuctionItemHome> searchAuctions(String keyword) {
-		List<AuctionItemHome> auctionList = sqlSessionTemplate.selectList("com.app.dao.HomeDAO.searchAuctions", keyword);
+		List<AuctionItemHome> auctionList = sqlSessionTemplate.selectList("com.app.dao.home.HomeDAO.searchAuctions", keyword);
 		return auctionList;
 	}
 
 	@Override
 	public List<SalesItemHome> searchSales(String keyword) {
-		List<SalesItemHome> salesList = sqlSessionTemplate.selectList("com.app.dao.HomeDAO.searchSales", keyword);
+		List<SalesItemHome> salesList = sqlSessionTemplate.selectList("com.app.dao.home.HomeDAO.searchSales", keyword);
 		return salesList;
 	}
 

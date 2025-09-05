@@ -1,0 +1,127 @@
+.product-info-container {
+    width: 90%;
+    max-width: none;
+    margin: 40px auto;
+    border: 1px solid #e0e0e0;
+    font-family: Arial, sans-serif;
+    color: #333;
+}
+
+.product-info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: #f9f9f9;
+    border-bottom: 1px solid #e0e0e0;
+    cursor: pointer;
+}
+
+.product-info-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.product-info-header span {
+    font-size: 1.5rem;
+    color: #888;
+}
+
+.info-table-wrapper {
+    overflow-x: auto;
+}
+
+.info-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.info-table td {
+    padding: 15px 20px;
+    vertical-align: top;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.info-table tr:last-child td {
+    border-bottom: none;
+}
+
+.info-label {
+    width: 30%;
+    background-color: #fafafa;
+    font-weight: bold;
+}
+
+.info-content {
+    width: 70%;
+}
+
+.info-content p {
+    margin: 0;
+    padding: 0;
+}
+
+/* 취소/반품/교환------------------------------------------------ */
+.refund-container {
+    width: 90%;
+    max-width: none;
+    margin: 40px auto;
+    font-family: Arial, sans-serif;
+    color: #333;
+}
+
+.refund-container a{
+    text-decoration: none;
+}
+
+.refund-header h3 {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.refund-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    padding: 20px;
+    background-color: #f9f9f9;
+}
+
+.refund-text {
+    flex: 1;
+    line-height: 1.5;
+}
+
+.refund-text p {
+    margin: 0;
+    padding: 0;
+}
+
+.customer-center-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 10px 15px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.customer-center-btn:hover {
+    background-color: #f0f0f0;
+}
+
+.arrow-icon {
+    font-size: 0.8rem;
+    font-weight: bold;
+}

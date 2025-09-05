@@ -4,6 +4,8 @@
     box-sizing: border-box;
 }
 
+
+
 .hr {
     margin: 8px 0;
     border: 0;
@@ -98,7 +100,7 @@
     background-color: #2e5a17;
 }
 
-.search-box{
+.main-header-search-box{
     display: flex;
 }
 

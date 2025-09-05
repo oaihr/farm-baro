@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import com.app.dao.home.HomeDAO;
 import com.app.dto.home.AuctionItemHome;
 import com.app.dto.home.SalesItemHome;
-import com.app.dto.home.UserHome;
 import com.app.service.home.HomeService;
 
 @Service

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.app.mapper.BidMapper">
+
+    <resultMap id="BidResultMap" type="com.app.dto.BidDto">
+        <id property="bidId" column="BID_ID"/>
+        <result property="auctionId" column="AUCTION_ID"/>
+        <result property="userId" column="USER_ID"/>
+        <result property="bidPrice" column="BID_PRICE"/>
+        <result property="bidStatus" column="BID_STATUS"/>
+        <result property="bidTime" column="BID_TIME"/>
+        <result property="createdTime" column="CREATED_TIME"/>
+        <result property="auctionTitle" column="AUCTION_TITLE"/>
+        <result property="bidderName" column="BIDDER_NAME"/>
+        <result property="auctionEndDate" column="AUCTION_END_DATE"/>
+        <result property="currentHighestBid" column="CURRENT_HIGHEST_BID"/>
+        <result property="isWinner" column="IS_WINNER"/>
+    </resultMap>
+
+    <!-- 입찰자별 입찰 목록 조회 -->
+    <select id="getBidsByBidder" resultMap="BidResultMap">
+        SELECT b.BID_ID, b.AUCTION_ID, b.USER_ID, b.BID_PRICE, b.BID_STATUS, 
+               b.BID_TIME, b.CREATED_TIME,
+               a.TITLE as AUCTION_TITLE, a.END_DATE as AUCTION_END_DATE,
+               u.USER_NAME as BIDDER_NAME,
+               (SELECT MAX(BID_PRICE) FROM bids WHERE AUCTION_ID = b.AUCTION_ID) as CURRENT_HIGHEST_BID,
+               CASE WHEN b.BID_PRICE = (SELECT MAX(BID_PRICE) FROM bids WHERE AUCTION_ID = b.AUCTION_ID) THEN 1 ELSE 0 END as IS_WINNER
+        FROM bids b
+        LEFT JOIN auctions a ON b.AUCTION_ID = a.AUCTION_ID
+        LEFT JOIN users u ON b.USER_ID = u.ID
+        WHERE b.USER_ID = #{bidderId}
+        ORDER BY b.BID_TIME DESC
+    </select>
+
+    <!-- 낙찰 상품 조회 -->
+    <select id="getWinningBids" resultMap="BidResultMap">
+        SELECT b.BID_ID, b.AUCTION_ID, b.USER_ID, b.BID_PRICE, b.BID_STATUS, 
+               b.BID_TIME, b.CREATED_TIME,
+               a.TITLE as AUCTION_TITLE, a.END_DATE as AUCTION_END_DATE,
+               u.USER_NAME as BIDDER_NAME,
+               b.BID_PRICE as CURRENT_HIGHEST_BID,
+               1 as IS_WINNER
+        FROM bids b
+        LEFT JOIN auctions a ON b.AUCTION_ID = a.AUCTION_ID
+        LEFT JOIN users u ON b.USER_ID = u.ID
+        WHERE b.USER_ID = #{bidderId}
+        AND b.BID_PRICE = (SELECT MAX(BID_PRICE) FROM bids WHERE AUCTION_ID = b.AUCTION_ID)
+        AND a.AUCTION_STATUS = 'ENDED'
+        ORDER BY b.BID_TIME DESC
+    </select>
+
+    <!-- 입찰 생성 -->
+    <insert id="insertBid" parameterType="com.app.dto.BidDto">
+        INSERT INTO bids (BID_ID, AUCTION_ID, USER_ID, BID_PRICE, BID_STATUS, BID_TIME, CREATED_TIME)
+        VALUES (bid_seq.NEXTVAL, #{auctionId}, #{userId}, #{bidPrice}, #{bidStatus}, SYSTIMESTAMP, SYSTIMESTAMP)
+    </insert>
+
+    <!-- 경매별 최고 입찰가 조회 -->
+    <select id="getHighestBidForAuction" resultType="java.math.BigDecimal">
+        SELECT MAX(BID_PRICE) FROM bids WHERE AUCTION_ID = #{auctionId}
+    </select>
+
+</mapper>

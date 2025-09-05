@@ -47,6 +47,7 @@ public class HomeController {
 	@GetMapping("/search")
     public ResponseEntity<SearchResult> search(@RequestParam(name = "keyword") String keyword) {
 
+        // 서비스 메서드를 호출하여 경매 및 판매 데이터를 모두 가져옵니다.
         List<AuctionItemHome> auctionList = homeService.searchAuctions(keyword);
         List<SalesItemHome> salesList = homeService.searchSales(keyword);
 

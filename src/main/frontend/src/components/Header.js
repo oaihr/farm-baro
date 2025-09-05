@@ -26,7 +26,7 @@ function Header() {
                     <img
                         src={logo} class="logo"
                         onClick={() => navigate("/")} />
-                    <div className='search-box'>
+                    <div className='main-header-search-box'>
                         <input
                             type="text"
                             className="home-search"
@@ -45,7 +45,9 @@ function Header() {
                         </button>
                     </div>
                     <div>
-                        <button className="home-login-btn btn">로그인</button>
+                        <button 
+                            className="home-login-btn btn"
+                            onClick={() => navigate("/login")} >로그인</button>
                     </div>
                 </div>
             </div>
