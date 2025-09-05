@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>						
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"						
+					"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+					
+<mapper namespace="com.app.dao.sale.SaleDAO">
+	
+	<resultMap type="saleItem" id="SaleItemResultMap">
+		<id property="saleItemId" column="sale_item_id" />
+		<result property="judgeKindName" column="judge_kind_name" />
+		<result property="title" column="title" />
+		<result property="description" column="description" />
+		<result property="sellerId" column="seller_id" />
+		<result property="cutName" column="cut_name" />
+		<result property="weight" column="weight" />
+		<result property="price" column="price" />
+		<result property="grade" column="grade" />
+		<result property="userName" column="user_name" />
+		
+		<collection property="images" ofType="com.app.dto.sale.Image">
+			<id property="imageId" column="IMAGE_ID" />
+			<result property="imageUrl" column="IMAGE_URL" />
+		</collection>
+	</resultMap>
+	
+	<select id="getSalePage" parameterType="Map" resultMap="SaleItemResultMap">
+		SELECT *
+		FROM (
+			SELECT
+				ROW_NUMBER() OVER (ORDER BY S.CREATED_TIME DESC) AS rnum, 
+				S.sale_item_id,
+				S.judge_kind_name,
+				S.cut_name,
+				S.title,
+				S.description,				
+				S.weight,
+				S.price,
+				S.grade,
+				I.IMAGE_ID,
+				I.IMAGE_URL,
+				U.user_name
+			FROM SALES S
+			LEFT JOIN PRODUCT_IMAGES I ON S.sale_item_id = I.PRODUCT_ID AND I.IS_THUMBNAIL = 'y'
+			INNER JOIN USERS U ON S.seller_id = U.id
+			WHERE 
+				S.judge_kind_name = #{kind} AND
+				S.cut_name = #{part} AND
+				S.sale_status = 'ON'
+		)
+		WHERE rnum BETWEEN #{pageable.offset} + 1 AND #{pageable.offset} + #{pageable.size}
+		ORDER BY SALE_ITEM_ID ASC
+	 	
+	</select>
+	
+	<select id="getSaleCount" resultType="long">
+        SELECT COUNT(*)
+        FROM SALES
+        WHERE judge_kind_name = #{kind}
+            AND CUT_NAME = #{part}
+            AND SALE_STATUS = 'ON'
+    </select>
+    
+    <resultMap type="saleItem" id="SaleItemDetailResultMap">
+		<id property="saleItemId" column="sale_item_id" />
+		<result property="title" column="title" />
+		<result property="description" column="description" />
+		<result property="weight" column="weight" />
+		<result property="price" column="price" />
+		<result property="grade" column="grade" />
+		<result property="qty" column="qty" />
+		<result property="judgeKindName" column="judge_kind_name" />
+		<result property="cutName" column="cut_name" />
+		<result property="traceabilityNum" column="traceability_num" />
+		
+		
+		<collection property="images" ofType="com.app.dto.sale.Image">
+			<id property="imageId" column="image_id" />
+			<result property="imageUrl" column="image_url" />
+			<result property="orderIndex" column="order_index" />
+		</collection>
+	</resultMap>
+	
+	<select id="getSaleItem" parameterType="Integer" resultMap="SaleItemDetailResultMap">
+		SELECT 
+			S.sale_item_id,
+			S.qty,
+			S.title,
+			S.description,				
+			S.weight,
+			S.price,
+			S.grade,
+			S.judge_kind_name,
+			S.cut_name,
+			S.traceability_num,
+			I.image_id,
+			I.image_url,
+			I.order_index
+		FROM SALES S
+		INNER JOIN PRODUCT_IMAGES I
+		ON S.sale_item_id = I.product_id
+		WHERE 
+			S.sale_item_id = #{saleId}
+			
+	</select>
+</mapper>

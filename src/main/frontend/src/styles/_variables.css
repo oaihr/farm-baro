@@ -1,0 +1,25 @@
+:root{
+  /* Brand */
+  --brand-600:#2e7d32;  /* 메인 그린 */
+  --brand-700:#1b5e20;  /* 호버/활성 */
+  --brand-100:#e8f3ea;
+
+  /* Surface */
+  --bg:#f7faf9;              /* 페이지 배경 (밝게) */
+  --panel:#ffffff;           /* 카드/패널 */
+  --panel-border:#e6efea;    /* 패널 경계 */
+  --shadow:0 6px 18px rgba(16,50,34,.08);
+
+  /* Text */
+  --text:#0f1b14;            /* 진한 글자 */
+  --muted:#5f6b64;           /* 보조 텍스트 */
+
+  /* Inputs */
+  --input-bg:#fff;
+  --input-border:#d6e3dc;
+  --input-focus:#2e7d32;
+
+  /* State */
+  --danger:#e53935;
+  --danger-bg:#fde7e6;
+}

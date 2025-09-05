@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans
-http://www.springframework.org/schema/beans/spring-beans.xsd">
-
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context
+		https://www.springframework.org/schema/context/spring-context.xsd
+		http://mybatis.org/schema/mybatis-spring
+		https://mybatis.org/schema/mybatis-spring.xsd">
+		
+	<mybatis-spring:scan base-package="com.app.dao" />
 
 	<!-- ioc 컨테이너에 빈 등록 -->
 	<!-- roomDAO bean 등록 -->
@@ -27,19 +35,48 @@ http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean class="org.apache.commons.dbcp2.BasicDataSource" id="data_source">
 		<property name="driverClassName" value="oracle.jdbc.OracleDriver" />
-		<property name="url" value="jdbc:oracle:thin:@localhost:1521:orcl" />
+		<property name="url" value="jdbc:oracle:thin:@192.168.0.8:1521:orcl" />
 		<property name="username" value="scott" />
 		<property name="password" value="tiger" />
 	</bean>
 
 	<bean class="org.mybatis.spring.SqlSessionFactoryBean" id="sqlSessionFactory">
 		<property name="dataSource" ref="data_source"></property>
-<!--	<property name="mapperLocations" value="/WEB-INF/mybatis/mapper/*.xml"></property> -->
 		<property name="mapperLocations" value="/WEB-INF/mybatis/mapper/**/*_mapper.xml"></property>
-		<property name="configLocation" value="/WEB-INF/mybatis/mybatis-config.xml"></property>
+		<property name="configLocation" value="/WEB-INF/mybatis/mybatis-config.xml"></property>		
+		<property name="configurationProperties">
+			<props>
+				<prop key="mapUnderscoreToCamelCase">true</prop>
+				<prop key="jdbcTypeForNull">NULL</prop>
+			</props>
+		</property>
 	</bean>
 
 	<bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
 		<constructor-arg name="sqlSessionFactory" ref="sqlSessionFactory" />
 	</bean>
+
+	<!-- MyBatis 매퍼 스캔 설정 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.app.mapper" />
+		<property name="annotationClass" value="org.apache.ibatis.annotations.Mapper" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+	</bean>
+	
+	<!-- JavaMailSender Bean Configuration -->
+	<bean id="javaMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="smtp.gmail.com" />
+		<property name="port" value="587" />
+		<property name="username" value="YOUR_EMAIL@gmail.com" />
+		<property name="password" value="APP_PASSWORD" />
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.smtp.auth">true</prop>
+				<prop key="mail.smtp.starttls.enable">true</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<!-- 서비스 패키지 스캔 설정 -->
+	<context:component-scan base-package="com.app.service" />
 </beans>

@@ -1,0 +1,175 @@
+/* ============================ home-main ==========================================*/
+.home-main-section {
+    position: relative;
+    width: 100%;
+    height: 600px;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.home-main-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 오버레이 레이어 */
+.home-video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1;
+}
+
+.home-main-content {
+    position: relative;
+    z-index: 1;
+}
+
+.home-main-section h4 {
+    font-size: 2rem;
+}
+
+.home-main-section h2 {
+    font-size: 3.5rem;
+    margin: 2rem 0;
+    letter-spacing: 3px;
+}
+
+/* ============================ home-quote ==========================================*/
+.home-section {
+    margin: 65px 50px;
+}
+
+/* quote-container에 flexbox 적용 */
+.home-quote-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.home-quote {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.home-quote-inner {
+    flex: 1;
+    width: 300px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    padding: 2rem;
+    cursor: pointer;
+}
+
+.home-quote-inner:hover {
+    background-color: #f5ffd8;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.home-quote-img {
+    width: 70px;
+}
+
+.home-quote-inner h3 {
+    font-size: 2rem;
+    margin: 1rem 0;
+}
+
+.home-quote-inner p {
+    font-size: 1.05rem;
+}
+
+.home-quote-btn {
+    padding: 8px 16px;
+    margin: 10px 0 10px 0;
+}
+
+
+/* ==================== home-auction & home-sale ==================== */
+.home-auction-section,
+.home-sale-section {
+    padding: 50px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.home-auction-section h2,
+.home-sale-section h2,
+.quote h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* ==================== 가로 스크롤 레이아웃 적용 ==================== */
+.home-auction-list,
+.home-sale-list {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 20px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.home-auction-list::-webkit-scrollbar,
+.home-sale-list::-webkit-scrollbar {
+    display: none;
+}
+
+.home-auction-card,
+.home-sale-card {
+    flex-shrink: 0;
+    width: 260px;
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 10px 20px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.home-auction-card:hover,
+.home-sale-card:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-3px);
+}
+
+.home-auction-card img,
+.home-sale-card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+
+.home-auction-card h3,
+.home-sale-card h3{
+    font-size: 18px;
+    font-weight: 600;
+    margin: 10px;
+}
+
+.home-price-now {
+    color: #38761D;
+    font-weight: 700;
+    font-size: 20px;
+    margin: 20px 0 10px 0;
+}

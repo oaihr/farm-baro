@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC
+			"-//mybatis.org//DTD mapper 3.0//EN"
+			"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.app.dao.home.HomeDAO">
+
+	<resultMap type="AuctionItemHome" id="AuctionItemResultMapHome">
+		<id property="auctionId" column="auction_id" />
+		<result property="judgeKindName" column="judge_kind_name" />
+		<result property="title" column="title" />
+		<result property="description" column="description" />
+		<result property="kind" column="kind" />
+		<result property="initialPrice" column="initial_price" />
+		<result property="buyNowPrice" column="buy_now_price" />
+		<result property="grade" column="grade" />
+		<result property="userName" column="user_name" />
+		<result property="currentBidPrice" column="current_bid_price" />
+		<result property="weight" column="weight" />
+		<result property="endDate" column="end_date" />
+
+		<collection property="images" ofType="com.app.dto.home.Image">
+			<id property="imageId" column="IMAGE_ID" />
+			<result property="imageUrl" column="IMAGE_URL" />
+		</collection>
+	</resultMap>
+
+	<resultMap type="SalesItemHome" id="SalesItemResultMapHome">
+		<id property="saleItemId" column="sale_item_id" />
+		<result property="qty" column="qty" />
+		<result property="saleStatus" column="sale_status" />
+		<result property="judgeKindName" column="judge_kind_name" />
+		<result property="title" column="title" />
+		<result property="description" column="description" />
+		<result property="sellerId" column="seller_id" />
+		<result property="cutName" column="cut_name" />
+		<result property="price" column="price" />
+		<result property="weight" column="weight" />
+		<result property="grade" column="grade" />
+		<result property="traceabilityNum" column="traceability_num" />
+		<result property="detailDescription" column="detail_description" />
+		
+		<collection property="images" ofType="com.app.dto.home.Image">
+			<id property="imageId" column="IMAGE_ID" />
+			<result property="imageUrl" column="IMAGE_URL" />
+		</collection>
+	</resultMap>
+
+
+
+	<select id="getAuctionPage" resultMap="AuctionItemResultMapHome">
+		SELECT
+		A.auction_id,
+		A.judge_kind_name,
+		A.kind,
+		A.title,
+		A.description,
+		A.initial_price,
+		A.buy_now_price,
+		A.grade,
+		A.current_bid_price,
+		A.weight,
+		A.end_date,
+		I.IMAGE_ID,
+		I.IMAGE_URL,
+		U.user_name
+		FROM AUCTIONS A
+		LEFT JOIN PRODUCT_IMAGES I ON A.auction_id = I.PRODUCT_ID AND
+		I.IS_THUMBNAIL = 'y'
+		INNER JOIN USERS U ON A.seller_id = U.id
+
+		WHERE A.auction_status = 'ON'
+
+	</select>
+	
+	<select id="searchAuctions" resultMap="AuctionItemResultMapHome">
+	    SELECT
+	        A.auction_id,
+	        A.judge_kind_name,
+	        A.kind,
+	        A.title,
+	        A.description,
+	        A.initial_price,
+	        A.buy_now_price,
+	        A.grade,
+	        A.current_bid_price,
+	        A.weight,
+	        A.end_date,
+	        I.IMAGE_ID,
+	        I.IMAGE_URL,
+	        U.user_name
+	    FROM AUCTIONS A
+	    LEFT JOIN PRODUCT_IMAGES I ON A.auction_id = I.PRODUCT_ID AND
+	    I.IS_THUMBNAIL = 'y'
+	    INNER JOIN USERS U ON A.seller_id = U.id
+	    WHERE 
+	        A.auction_status = 'ON'
+	        AND (A.title LIKE '%' || #{keyword} || '%' OR A.description LIKE '%' || #{keyword} || '%')
+	</select>
+	
+	
+
+	<select id="getSalesPage" resultMap="SalesItemResultMapHome">
+	    SELECT 
+	        S.sale_item_id,
+	        S.qty,
+	        S.sale_status,
+	        S.judge_kind_name,
+	        S.title,
+	        S.description,
+	        S.seller_id,
+	        S.cut_name,
+	        S.price,
+	        S.weight,
+	        S.grade,
+	        S.traceability_num,
+	        S.detail_description,
+	        I.IMAGE_ID,
+	        I.IMAGE_URL
+	    FROM SALES S
+	    LEFT JOIN PRODUCT_IMAGES I ON S.sale_item_id = I.PRODUCT_ID AND I.IS_THUMBNAIL = 'y'
+	    INNER JOIN USERS U ON S.seller_id = U.id
+	    order by S.created_time
+	</select>
+	
+	<select id="searchSales" resultMap="SalesItemResultMapHome">
+	    SELECT 
+	        S.sale_item_id,
+	        S.qty,
+	        S.sale_status,
+	        S.judge_kind_name,
+	        S.title,
+	        S.description,
+	        S.seller_id,
+	        S.cut_name,
+	        S.price,
+	        S.weight,
+	        S.grade,
+	        S.traceability_num,
+	        S.detail_description,
+	        I.IMAGE_ID,
+	        I.IMAGE_URL
+	    FROM SALES S
+	    LEFT JOIN PRODUCT_IMAGES I ON S.sale_item_id = I.PRODUCT_ID AND I.IS_THUMBNAIL = 'y'
+	    INNER JOIN USERS U ON S.seller_id = U.id
+	    WHERE
+	        (S.title LIKE '%' || #{keyword} || '%' OR S.description LIKE '%' || #{keyword} || '%')
+	    ORDER BY S.created_time
+	</select>
+
+</mapper>

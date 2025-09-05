@@ -1,0 +1,15 @@
+package com.app.dao.home;
+
+import java.util.List;
+
+import com.app.dto.home.AuctionItemHome;
+import com.app.dto.home.SalesItemHome;
+
+public interface HomeDAO {
+
+	List<AuctionItemHome> getAuctionPage();
+	List<SalesItemHome> getSalesPage();
+	
+	List<AuctionItemHome> searchAuctions(String keyword);
+	List<SalesItemHome> searchSales(String keyword);
+}

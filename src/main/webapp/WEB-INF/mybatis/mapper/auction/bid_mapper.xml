@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>						
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"						
+					"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+					
+<mapper namespace="com.app.dao.auction.BidDAO">
+
+	
+	<insert id="saveBid" parameterType="Bid">
+		INSERT INTO bids VALUES (
+			seq_bid_Id.nextval,
+            #{auctionId},
+            #{userId},
+            #{bidPrice},
+            'bid',
+            #{bidTime},
+            SYSDATE
+        )
+	</insert>
+	
+	<update id="updatePreviousBidsToOutbid">
+        UPDATE BIDS
+        SET BID_STATUS = 'outbid'
+        WHERE AUCTION_ID = #{auctionId}
+        AND BID_STATUS = 'bid'
+    </update>
+    
+    <update id="updateAuctionCurrentbid">
+        UPDATE AUCTIONS
+        SET CURRENT_BID_PRICE = #{param2}
+        WHERE AUCTION_ID = #{param1}
+    </update>
+    
+	<select id="getLatestBid">
+		SELECT 
+			B.BID_PRICE
+			B.BID_TIME
+			U.user_name
+		FROM bids B
+		INNER JOIN USERS U
+		ON B.USER_ID = U.ID
+		ORDER BY B.BID_TIME DESC
+		FETCH FIRST 1 ROWS ONLY;
+	</select>
+	
+<!-- 	<select id="getUserName" resultType="String"> -->
+<!-- 		SELECT -->
+<!-- 			user_name -->
+<!-- 		FROM users -->
+<!-- 		WHERE ID = #{userId} 	 -->
+<!-- 	</select> -->
+	
+	<select id="getBidHistory" resultType="com.app.dto.auction.BidMessage">
+	    SELECT 
+	        b.auction_id AS auctionId,
+	        b.bid_price AS bidPrice,
+	        b.bid_time AS bidTime,
+	        b.user_id AS userId,
+	        u.user_name AS userName,
+	        (SELECT COUNT(*) FROM bids WHERE auction_id = #{auctionId}) AS totalBids
+	    FROM 
+	        bids b
+	    INNER JOIN 
+	        users u ON b.user_id = u.id
+	    <where> 
+	    	<if test="auctionId != null and auctionId != ''">
+	        	b.auction_id = #{auctionId}
+	        </if>
+	    </where>    
+	    ORDER BY 
+	        b.bid_time DESC
+	</select>
+	
+	<select id="findTopBidderId">
+		SELECT
+			user_id
+		FROM bids
+		WHERE auction_id = #{auctionId}
+		ORDER BY bid_price DESC, bid_time ASC
+    	FETCH FIRST 1 ROWS ONLY	 
+	</select>
+	
+</mapper>

@@ -1,0 +1,152 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.auction-main-container{
+  padding: 20px;
+}
+
+.auction-main-container h1{
+  margin-bottom: 20px;
+}
+
+.filter-buttons{
+  display: flex;
+  gap: 10px;
+  justify-content: right;
+  margin-right: 20px;
+}
+
+.filter-buttons button{
+  color: #5e5d5d;
+  border-style: none;
+  font-size: 15px;
+  background-color: white;
+  cursor: pointer;
+}
+
+.filter-buttons button.active{
+  font-weight: 600;
+}
+
+.auctions{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4열로 나눔 */
+    gap: 20px; /* 아이템 사이 간격 */
+    margin-top: 20px;
+}
+
+.auctions a{
+  text-decoration: none;
+  color: black;
+}
+/* 각 판매 물품 박스 */
+.auction-item {  
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 15px;
+  text-align: left;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+}
+
+.auction-item:hover {
+  transform: translateY(-5px);
+}
+
+.auction-item img {
+  width: 100%;
+  height: auto;
+  max-height: 200px;
+  object-fit: cover;
+}
+
+.auction-item h3 {
+  font-size: 1.2rem;
+  margin: 10px 0;
+}
+
+.auction-item p {
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.auction-item-wt-grade{
+  display: flex;
+  justify-content: space-between;
+  margin: 5px 0;
+}
+
+.weight{
+  font-weight: 600;
+  color: brown;
+}
+
+.auction-time{
+  display: flex;
+  margin: 10px 0;
+  margin-top: 30px;
+  justify-content: center;
+  align-items: center;
+  color: #fff; 
+  background-color: #e44848; 
+  border-radius: 5px; 
+  padding: 5px 10px; 
+  font-size: 15px; 
+  font-weight: 700;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.auction-time::before {
+  content: '⏰'; 
+  font-size: 18px;
+  margin-right: 5px; 
+}
+
+.auction-item-box{
+  padding: 10px;
+  padding-top: 10px;
+  padding-bottom: 0px;
+}
+
+.auction-price-info{
+  display: flex;
+  justify-content: space-between;
+}
+
+.auction-prices{
+  font-weight: 500;
+}
+
+.current-bid-price{
+  color: #2a5816;
+  font-weight: 500;
+}
+
+/* 페이지네이션 */
+.pagination {
+  text-align: center;
+  margin-top: 30px;
+}
+
+.pagination button {
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  padding: 10px 15px;
+  margin: 0 5px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.pagination button:hover {
+  background-color: #e0e0e0;
+}
+
+.pagination button.active {
+  background-color: #38761D;
+  color: white;
+  border-color: #38761D;
+}
