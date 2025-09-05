@@ -205,7 +205,7 @@ const SellerMainPage = () => {
                                 </>
                             ) : (
                                 <button onClick={toggleEdit} style={{
-                                    backgroundColor: '#2196F3', 
+                                    backgroundColor: '#2e9a4d', 
                                     color: 'white', 
                                     border: 'none', 
                                     padding: '8px 16px', 

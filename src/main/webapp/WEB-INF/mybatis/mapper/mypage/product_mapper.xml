@@ -13,6 +13,7 @@
         <result property="description" column="DESCRIPTION"/>
         <result property="detailDescription" column="DETAIL_DESCRIPTION"/>
         <result property="weight" column="WEIGHT"/>
+        <result property="price" column="PRICE"/>
         <result property="grade" column="GRADE"/>
         <result property="traceabilityNum" column="TRACEABILITY_NUM"/>
         <result property="sellerId" column="SELLER_ID"/>
@@ -68,10 +69,10 @@
     <insert id="insertProduct" parameterType="com.app.dto.ProductDto">
         INSERT INTO sales (
             SALE_ITEM_ID, QTY, SALE_STATUS, JUDGE_KIND_NAME, CUT_NAME,
-            TITLE, DESCRIPTION, DETAIL_DESCRIPTION, WEIGHT, GRADE, TRACEABILITY_NUM, SELLER_ID, CREATED_TIME
+            TITLE, DESCRIPTION, DETAIL_DESCRIPTION, WEIGHT, PRICE, GRADE, TRACEABILITY_NUM, SELLER_ID, CREATED_TIME
         ) VALUES (
             SALE_ITEM_SEQ.NEXTVAL, #{qty}, #{saleStatus}, #{judgeKindName}, #{cutName},
-            #{title}, #{description}, #{detailDescription}, #{weight}, #{grade}, #{traceabilityNum}, #{sellerId}, SYSTIMESTAMP
+            #{title}, #{description}, #{detailDescription}, #{weight}, #{price}, #{grade}, #{traceabilityNum}, #{sellerId}, SYSTIMESTAMP
         )
     </insert>
 
@@ -97,6 +98,7 @@
             DESCRIPTION = #{description},
             DETAIL_DESCRIPTION = #{detailDescription},
             WEIGHT = #{weight},
+            PRICE = #{price},
             GRADE = #{grade},
             TRACEABILITY_NUM = #{traceabilityNum}
         WHERE SALE_ITEM_ID = #{saleItemId}

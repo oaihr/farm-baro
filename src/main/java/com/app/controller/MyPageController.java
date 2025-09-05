@@ -527,19 +527,38 @@ public class MyPageController {
 		}
 	}
 
-	// 상품 수정 API
-	@PutMapping("/api/products/{productId}")
+	    // 상품 수정 API (JSON 방식)
+	@PutMapping(value = "/api/products/{productId}", consumes = "application/json")
+	@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"})
 	@ResponseBody
-	public ResponseEntity<Boolean> updateProduct(
+	public ResponseEntity<Boolean> updateProductJson(
+			@PathVariable Long productId,
+			@RequestBody ProductDto product) {
+		try {
+			product.setSaleItemId(productId);
+			boolean result = myPageService.updateProduct(product);
+			return ResponseEntity.ok(result);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.badRequest().build();
+		}
+	}
+
+    // 상품 수정 API (Form 방식)
+	@PutMapping("/api/products/{productId}/form")
+	@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"})
+	@ResponseBody
+	public ResponseEntity<Boolean> updateProductForm(
 			@PathVariable Long productId,
 			@RequestParam("title") String title,
 			@RequestParam("judgeKindName") String judgeKindName,
 			@RequestParam("cutName") String cutName,
 			@RequestParam("qty") Integer qty,
+			@RequestParam("weight") String weight,
+			@RequestParam("price") Double price,
 			@RequestParam("saleStatus") String saleStatus,
 			@RequestParam("description") String description,
 			@RequestParam("detailDescription") String detailDescription,
-			@RequestParam("weight") String weight,
 			@RequestParam("grade") String grade,
 			@RequestParam("traceabilityNum") String traceabilityNum,
 			@RequestPart(value = "imageFiles", required = false) MultipartFile[] imageFiles) {
@@ -550,10 +569,11 @@ public class MyPageController {
 			product.setJudgeKindName(judgeKindName);
 			product.setCutName(cutName);
 			product.setQty(qty);
+			product.setWeight(weight);
+			product.setPrice(price);
 			product.setSaleStatus(saleStatus);
 			product.setDescription(description);
 			product.setDetailDescription(detailDescription);
-			product.setWeight(weight);
 			product.setGrade(grade);
 			product.setTraceabilityNum(traceabilityNum);
 			

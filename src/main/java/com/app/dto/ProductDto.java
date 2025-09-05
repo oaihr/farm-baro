@@ -18,6 +18,7 @@ public class ProductDto {
     private String description;     // description (요약 설명)
     private String detailDescription; // detail_description (상세 설명)
     private String weight;          // weight (1개당 무게 + 단위, 예: "1kg", "500g")
+    private Double price;           // price (kg당 가격)
     private String grade;           // grade (고기 등급: A, B, C 등)
     private String traceabilityNum; // traceability_num (가축 이력번호)
     private String sellerId;        // seller_id
