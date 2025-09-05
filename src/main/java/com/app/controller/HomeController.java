@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.app.dto.home.AuctionItemHome;
 import com.app.dto.home.SalesItemHome;
 import com.app.dto.home.SearchResult;
-import com.app.dto.home.UserHome;
 import com.app.service.home.HomeService;
 
 import lombok.Data;
@@ -55,16 +54,12 @@ public class HomeController {
         result.setAuctions(auctionList);
         result.setSales(salesList);
 
+        System.out.println(result);
         return ResponseEntity.ok(result);
     }
 	
 	//로그인 정보 확인
-	@GetMapping("/findUser")
-	public UserHome findUser(@RequestParam(name = "session") String session) {
-		
-		UserHome user = homeService.findUserIdOfSession(session);
-		
-		return user;
-	}
+//	@GetMapping("/findUser")
+
 
 }

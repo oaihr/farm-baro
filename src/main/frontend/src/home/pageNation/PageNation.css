@@ -27,19 +27,15 @@
 }
 
 .pageN-page {
-    margin: 0 5px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    background-color: #fff;
     cursor: pointer;
-    width: 25px;
-    border-radius: 5px;
-    border: solid 1px rgba(0, 0, 0, 0);
+    font-size: 16px;
+    border-radius: 4px;
+    transition: background-color 0.2s, border-color 0.2s;
+    min-width: 38px;
     text-align: center;
-    color: #8b8b8b;
-}
-
-.pageN-page:hover {
-    width: 40px;
-    height: 40px;
-    border: solid 1px #aaa;
 }
 
 .pageN-icon,

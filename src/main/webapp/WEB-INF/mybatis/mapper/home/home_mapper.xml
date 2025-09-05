@@ -3,7 +3,7 @@
 			"-//mybatis.org//DTD mapper 3.0//EN"
 			"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="home_mapper">
+<mapper namespace="com.app.dao.home.HomeDAO">
 
 	<resultMap type="AuctionItemHome" id="AuctionItemResultMapHome">
 		<id property="auctionId" column="auction_id" />
@@ -46,9 +46,7 @@
 		</collection>
 	</resultMap>
 
-
-
-	<select id="getAuctionPage" resultMap="AuctionItemResultMap">
+	<select id="getAuctionPage" resultMap="AuctionItemResultMapHome">
 		SELECT
 		A.auction_id,
 		A.judge_kind_name,
@@ -148,10 +146,6 @@
 	    ORDER BY S.created_time
 	</select>
 	
-	<select id="UserHome" resultMap="UserResultMapHome">
-		select * from USERS
-		where id = #{session}
-	</select>
 	
 
 </mapper>

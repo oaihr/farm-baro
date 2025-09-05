@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 @Data
-public class AuctionItemHome {
+public class AuctionItem {
 	Integer auctionId;
 	String title;
 	String description;

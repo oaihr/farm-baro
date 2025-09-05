@@ -40,10 +40,4 @@ public class HomeDAOImpl implements HomeDAO{
 		return salesList;
 	}
 
-	@Override
-	public UserHome findUserIdOfSession(String session) {
-		UserHome user = sqlSessionTemplate.selectOne("com.app.dao.HomeDAO.findUserIdOfSession", session);
-		return user;
-	}
-
 }

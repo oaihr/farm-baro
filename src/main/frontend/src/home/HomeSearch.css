@@ -55,6 +55,8 @@
 
 .homeSearch-auction-card img,
 .homeSearch-sale-card img {
+    display: none;
+    
     width: 100%;
     height: 180px;
     object-fit: cover;
@@ -86,6 +88,7 @@
 }
 
 .homeSearch-noSearch img {
+    display: inline;
     width: 200px;
     margin-top: 60px;
     opacity: 0.6;

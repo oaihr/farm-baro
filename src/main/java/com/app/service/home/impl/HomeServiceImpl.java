@@ -40,10 +40,5 @@ public class HomeServiceImpl implements HomeService{
 		return salesList;
 	}
 
-	@Override
-	public UserHome findUserIdOfSession(String session) {
-		UserHome user = homeDAO.findUserIdOfSession(session);
-		return user;
-	}
 
 }

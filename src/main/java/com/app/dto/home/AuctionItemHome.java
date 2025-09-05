@@ -1,4 +1,4 @@
-package com.app.dto.auction;
+package com.app.dto.home;
 
 import java.time.LocalDateTime;
 import java.util.List;

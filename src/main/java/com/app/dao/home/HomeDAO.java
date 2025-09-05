@@ -12,4 +12,5 @@ public interface HomeDAO {
 	
 	List<AuctionItemHome> searchAuctions(String keyword);
 	List<SalesItemHome> searchSales(String keyword);
+	
 }
