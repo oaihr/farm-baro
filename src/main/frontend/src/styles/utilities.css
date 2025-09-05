@@ -1,0 +1,6 @@
+.center { display: grid; place-items: center; }
+.stack > * + * { margin-top: var(--space-4); }
+.text-muted { color: var(--muted); }
+.text-center { text-align: center; }
+.hidden { display: none !important; }
+.error { color: var(--danger); font-size: var(--fs-2); }

@@ -9,7 +9,13 @@
 		<setting name="jdbcTypeForNull" value="NULL"/>
 	</settings>
 
+
 	<typeAliases>
+		<typeAlias type="com.app.dto.home.AuctionItemHome" alias="AuctionItemHome" />
+		<typeAlias type="com.app.dto.home.SalesItemHome" alias="SalesItemHome" />
+		<typeAlias type="com.app.dto.quote.QuoteDTO" alias="Quote" />
+		<typeAlias type="com.app.dto.quote.QuoteDTOM" alias="QuoteM" />
+		<typeAlias type="com.app.dto.quote.QuoteDTOY" alias="QuoteY" />	
 		<typeAlias type="com.app.dto.sale.SaleItem" alias="SaleItem" />
 		<typeAlias type="com.app.dto.sale.Review" alias="Review" />
 		<typeAlias type="com.app.dto.auction.AuctionItem" alias="AuctionItem" />

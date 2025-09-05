@@ -1,0 +1,113 @@
+:root{
+  --green:#2f7d32;
+  --green-700:#256628;
+  --ring:#e8f2e8;
+  --border:#e9ecef;
+  --text:#1f2937;
+  --muted:#6b7280;
+}
+
+.role-page{
+  padding: 56px 24px;
+  background: #f8faf9;
+}
+
+.role-box{
+  max-width: 1180px;              /* ⬅️ 폭을 확 키움 */
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 18px;
+  padding: 40px 48px;             /* 여백도 넉넉하게 */
+  box-shadow: 0 8px 30px rgba(0,0,0,.06);
+  border: 1px solid #f2f4f6;
+}
+
+.role-header{
+  text-align:center;
+  margin-bottom: 28px;
+}
+.role-brand{
+  display:flex; gap:8px; align-items:center;
+  justify-content:center;
+  font-weight:800; color:var(--green);
+  letter-spacing:.2px; margin-bottom:6px;
+}
+.role-brand .leaf{font-size:20px}
+.role-header h1{font-size:28px; font-weight:800; color:var(--text); margin:8px 0 6px}
+.role-header p{color:var(--muted); font-size:14px}
+
+.role-grid{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(480px, 1fr));  /* ⬅️ 넓은 카드 2열 */
+  gap: 48px;                                             /* ⬅️ 카드 간격 크게 */
+  align-items: stretch;
+}
+
+.role-card{
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding: 32px 32px 28px;
+  background:#fff;
+  box-shadow: 0 6px 18px rgba(0,0,0,.04);
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.role-card:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(0,0,0,.06);
+  border-color:#e3e8ee;
+}
+
+.role-icon{
+  width:96px; height:96px; border-radius:50%;
+  margin: 0 auto 14px; position:relative;
+  background: var(--ring);
+}
+.role-icon::after{
+  position:absolute; left:50%; top:50%;
+  transform: translate(-50%,-50%);
+  font-size:44px;
+  content:"";
+}
+.role-icon--buyer::after{ content:"🛒"; }
+.role-icon--seller::after{ content:"🏪"; }
+
+.role-card h3{
+  text-align:center; font-size:18px; font-weight:700;
+  margin: 10px 0 12px; color:var(--text);
+}
+
+.role-list{margin:0; padding:0; list-style:none}
+.role-list li{
+  display:flex; align-items:center; gap:8px;
+  padding:10px 0; color:#374151; font-size:14.5px;
+  border-top:1px dashed #eef1f3;
+}
+.role-list li:first-child{ border-top:none }
+.role-list li::before{ content:"✔"; color:var(--green); font-weight:700 }
+
+.role-btn{
+  margin-top:18px; width:100%;
+  height:48px; border-radius:10px;
+  background:var(--green); color:#fff;
+  border:1px solid var(--green-700);
+  font-weight:700; letter-spacing:.2px;
+  transition: filter .15s ease, transform .03s ease;
+}
+.role-btn:hover{ filter:brightness(1.03) }
+.role-btn:active{ transform: translateY(1px) }
+
+.role-footer{
+  margin-top: 28px;
+  display:flex; gap:8px; justify-content:center; align-items:center;
+  color:var(--muted); font-size:14px;
+}
+.role-footer .link{
+  color:var(--green); font-weight:700;
+  border:0; background:transparent; cursor:pointer;
+}
+
+/* 반응형 */
+@media (max-width: 1200px){
+  .role-box{ max-width: 100%; padding:32px }
+  .role-grid{ grid-template-columns: 1fr; gap:24px }
+}

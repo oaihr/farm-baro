@@ -1,0 +1,97 @@
+/* ================= button ================= */
+
+.quote-day {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.quote-btn {
+    font-size: 20px;
+    padding: 8px 30px;
+    margin: 0 30px;
+    background-color: #666565;
+}
+
+.quote-active {
+    background-color: #edfab4;
+    font-weight: bold;
+}
+
+.quote-active-btn {
+    background-color: #a0a2a5;
+    font-weight: bold;
+}
+
+/* ============================ quote-box ==========================================*/
+.quote-section::after {
+    content: "";
+    display: block;
+    clear: both;
+}
+
+.quote-section {
+    margin: 65px 50px;
+}
+
+.quote-inner {
+    width: 300px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.quote-inner:hover {
+    background-color: #f5ffd8;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.quote-section .quote-inner {
+    width: 30%;
+    padding: 2rem;
+    float: left;
+    margin-right: 5%;
+    cursor: pointer;
+}
+
+.quote-section .quote-inner:last-child {
+    margin-right: 0;
+}
+
+.quote-img {
+    width: 70px;
+    font-size: 70px;
+}
+
+.quote-section .quote-inner h3 {
+    font-size: 2rem;
+    margin: 1rem 0;
+}
+
+.quote-section .quote-inner p {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #38761D;
+}
+
+.quote-section .quote-inner:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================ chart ==========================================*/
+.quote-chart {
+    width: 80%;
+    height: 450px;
+    margin: 60px auto;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.quote-chart p {
+    font-size: 30px;
+    color: gray;
+    text-align: center;
+}

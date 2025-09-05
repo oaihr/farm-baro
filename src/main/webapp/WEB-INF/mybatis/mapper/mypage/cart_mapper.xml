@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.app.mapper.CartMapper">
+
+    <resultMap id="CartResultMap" type="com.app.dto.CartDto">
+        <id property="userId" column="USER_ID"/>
+        <id property="saleItemId" column="SALE_ITEM_ID"/>
+        <result property="quantity" column="QUANTITY"/>
+        <result property="createdTime" column="CREATED_TIME"/>
+        <result property="updatedTime" column="UPDATED_TIME"/>
+        <result property="productTitle" column="PRODUCT_TITLE"/>
+        <result property="productDescription" column="PRODUCT_DESCRIPTION"/>
+        <result property="sellerName" column="SELLER_NAME"/>
+        <result property="availableQty" column="AVAILABLE_QTY"/>
+    </resultMap>
+
+    <!-- 구매자 장바구니 목록 조회 -->
+    <select id="getCartByBuyer" resultMap="CartResultMap">
+        SELECT c.USER_ID, c.SALE_ITEM_ID, c.QUANTITY, c.CREATED_TIME, c.UPDATED_TIME,
+               s.TITLE as PRODUCT_TITLE, s.DESCRIPTION as PRODUCT_DESCRIPTION,
+               u.USER_NAME as SELLER_NAME, s.QTY as AVAILABLE_QTY
+        FROM cart c
+        LEFT JOIN sales s ON c.SALE_ITEM_ID = s.SALE_ITEM_ID
+        LEFT JOIN users u ON s.SELLER_ID = u.ID
+        WHERE c.USER_ID = #{buyerId}
+        ORDER BY c.UPDATED_TIME DESC
+    </select>
+
+    <!-- 장바구니 상품 확인 -->
+    <select id="checkCartItem" resultMap="CartResultMap">
+        SELECT * FROM cart 
+        WHERE USER_ID = #{userId} AND SALE_ITEM_ID = #{saleItemId}
+    </select>
+
+    <!-- 장바구니 상품 추가 -->
+    <insert id="insertCartItem" parameterType="com.app.dto.CartDto">
+        INSERT INTO cart (USER_ID, SALE_ITEM_ID, QUANTITY, CREATED_TIME, UPDATED_TIME)
+        VALUES (#{userId}, #{saleItemId}, #{quantity}, SYSTIMESTAMP, SYSTIMESTAMP)
+    </insert>
+
+    <!-- 장바구니 상품 수량 수정 -->
+    <update id="updateCartQuantity">
+        UPDATE cart 
+        SET QUANTITY = #{quantity}, UPDATED_TIME = SYSTIMESTAMP
+        WHERE USER_ID = #{userId} AND SALE_ITEM_ID = #{saleItemId}
+    </update>
+
+    <!-- 장바구니 상품 삭제 -->
+    <delete id="deleteCartItem">
+        DELETE FROM cart 
+        WHERE USER_ID = #{userId} AND SALE_ITEM_ID = #{saleItemId}
+    </delete>
+
+    <!-- 장바구니 총 금액 계산 -->
+    <select id="getCartTotalAmount" resultType="double">
+        SELECT NVL(SUM(c.QUANTITY * 0), 0) as TOTAL_AMOUNT
+        FROM cart c
+        WHERE c.USER_ID = #{buyerId}
+    </select>
+
+</mapper>
