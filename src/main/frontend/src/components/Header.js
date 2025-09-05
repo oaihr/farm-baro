@@ -25,7 +25,7 @@ function Header() {
                     <img
                         src={logo} class="logo"
                         onClick={() => navigate("/")} />
-                    <div className='search-box'>
+                    <div className='main-header-search-box'>
                         <input
                             type="text"
                             className="home-search"

@@ -1,7 +1,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.app.mapper.user.user_mapper">
+<mapper namespace="com.app.mapper.UserMapper">
 
 <!-- 
   ☆ alias 대신 FQCN

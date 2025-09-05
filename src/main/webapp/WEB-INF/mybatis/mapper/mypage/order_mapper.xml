@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.app.mapper.mypage.order_mapper">
+<mapper namespace="com.app.mapper.OrderMapper">
 
     <resultMap id="OrderResultMap" type="com.app.dto.OrderDto">
         <id property="saleOrderId" column="SALE_ORDER_ID"/>
