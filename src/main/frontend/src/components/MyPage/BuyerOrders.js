@@ -154,7 +154,7 @@ const BuyerOrders = () => {
                     <div className="no-orders">
                         <div className="no-orders-icon">📦</div>
                         <h4>주문 내역이 없습니다</h4>
-                        <p>첫 주문을 시작해보세요!</p>
+                        <p>첫 주문을 시작해보세요!</p> <br />
                         <button 
                             className="shop-now-btn"
                             onClick={() => navigate('/')}

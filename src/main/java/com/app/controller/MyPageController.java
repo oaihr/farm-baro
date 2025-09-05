@@ -308,13 +308,27 @@ public class MyPageController {
 		}
 	}
 	
-	// 구매자 개인정보 수정 API
+	    // 구매자 개인정보 수정 API
 	@PutMapping("/api/mypage/buyer/{buyerId}/edit")
 	@ResponseBody
 	public ResponseEntity<Boolean> updateBuyerInfo(@PathVariable String buyerId, @RequestBody UserDto user) {
 		try {
 			// userId 설정
 			user.setId(buyerId);
+			boolean result = myPageService.updateUserInfo(user);
+			return ResponseEntity.ok(result);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().build();
+		}
+	}
+
+	// 사용자 개인정보 수정 API (범용)
+	@PutMapping("/api/mypage/{userType}/{userId}/edit")
+	@ResponseBody
+	public ResponseEntity<Boolean> updateUserInfoMyPage(@PathVariable String userType, @PathVariable String userId, @RequestBody UserDto user) {
+		try {
+			// userId 설정
+			user.setId(userId);
 			boolean result = myPageService.updateUserInfo(user);
 			return ResponseEntity.ok(result);
 		} catch (Exception e) {
@@ -586,6 +600,26 @@ public class MyPageController {
 
     // ==================== 구매자 마이페이지 API ====================
 
+    // 사용자 정보 조회 (마이페이지 메인)
+    @GetMapping("/api/mypage/{userType}/{userId}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getUserInfoMyPage(@PathVariable String userType, @PathVariable String userId) {
+        try {
+            Map<String, Object> userInfo;
+            if ("buyer".equals(userType)) {
+                userInfo = myPageService.getBuyerMyPageInfo(userId);
+            } else if ("seller".equals(userType)) {
+                userInfo = myPageService.getSellerMyPageInfo(userId);
+            } else {
+                return ResponseEntity.badRequest().build();
+            }
+            return ResponseEntity.ok(userInfo);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     // 구매자 통계 정보 조회
     @GetMapping("/api/buyers/{userId}/stats")
     @ResponseBody
@@ -599,10 +633,36 @@ public class MyPageController {
         }
     }
 
+    // 구매자 통계 정보 조회 (마이페이지 경로)
+    @GetMapping("/api/mypage/buyers/{userId}/stats")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getBuyerStatsMyPage(@PathVariable String userId) {
+        try {
+            Map<String, Object> stats = myPageService.getBuyerStats(userId);
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     // 구매자 주문 내역 조회
     @GetMapping("/api/buyers/{userId}/orders")
     @ResponseBody
     public ResponseEntity<List<OrderDto>> getBuyerOrders(@PathVariable String userId) {
+        try {
+            List<OrderDto> orders = myPageService.getBuyerOrdersWithExceptionHandling(userId);
+            return ResponseEntity.ok(orders);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    // 구매자 주문 내역 조회 (마이페이지 경로)
+    @GetMapping("/api/mypage/buyers/{userId}/orders")
+    @ResponseBody
+    public ResponseEntity<List<OrderDto>> getBuyerOrdersMyPage(@PathVariable String userId) {
         try {
             List<OrderDto> orders = myPageService.getBuyerOrdersWithExceptionHandling(userId);
             return ResponseEntity.ok(orders);
@@ -727,6 +787,45 @@ public class MyPageController {
         }
     }
 
+    // 구매자 경매 내역 조회 (마이페이지 경로)
+    @GetMapping("/api/mypage/buyers/{userId}/auctions")
+    @ResponseBody
+    public ResponseEntity<List<BidDto>> getBuyerAuctionsMyPage(@PathVariable String userId) {
+        try {
+            List<BidDto> auctions = myPageService.getBuyerAuctions(userId);
+            return ResponseEntity.ok(auctions);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    // 구매자 입찰 내역 조회 (마이페이지 경로)
+    @GetMapping("/api/mypage/buyer/{userId}/bids")
+    @ResponseBody
+    public ResponseEntity<List<BidDto>> getBuyerBidsMyPage(@PathVariable String userId) {
+        try {
+            List<BidDto> bids = myPageService.getBuyerBids(userId);
+            return ResponseEntity.ok(bids);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    // 구매자 낙찰 내역 조회 (마이페이지 경로)
+    @GetMapping("/api/mypage/buyer/{userId}/winning-bids")
+    @ResponseBody
+    public ResponseEntity<List<BidDto>> getWinningBidsMyPage(@PathVariable String userId) {
+        try {
+            List<BidDto> winningBids = myPageService.getWinningBids(userId);
+            return ResponseEntity.ok(winningBids);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     // 경매 결제
     @PostMapping("/api/auctions/{auctionId}/payment")
     @ResponseBody
@@ -771,6 +870,32 @@ public class MyPageController {
         }
     }
 
+    // 장바구니 조회 (마이페이지 경로)
+    @GetMapping("/api/mypage/{userType}/{userId}/cart")
+    @ResponseBody
+    public ResponseEntity<List<CartDto>> getCartMyPage(@PathVariable String userType, @PathVariable String userId) {
+        try {
+            List<CartDto> cartItems = myPageService.getBuyerCart(userId);
+            return ResponseEntity.ok(cartItems);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    // 장바구니 총 금액 조회
+    @GetMapping("/api/mypage/{userType}/{userId}/cart/total")
+    @ResponseBody
+    public ResponseEntity<Double> getCartTotal(@PathVariable String userType, @PathVariable String userId) {
+        try {
+            Double totalAmount = myPageService.getCartTotalAmount(userId);
+            return ResponseEntity.ok(totalAmount);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     // 장바구니 수량 변경
     @PutMapping("/api/cart/{itemId}/quantity")
     @ResponseBody
@@ -791,6 +916,25 @@ public class MyPageController {
         }
     }
 
+    // 장바구니 수량 변경 (마이페이지 경로)
+    @PutMapping("/api/mypage/cart/{cartId}/quantity")
+    @ResponseBody
+    public ResponseEntity<Boolean> updateCartQuantityMyPage(
+            @PathVariable Long cartId,
+            @RequestParam Integer quantity) {
+        try {
+            // cartId에서 userId와 saleItemId를 추출하는 로직 필요
+            // 현재는 임시로 userId를 "temp"로 설정
+            String userId = "temp"; // 실제로는 cartId에서 추출 필요
+            Long saleItemId = cartId; // 실제로는 cartId에서 추출 필요
+            boolean result = myPageService.updateCartQuantity(userId, saleItemId, quantity);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     // 장바구니 상품 삭제
     @DeleteMapping("/api/cart/{itemId}")
     @ResponseBody
@@ -800,6 +944,23 @@ public class MyPageController {
             // 현재는 임시로 userId를 "temp"로 설정
             String userId = "temp"; // 실제로는 itemId에서 추출 필요
             Long saleItemId = itemId; // 실제로는 itemId에서 추출 필요
+            boolean result = myPageService.removeCartItem(userId, saleItemId);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    // 장바구니 상품 삭제 (마이페이지 경로)
+    @DeleteMapping("/api/mypage/cart/{cartId}")
+    @ResponseBody
+    public ResponseEntity<Boolean> removeCartItemMyPage(@PathVariable Long cartId) {
+        try {
+            // cartId에서 userId와 saleItemId를 추출하는 로직 필요
+            // 현재는 임시로 userId를 "temp"로 설정
+            String userId = "temp"; // 실제로는 cartId에서 추출 필요
+            Long saleItemId = cartId; // 실제로는 cartId에서 추출 필요
             boolean result = myPageService.removeCartItem(userId, saleItemId);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
