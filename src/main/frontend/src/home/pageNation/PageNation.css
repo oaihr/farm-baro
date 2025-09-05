@@ -1,0 +1,90 @@
+.pageN-wrapper ul {
+    list-style: none;
+}
+
+.pageN-wrapper li {
+    float: left;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pageN-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    color: #888;
+    font-size: 25px;
+}
+
+.pageN-wrapper a {
+    width: 40px;
+    height: 40px;
+    text-decoration-line: none;
+}
+
+.pageN-page {
+    margin: 0 5px;
+    cursor: pointer;
+    width: 25px;
+    border-radius: 5px;
+    border: solid 1px rgba(0, 0, 0, 0);
+    text-align: center;
+    color: #8b8b8b;
+}
+
+.pageN-page:hover {
+    width: 40px;
+    height: 40px;
+    border: solid 1px #aaa;
+}
+
+.pageN-icon,
+.pageN-move:last-child::after,
+.pageN-move:first-child::before {
+    position: absolute;
+    font-size: 20px;
+    padding: 0 7px 0px;
+}
+
+.pageN-move {
+    position: relative;
+    cursor: pointer;
+    margin: 0 10px;
+}
+
+.pageN-move a {
+    width: 50px;
+    display: block;
+    z-index: 10;
+}
+
+.pageN-move a:hover {
+    text-decoration: underline;
+}
+
+.pageN-move:first-child {
+    text-align: right;
+}
+
+.pageN-move:first-child::before {
+    content: "<";
+    left: 0;
+}
+
+.pageN-move:last-child::after {
+    content: ">";
+    right: 0;
+}
+
+.pageN-invisible {
+    visibility: hidden;
+}
+
+.pageN-active {
+    background: #38761D;
+    color: white;
+}
