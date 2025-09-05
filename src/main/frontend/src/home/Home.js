@@ -2,7 +2,7 @@ import './Home.css';
 import cow from '../images/cow.png';
 import chicken from '../images/chicken.png';
 import pig from '../images/pig.png';
-import mainvideo from './video/farmbaro_main.mp4';
+import mainvideo from './video/856065-hd_1920_1080_30fps.mp4';
 
 import React, { useEffect, useState } from "react";
 import axios from 'axios';
