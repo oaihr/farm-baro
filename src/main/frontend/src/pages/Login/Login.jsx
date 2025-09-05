@@ -106,7 +106,7 @@ export default function Login() {
             <button
               type="button"
               className="link-btn"
-              onClick={() => alert("비밀번호 찾기 기능은 추후 연결됩니다.")}
+              onClick={() =>  navigate("/forgot")}
             >
               비밀번호 찾기
             </button>

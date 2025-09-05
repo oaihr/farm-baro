@@ -85,7 +85,7 @@
 <!-- 비밀번호 재설정 -->
 <update id="updatePasswordByEmail" parameterType="map">
   UPDATE USERS
-     SET PW = #{pw}
+     SET PW = #{pw}    	 
    WHERE EMAIL = #{email}
 </update>
 

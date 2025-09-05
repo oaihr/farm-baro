@@ -17,5 +17,5 @@ public interface UserMapper {
 	  
 	  int insertBuyer(java.util.Map<String,Object> p);
 
-	  int updatePasswordByEmail(java.util.Map<String,Object> p);
+	  int updatePasswordByEmail(Map<String, Object> p);
 	}

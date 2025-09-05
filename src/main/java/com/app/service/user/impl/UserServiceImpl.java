@@ -1,6 +1,5 @@
 package com.app.service.user.impl;
 
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -10,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.DigestUtils;
 
 import com.app.domain.User;
 import com.app.dto.auth.SignupRequest;
@@ -89,8 +87,8 @@ public class UserServiceImpl implements UserService {
         SellerSignupPayload.Basic b = Objects.requireNonNull(p.getBasic(), "basic is null");
         SellerSignupPayload.Business bs = Objects.requireNonNull(p.getBusiness(), "business is null");
 
-        // 임시 MD5 → 운영에서는 반드시 BCrypt 등으로 바꾸세요.
-        String encPw = DigestUtils.md5DigestAsHex(b.getPass().getBytes(StandardCharsets.UTF_8));
+        // 임시 MD5 → 운영에서는 반드시 BCrypt 등으로 바꾸세요. 완료.
+        String encPw = passwordEncoder.encode(b.getPass()); // BCrypt로 통일
 
         String address = ((bs.getAddr1() == null ? "" : bs.getAddr1().trim()) + " " +
                           (bs.getAddr2() == null ? "" : bs.getAddr2().trim())).trim();
@@ -101,7 +99,7 @@ public class UserServiceImpl implements UserService {
         u.put("email", b.getEmail());
         u.put("address", address);
         u.put("tel", null);
-        u.put("userName", b.getName());
+        u.put("userName", b.getName());	// ← XML에서 #{userName} 사용하도록 맞추기
         u.put("brn", bs.getBrn());
 
         userMapper.insertSeller(u);
@@ -112,9 +110,17 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void resetPassword(String email, String rawPass) {
-        Map<String, Object> p = new HashMap<>();
-        p.put("email", email);
-        p.put("pw", passwordEncoder.encode(rawPass)); // ← passwordEncoder 로 통일
-        userMapper.updatePasswordByEmail(p);
-    }
+    	 int updated = userMapper.updatePasswordByEmail(
+    	            Map.of("email", email, "pw", passwordEncoder.encode(rawPass))
+    	        );
+    	        if (updated != 1) throw new IllegalStateException("계정이 없거나 비밀번호 변경 실패");
+    	    }
 }
+
+
+
+
+
+
+
+

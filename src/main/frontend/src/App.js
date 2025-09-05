@@ -11,6 +11,7 @@ import MyPage from "./pages/MyPage";
 import BuyerWizard from "./pages/SignupWizard/BuyerWizard";
 import SellerWizard from "./pages/SignupWizard/SellerWizard";
 import SellerApprovals from "./pages/Admin/SellerApprovals";
+import ForgotPassword from "./pages/account/ForgotPassword";
 
 
 function App() {
@@ -25,6 +26,9 @@ function App() {
         {/* 인증/마이페이지 */}
         <Route path="/login" element={<Login />} />
         <Route path="/me" element={<MyPage />} />
+
+        {/* 로그인 */}
+        <Route path="/forgot" element={<ForgotPassword />} />
 
         {/* 회원가입(역할선택 → 폼) */}
         <Route path="/signup">

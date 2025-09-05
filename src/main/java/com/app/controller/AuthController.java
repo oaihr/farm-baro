@@ -107,28 +107,79 @@ public class AuthController {
   }
 
   // ===========================
-  // 비밀번호 재설정 (이메일 인증 후 새 비번 저장)
-  // body: { email, requestId, code, newPass }
+  // 비밀번호 찾기: 인증코드 발송 (requestId 반환)
+  // body: { email }
+  // ===========================
+  @PostMapping("/password/forgot")
+  public Map<String, Object> sendResetCode(@RequestBody Map<String, String> req) {
+    String email = req.get("email");
+    if (email == null || !email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이메일 형식 오류");
+    }
+    // 가입된 계정만 진행
+    if (userMapper.findByEmail(email) == null) {
+      // 보안상 200 처리 가능하지만, 프런트에서 UX 위해 메시지도 반환
+      return Map.of("ok", true, "requestId", "", "message", "가입된 이메일이 아닙니다.");
+    }
+
+    // requestId + 6자리 코드 생성 (10분 유효)
+    String requestId = java.util.UUID.randomUUID().toString();
+    String code = String.format("%06d", new java.util.Random().nextInt(1_000_000));
+    long now = System.currentTimeMillis();
+
+    session.setAttribute("RESET_EMAIL:" + requestId, email);
+    session.setAttribute("RESET_CODE:" + requestId, code);
+    session.setAttribute("RESET_TS:" + requestId, now);
+
+    try {
+      emailService.send(
+          email,
+          "[목장바로] 비밀번호 재설정 인증코드",
+          "인증코드: " + code + "\n유효시간: 10분"
+      );
+      return Map.of("ok", true, "requestId", requestId);
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "메일 발송 중 오류: " + e.getMessage());
+    }
+  }
+
+  // ===========================
+  // 비밀번호 재설정
+  // body: { requestId, code, newPass }
   // ===========================
   @PostMapping("/password/reset")
   public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> body) {
-    String email    = body.get("email");
-    String requestId= body.get("requestId");
-    String code     = body.get("code");
-    String newPass  = body.get("newPass");
+    String requestId = body.get("requestId");
+    String code      = body.get("code");
+    String newPass   = body.get("newPass");
 
-    if (email == null || requestId == null || code == null || newPass == null) {
+    if (requestId == null || code == null || newPass == null) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "파라미터 누락");
     }
 
-    // 1) 코드 검증
-    emailService.verify(requestId, code);
+    String email = (String) session.getAttribute("RESET_EMAIL:" + requestId);
+    String saved = (String) session.getAttribute("RESET_CODE:" + requestId);
+    Long ts      = (Long)   session.getAttribute("RESET_TS:" + requestId);
 
-    // 2) 저장
+    boolean valid = email != null && saved != null && ts != null
+        && saved.equals(code)
+        && (System.currentTimeMillis() - ts) < 10 * 60 * 1000; // 10분
+
+    if (!valid) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .body(Map.of("ok", false, "message", "인증이 만료되었거나 코드가 올바르지 않습니다."));
+    }
+
     try {
-      userService.resetPassword(email, newPass);
+      userService.resetPassword(email, newPass); // 해시 후 저장
+      // 일회성 사용: 세션 토큰 제거
+      session.removeAttribute("RESET_EMAIL:" + requestId);
+      session.removeAttribute("RESET_CODE:" + requestId);
+      session.removeAttribute("RESET_TS:" + requestId);
       return ResponseEntity.noContent().build();
     } catch (Exception e) {
+      e.printStackTrace();
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
           .body(Map.of("ok", false, "message", "비밀번호 변경 실패"));
     }
