@@ -1364,8 +1364,8 @@
 }
 
 .detail-main {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
+    display: flex;
+    flex-direction: column;
     gap: 40px;
 }
 
@@ -1414,6 +1414,8 @@
     display: flex;
     flex-direction: column;
     gap: 30px;
+    width: 90%;
+    margin: 0 auto;
 }
 
 .info-group {
@@ -1433,8 +1435,9 @@
 
 .info-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 20px;
+    width: 100%;
 }
 
 .info-item.full-width {
@@ -1456,7 +1459,8 @@
     padding: 25px;
     border-radius: 12px;
     border: 1px solid #e2e8f0;
-    margin: 20px 0;
+    margin: 20px auto;
+    width: 90%;
 }
 
 .image-change-section h4 {
