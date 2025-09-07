@@ -82,7 +82,7 @@
             IMAGE_ID, PRODUCT_ID, PRODUCT_TYPE, IMAGE_URL, 
             IS_THUMBNAIL, ORDER_INDEX, CREATED_TIME
         ) VALUES (
-            image_seq.NEXTVAL, #{productId}, #{productType}, #{imageUrl},
+            image_seq.NEXTVAL, #{productId}, 'SALE', #{imageUrl},
             #{isThumbnail}, #{orderIndex}, SYSTIMESTAMP
         )
     </insert>
@@ -112,7 +112,7 @@
     <!-- 상품 이미지 삭제 -->
     <delete id="deleteProductImages">
         DELETE FROM product_images 
-        WHERE PRODUCT_ID = #{productId} AND PRODUCT_TYPE = #{productType}
+        WHERE PRODUCT_ID = #{productId} AND PRODUCT_TYPE = 'SALE'
     </delete>
 
 </mapper>

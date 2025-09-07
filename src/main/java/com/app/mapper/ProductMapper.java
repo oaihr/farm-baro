@@ -34,7 +34,8 @@ public interface ProductMapper {
     // 상품 이미지 등록
     int insertProductImage(@Param("productId") Long productId, 
                           @Param("imageUrl") String imageUrl,
-                          @Param("imageOrder") Integer imageOrder);
+                          @Param("orderIndex") Integer orderIndex,
+                          @Param("isThumbnail") Boolean isThumbnail);
     
     // 상품 이미지 삭제
     int deleteProductImages(@Param("productId") Long productId);

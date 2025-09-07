@@ -471,7 +471,7 @@ public class MyPageController {
 			@RequestParam("grade") String grade,
 			@RequestParam("traceabilityNum") String traceabilityNum,
 			@RequestParam("sellerId") String sellerId,
-			@RequestPart(value = "imageFiles", required = false) MultipartFile[] imageFiles) {
+			@RequestParam(value = "imageUrls", required = false) String[] imageUrls) {
 		
 		System.out.println("=== 상품 등록 요청 받음 ===");
 		System.out.println("title: " + title);
@@ -485,7 +485,7 @@ public class MyPageController {
 		System.out.println("grade: " + grade);
 		System.out.println("traceabilityNum: " + traceabilityNum);
 		System.out.println("sellerId: " + sellerId);
-		System.out.println("imageFiles: " + (imageFiles != null ? imageFiles.length : 0) + "개");
+		System.out.println("imageUrls: " + (imageUrls != null ? imageUrls.length : 0) + "개");
 		
 		try {
 			ProductDto product = new ProductDto();
@@ -501,17 +501,20 @@ public class MyPageController {
 			product.setSellerId(sellerId);
 			product.setSaleStatus(saleStatus);
 			
-			// 이미지 파일들이 있으면 처리
-			if (imageFiles != null && imageFiles.length > 0) {
-				for (MultipartFile imageFile : imageFiles) {
-					if (imageFile != null && !imageFile.isEmpty()) {
-						// 이미지 파일 저장 로직은 추후 구현 예정
-						// String imageFileName = imageFile.getOriginalFilename();
+			// 상품 등록
+			boolean result = myPageService.registerProduct(product);
+			
+			// 이미지 URL들이 있으면 처리
+			if (result && imageUrls != null && imageUrls.length > 0) {
+				Long productId = product.getSaleItemId();
+				for (int i = 0; i < imageUrls.length; i++) {
+					String imageUrl = imageUrls[i];
+					if (imageUrl != null && !imageUrl.trim().isEmpty()) {
+						boolean isThumbnail = (i == 0); // 첫 번째 이미지를 대표 이미지로 설정
+						myPageService.insertProductImage(productId, imageUrl.trim(), i + 1, isThumbnail);
 					}
 				}
 			}
-			
-			boolean result = myPageService.registerProduct(product);
 			System.out.println("=== 상품 등록 결과: " + result + " ===");
 			
 			if (result) {
@@ -561,7 +564,7 @@ public class MyPageController {
 			@RequestParam("detailDescription") String detailDescription,
 			@RequestParam("grade") String grade,
 			@RequestParam("traceabilityNum") String traceabilityNum,
-			@RequestPart(value = "imageFiles", required = false) MultipartFile[] imageFiles) {
+			@RequestParam(value = "imageUrls", required = false) String[] imageUrls) {
 		try {
 			ProductDto product = new ProductDto();
 			product.setSaleItemId(productId);
@@ -577,12 +580,17 @@ public class MyPageController {
 			product.setGrade(grade);
 			product.setTraceabilityNum(traceabilityNum);
 			
-			// 이미지 파일들이 있으면 처리
-			if (imageFiles != null && imageFiles.length > 0) {
-				for (MultipartFile imageFile : imageFiles) {
-					if (imageFile != null && !imageFile.isEmpty()) {
-						// 이미지 파일 저장 로직은 추후 구현 예정
-						// String imageFileName = imageFile.getOriginalFilename();
+			// 이미지 URL들이 있으면 처리
+			if (imageUrls != null && imageUrls.length > 0) {
+				// 기존 이미지 삭제
+				myPageService.deleteProductImages(productId);
+				
+				// 새로운 이미지 URL들 저장
+				for (int i = 0; i < imageUrls.length; i++) {
+					String imageUrl = imageUrls[i];
+					if (imageUrl != null && !imageUrl.trim().isEmpty()) {
+						boolean isThumbnail = (i == 0); // 첫 번째 이미지를 대표 이미지로 설정
+						myPageService.insertProductImage(productId, imageUrl.trim(), i + 1, isThumbnail);
 					}
 				}
 			}

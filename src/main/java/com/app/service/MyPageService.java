@@ -607,4 +607,26 @@ public class MyPageService {
             return false;
         }
     }
+    
+    // 상품 이미지 삭제
+    public boolean deleteProductImages(Long productId) {
+        try {
+            int result = productMapper.deleteProductImages(productId);
+            return result >= 0; // 삭제할 이미지가 없어도 성공으로 처리
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    // 상품 이미지 등록
+    public boolean insertProductImage(Long productId, String imageUrl, int orderIndex, boolean isThumbnail) {
+        try {
+            int result = productMapper.insertProductImage(productId, imageUrl, orderIndex, isThumbnail);
+            return result > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
