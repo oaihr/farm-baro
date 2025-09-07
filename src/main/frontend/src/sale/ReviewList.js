@@ -11,15 +11,15 @@ function ReviewList({ saleId }) {
 
     const [expandedReviewId, setExpandedReviewId] = useState(null);
 
-    const [detailedReview, setDetailedReview] = useState(null); // 추가: 상세 리뷰 데이터를 저장할 상태
-    const [isLoadingDetail, setIsLoadingDetail] = useState(false); // 추가: 상세 정보 로딩 상태
+    const [detailedReview, setDetailedReview] = useState(null);
+    const [isLoadingDetail, setIsLoadingDetail] = useState(false); 
 
     useEffect(() => {
-        // saleId가 유효할 때만 API 호출 함수를 실행
+        
         if (saleId) {
             const fetchReviews = async () => {
                 try {
-                    // API 호출 시 페이지 번호를 0부터 시작하도록 -1
+                    
                     const response = await axios.get(`/api/reviews?saleId=${saleId}&page=${currentPage - 1}&size=${reviewsPerPage}`);
 
                     // API 응답의 유효성을 확인하고 content와 totalPages를 추출
@@ -27,7 +27,7 @@ function ReviewList({ saleId }) {
                         setReviews(response.data.content);
                         setTotalPages(response.data.totalPages);
                     } else {
-                        // 응답이 유효하지 않으면 빈 배열로 설정하여 오류를 방지
+                        
                         setReviews([]);
                         setTotalPages(0);
                     }
@@ -95,8 +95,9 @@ function ReviewList({ saleId }) {
                         <col style={{ width: '10%' }} /> {/* 번호 */}
                         <col style={{ width: '20%' }} /> {/* 별점 */}
                         <col style={{ width: '30%' }} /> {/* 제목 */}
-                        <col style={{ width: '20%' }} /> {/* 작성자 */}
-                        <col style={{ width: '20%' }} /> {/* 작성일 */}
+                        <col style={{ width: '16%' }} /> {/* 작성자 */}
+                        <col style={{ width: '16%' }} /> {/* 작성일 */}
+                        <col style={{ width: '8%' }} />
                     </colgroup>
                     <thead>
                         <tr>
@@ -105,6 +106,7 @@ function ReviewList({ saleId }) {
                             <th>제목</th>
                             <th>작성자</th>
                             <th>작성일</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -115,7 +117,7 @@ function ReviewList({ saleId }) {
                                     <tr onClick={() => handleRowClick(review.reviewId)} className="expandable-row">
                                         <td>{(currentPage - 1) * reviewsPerPage + index + 1}</td>
                                         <td className="star-rating">
-                                            {/* rating 값에 따라 별을 렌더링 */}
+                                            {/* rating 값에 따라 별 */}
                                             {[...Array(5)].map((_, i) => (
                                                 <span key={i} className="star">
                                                     {i < review.rating ? '★' : '☆'}
@@ -142,8 +144,13 @@ function ReviewList({ saleId }) {
                                                 return `${year}-${formattedMonth}-${formattedDay}`;
                                             })()}
                                         </td>
+                                        <td>
+                                            <div className='report-box'>
+                                                <img src="/images/report.png" /><button className='report-box-btn'>신고</button>
+                                            </div>
+                                        </td>
                                     </tr>
-                                    {/* 상세 내용을 보여주는 행 */}
+                                    {/* 상세 내용 */}
                                     {expandedReviewId === review.reviewId && (
                                         <tr className="expanded-content-row">
                                             <td colSpan="5">
@@ -152,7 +159,7 @@ function ReviewList({ saleId }) {
                                                         <p>상세 정보를 불러오는 중입니다...</p>
                                                     ) : detailedReview ? (
                                                         <>                                                            
-                                                            {/* 상세 리뷰의 이미지를 렌더링 */}
+                                                            {/* 상세 리뷰 이미지 */}
                                                             {Array.isArray(detailedReview.images) && detailedReview.images.length > 0 && (
                                                                 <div className="review-images-container">
                                                                     {detailedReview.images.map((image, i) => (
@@ -166,6 +173,25 @@ function ReviewList({ saleId }) {
                                                                 </div>
                                                             )}
                                                             <p>{detailedReview.reviewComment}</p>
+
+                                                            {detailedReview.sellerComment && (
+                                                                <div className="admin-reply-container">
+                                                                    <div className="admin-reply-header">
+                                                                        <span className="admin-name">판매자</span>
+                                                                        <span className="admin-date">
+                                                                            {(() => {
+                                                                                const updatedTime = detailedReview.updatedTime;
+                                                                                if (!updatedTime || updatedTime.length < 3) return '';
+                                                                                const year = updatedTime[0];
+                                                                                const month = String(updatedTime[1]).padStart(2, '0');
+                                                                                const day = String(updatedTime[2]).padStart(2, '0');
+                                                                                return `${year}-${month}-${day}`;
+                                                                            })()}
+                                                                        </span>
+                                                                    </div>
+                                                                    <p className="admin-comment">{detailedReview.sellerComment}</p>
+                                                                </div>
+                                                            )}
                                                         </>
                                                     ) : (
                                                         <p>리뷰 상세 정보를 찾을 수 없습니다.</p>
@@ -185,7 +211,6 @@ function ReviewList({ saleId }) {
                 </table>
             </div>
 
-            {/* Pagination: totalPages가 1보다 클 때만 표시 */}
             {totalPages > 1 && (
                 <div className="review-pagination">
                     <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>

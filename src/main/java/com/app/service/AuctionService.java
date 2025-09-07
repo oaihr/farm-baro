@@ -11,7 +11,7 @@ import com.app.dto.auction.BidMessage;
 
 public interface AuctionService {
 
-	Page<AuctionItem> getAuctionPage(Pageable pageable, String kind);
+	Page<AuctionItem> getAuctionPage(Pageable pageable, String kind, String status);
 	
 	Optional<AuctionItem> getAuctionItem(Integer auctionId);
 	

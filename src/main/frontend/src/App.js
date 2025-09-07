@@ -11,6 +11,7 @@ import Sale from './sale/Sale';
 import SaleDetail from './sale/SaleDetail';
 import Auction from './sale/auction/Auction';
 import AuctionDetail from './sale/auction/AuctionDetail';
+import PastAuction from './sale/auction/PastAuction.js';
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/Login/Login";
@@ -55,7 +56,9 @@ function App() {
           <Route path="/sale/:kind/:part" element={<Sale />} />
           <Route path="/sale/:saleId" element={<SaleDetail />} />
           <Route path="/auctions/" element={<Auction />} />
+          <Route path="/auctions/off" element={<PastAuction />} />
           <Route path="/auction/:auctionId" element={<AuctionDetail />} />
+          <Route path="/auction/off/:auctionId" element={<AuctionDetail />} />
           {/* 인증/마이페이지 */}
           <Route path="/login" element={<Login />} />
           <Route path="/me" element={<MyPageRedirect />} />

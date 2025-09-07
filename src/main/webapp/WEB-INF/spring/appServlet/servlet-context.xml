@@ -19,6 +19,7 @@
 	<context:component-scan	base-package="com.app.dao"></context:component-scan>
 	<context:component-scan	base-package="com.app.config"></context:component-scan>
 	<context:component-scan base-package="com.app.api" />
+	<context:component-scan base-package="com.app.scheduler" />
 	
 	
 	<!--뷰리졸버 설정 부분 -->

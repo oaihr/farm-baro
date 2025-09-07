@@ -31,11 +31,12 @@ public class AuctionController {
 	@GetMapping("/api/auction")
 	public Page<AuctionItem> getAuctionList(@RequestParam(defaultValue = "0") int page,
 									  		@RequestParam(defaultValue = "12") int size,
-									  		@RequestParam(required = false) String kind) {
+									  		@RequestParam(required = false) String kind,
+									  		@RequestParam(required = false) String status) {
 		
 		Pageable pageable = PageRequest.of(page, size);
 		
-		Page<AuctionItem> auctionPage = auctionService.getAuctionPage(pageable, kind);
+		Page<AuctionItem> auctionPage = auctionService.getAuctionPage(pageable, kind, status);
 		return auctionPage;
 	}
 	

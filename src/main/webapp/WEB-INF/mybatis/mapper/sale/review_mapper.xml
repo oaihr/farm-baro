@@ -57,6 +57,7 @@
 		<result property="reviewComment" column="review_comment" />
 		<result property="updatedTime" column="updated_time" />
 		<result property="title" column="title" />
+		<result property="sellerComment" column="seller_comment" />
 		
 		<collection property="images" ofType="com.app.dto.sale.Image">
 			<id property="imageId" column="IMAGE_ID" />
@@ -73,6 +74,7 @@
     		R.review_comment,
     		R.updated_time,
     		R.title,
+    		R.seller_comment,
     		I.image_id,
     		I.image_url
     	FROM REVIEWS R

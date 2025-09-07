@@ -6,7 +6,7 @@ import ImageSlider from './common/ImageSlider';
 import './SaleDetail.css';
 import refridge from '../images/refridge.png';
 import ProductInfoTable from './common/ProductInfoTable';
-import ReviewList from '../components/ReviewList';
+import ReviewList from './ReviewList';
 
 function SaleDetail(){
 

@@ -99,6 +99,17 @@
     font-size: 1rem;
 }
 
+.report-box{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.report-box-btn{
+    border: none;
+    background-color: white;
+    cursor: pointer;
+}
 
 .review-table .no-reviews {
     padding: 50px 0;
@@ -122,7 +133,45 @@
     text-align: left;
 }
 
-/* Pagination */
+/* 리뷰 판매자 답글 */
+.admin-reply-container {
+    width: 70%;
+    background-color: #f8f8f8; 
+    border-radius: 8px; 
+    padding: 20px; 
+    margin-top: 20px; 
+    border: 1px solid #e0e0e0; 
+    font-family: 'Segoe UI', 'Roboto', sans-serif; 
+}
+
+.admin-reply-header {
+    display: flex; 
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #dcdcdc;
+}
+
+.admin-name {
+    font-weight: 600; 
+    color: #444; 
+    font-size: 16px;
+}
+
+.admin-date {
+    font-size: 13px;
+    color: #888; 
+}
+
+.admin-comment {
+    color: #333; 
+    line-height: 1.6; 
+    font-size: 14px;
+    margin-top: 0;
+}
+
+/* 페이지네이션 */
 .review-pagination {
     display: flex;
     justify-content: center;

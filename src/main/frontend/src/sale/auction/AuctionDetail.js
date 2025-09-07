@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import * as StompJs from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
@@ -12,6 +12,7 @@ import useRemainingTime from '../common/RemainigTime';
 function AuctionDetail() {
 
     const { auctionId } = useParams();
+    const location = useLocation();
     const [item, setItem] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -127,6 +128,7 @@ function AuctionDetail() {
         });
     };
 
+    const isPastAuction = location.pathname.includes('/off/');
 
     if (loading) return <div>로딩 중..</div>;
     if (!item) return <div>데이터가 없습니다.</div>;
@@ -211,15 +213,19 @@ function AuctionDetail() {
                         </div>
 
                         <div className='real-time-bid'>
-                            <span className='bid-price-label'>현재 입찰가</span>
+                            <span className='bid-price-label'>
+                                {isPastAuction ? '최종 낙찰가' : '현재 입찰가'}
+                            </span>
                             <span className='bid-price-value'>{currentBid === 0 ? '미입찰' : `${currentBid.toLocaleString()} 원`} </span>
                         </div>
 
                     </div>
-                    <div className='action-buttons'>
-                        <button className='cart-button' onClick={() => {/* 즉시구매*/ }}>즉시구매</button>
-                        <button className='purchase-button' onClick={handleOpenBidModal}>입찰하기</button>
-                    </div>
+                    {!isPastAuction && (
+                        <div className='action-buttons'>
+                            <button className='cart-button' onClick={() => {/* 즉시구매*/ }}>즉시구매</button>
+                            <button className='purchase-button' onClick={handleOpenBidModal}>입찰하기</button>
+                        </div>
+                    )}
                     <BidModal
                         isOpen={isModalOpen}
                         onClose={handleCloseBidModal}

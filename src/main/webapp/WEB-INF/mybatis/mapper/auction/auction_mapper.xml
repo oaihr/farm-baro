@@ -47,11 +47,12 @@
 			LEFT JOIN PRODUCT_IMAGES I ON A.auction_id = I.PRODUCT_ID AND I.IS_THUMBNAIL = 'y'
 			INNER JOIN USERS U ON A.seller_id = U.id
 			
-			<where>
-            	A.auction_status = 'ON'
-            
+		<where>
             <if test="kind != null and kind != ''">
-                AND A.judge_kind_name = #{kind}
+                OR A.judge_kind_name = #{kind}
+            </if>
+            <if test="status != null and status != ''">
+                OR A.auction_status = #{status}
             </if>
         </where>
 		)
@@ -63,9 +64,11 @@
         SELECT COUNT(*)
         FROM AUCTIONS
         <where> 
-        	AUCTION_STATUS = 'ON'
         	<if test="kind != null and kind != ''">
-                AND judge_kind_name = #{kind}
+                OR judge_kind_name = #{kind}
+            </if>
+            <if test="status != null and status != ''">
+                OR auction_status = #{status}
             </if>
         </where>
     </select>

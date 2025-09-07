@@ -26,10 +26,10 @@ public class AuctionServiceImpl implements AuctionService{
 	BidDAO bidDAO;
 	
 	@Override
-	public Page<AuctionItem> getAuctionPage(Pageable pageable, String kind) {
-		List<AuctionItem> auctionPage = auctionDAO.getAuctionPage(pageable, kind);
+	public Page<AuctionItem> getAuctionPage(Pageable pageable, String kind, String status) {
+		List<AuctionItem> auctionPage = auctionDAO.getAuctionPage(pageable, kind, status);
 		
-		long totalCount = auctionDAO.getAuctionCount(kind);
+		long totalCount = auctionDAO.getAuctionCount(kind, status);
 		
 		return new PageImpl<>(auctionPage, pageable, totalCount);
 	}

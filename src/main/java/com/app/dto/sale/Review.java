@@ -15,6 +15,7 @@ public class Review {
 	String reviewComment;
 	LocalDateTime updatedTime;
 	String title;
+	String sellerComment;
 	
 	List<Image> images;
 }

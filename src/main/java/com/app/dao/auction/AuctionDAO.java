@@ -12,9 +12,9 @@ import com.app.dto.auction.AuctionItem;
 
 @Repository
 public interface AuctionDAO {
-	List<AuctionItem> getAuctionPage(@Param("pageable") Pageable pageable, @Param("kind") String kind);
+	List<AuctionItem> getAuctionPage(@Param("pageable") Pageable pageable, @Param("kind") String kind, @Param("status") String status);
 	
-	long getAuctionCount(@Param("kind") String kind);
+	long getAuctionCount(@Param("kind") String kind, @Param("status") String status);
 	
 	Optional<AuctionItem> getAuctionItem(Integer auctionId);
 	

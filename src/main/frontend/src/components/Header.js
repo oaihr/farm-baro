@@ -59,7 +59,7 @@ function Header() {
                         <li className="home-menu-span span">경매
                             <ul className="home-submenu">
                                 <li><Link to="/auctions">실시간 경매</Link></li>
-                                <li><Link to="/auctions/past">지난 경매</Link></li>
+                                <li><Link to="/auctions/off">지난 경매</Link></li>
                             </ul>
                         </li>
 
