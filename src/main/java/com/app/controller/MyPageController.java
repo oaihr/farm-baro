@@ -384,6 +384,48 @@ public class MyPageController {
 		}
 	}
 
+	// 리뷰 이미지 등록 API
+	@PostMapping("/api/reviews/{reviewId}/images")
+	@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"})
+	@ResponseBody
+	public ResponseEntity<Boolean> insertReviewImages(@PathVariable Long reviewId, @RequestBody List<String> imageUrls) {
+		try {
+			// 기존 리뷰 이미지 삭제
+			myPageService.deleteReviewImages(reviewId);
+			
+			// 새로운 이미지들 등록
+			boolean success = true;
+			for (int i = 0; i < imageUrls.size(); i++) {
+				String imageUrl = imageUrls.get(i);
+				if (imageUrl != null && !imageUrl.trim().isEmpty()) {
+					boolean isThumbnail = (i == 0); // 첫 번째 이미지를 대표 이미지로 설정
+					boolean result = myPageService.insertReviewImage(reviewId, imageUrl.trim(), i + 1, isThumbnail);
+					if (!result) {
+						success = false;
+					}
+				}
+			}
+			return ResponseEntity.ok(success);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.badRequest().build();
+		}
+	}
+
+	// 리뷰 이미지 조회 API
+	@GetMapping("/api/reviews/{reviewId}/images")
+	@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"})
+	@ResponseBody
+	public ResponseEntity<List<String>> getReviewImages(@PathVariable Long reviewId) {
+		try {
+			List<String> images = myPageService.getReviewImages(reviewId);
+			return ResponseEntity.ok(images);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.badRequest().build();
+		}
+	}
+
 	// 문의 작성 API
 	@PostMapping("/api/inquiries")
 	@ResponseBody

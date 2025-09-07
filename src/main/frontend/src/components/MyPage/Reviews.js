@@ -11,6 +11,7 @@ const Reviews = () => {
     const [reviews, setReviews] = useState([]);
     const [filteredReviews, setFilteredReviews] = useState([]);
     const [replyModal, setReplyModal] = useState({ show: false, reviewId: null, replyText: '' });
+    const [detailModal, setDetailModal] = useState({ show: false, review: null });
     
     const tabs = [
         { id: 'all', label: '전체 리뷰', icon: '⭐' },
@@ -60,21 +61,33 @@ const Reviews = () => {
             const dummyReviews = [
                 {
                     id: 1,
-                    productName: '신선한 사과',
+                    productName: '소고기 등심 1++등급',
                     buyerName: '구매자1',
                     rating: 5,
-                    content: '정말 맛있는 사과였습니다! 신선하고 달콤해요.',
-                    reviewDate: '2025-09-03',
-                    sellerReply: null
+                    content: '맛있었습니다.',
+                    reviewDate: '2025-01-15',
+                    sellerReply: null,
+                    productCategory: '소고기'
                 },
                 {
                     id: 2,
-                    productName: '고급 쌀',
+                    productName: '돼지고기 삼겹살 1+등급',
                     buyerName: '구매자2',
                     rating: 4,
-                    content: '품질이 좋네요. 다음에도 주문할 예정입니다.',
-                    reviewDate: '2025-09-02',
-                    sellerReply: '감사합니다! 더 좋은 상품으로 보답하겠습니다.'
+                    content: '맛있었습니다.',
+                    reviewDate: '2025-01-14',
+                    sellerReply: '감사합니다! 더 좋은 고기로 보답하겠습니다.',
+                    productCategory: '돼지고기'
+                },
+                {
+                    id: 3,
+                    productName: '닭고기 가슴살 1등급',
+                    buyerName: '구매자3',
+                    rating: 5,
+                    content: '맛있었습니다.',
+                    reviewDate: '2025-01-13',
+                    sellerReply: '건강한 식단 응원합니다! 앞으로도 신선한 닭고기로 보답하겠습니다.',
+                    productCategory: '닭고기'
                 }
             ];
             setReviews(dummyReviews);
@@ -308,6 +321,16 @@ const Reviews = () => {
         }
         
         setTimeout(() => setMessage(''), 3000);
+    };
+
+    // 리뷰 상세보기
+    const handleViewDetail = (review) => {
+        setDetailModal({ show: true, review: review });
+    };
+
+    // 상세보기 모달 닫기
+    const closeDetailModal = () => {
+        setDetailModal({ show: false, review: null });
     };
 
     // 리뷰 삭제 기능 (관리자용)
@@ -567,7 +590,7 @@ const Reviews = () => {
                                     
                                     <button 
                                         className="action-btn info"
-                                        onClick={() => setMessage(`리뷰 상세: ${review.productName} - ${review.buyerName}님의 ${review.rating}점 리뷰`)}
+                                        onClick={() => handleViewDetail(review)}
                                     >
                                         👁️ 상세보기
                                     </button>
@@ -619,6 +642,102 @@ const Reviews = () => {
                                 disabled={loading || !replyModal.replyText.trim()}
                             >
                                 {loading ? '작성 중...' : '답변 작성'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* 리뷰 상세보기 모달 */}
+            {detailModal.show && (
+                <div className="modal-overlay" onClick={closeDetailModal}>
+                    <div className="modal-content detail-modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3>📋 리뷰 상세 정보</h3>
+                            <button className="close-btn" onClick={closeDetailModal}>✕</button>
+                        </div>
+                        
+                        <div className="modal-body">
+                            {detailModal.review && (
+                                <div className="review-detail">
+                                    {/* 고객 정보 */}
+                                    <div className="detail-section">
+                                        <h4>👤 고객 정보</h4>
+                                        <div className="detail-info">
+                                            <p><strong>구매자:</strong> {detailModal.review.buyerName || '정보 없음'}</p>
+                                            <p><strong>리뷰 작성일:</strong> {detailModal.review.reviewDate || '정보 없음'}</p>
+                                            <p><strong>리뷰 ID:</strong> #{detailModal.review.id}</p>
+                                        </div>
+                                    </div>
+
+                                    {/* 상품 정보 */}
+                                    <div className="detail-section">
+                                        <h4>📦 상품 정보</h4>
+                                        <div className="detail-info">
+                                            <p><strong>상품명:</strong> {detailModal.review.productName || '정보 없음'}</p>
+                                            <p><strong>카테고리:</strong> {detailModal.review.productCategory || '정보 없음'}</p>
+                                        </div>
+                                    </div>
+
+                                    {/* 평점 정보 */}
+                                    <div className="detail-section">
+                                        <h4>⭐ 평점 정보</h4>
+                                        <div className="detail-info">
+                                            <p><strong>평점:</strong> 
+                                                <span className="rating-display">
+                                                    {'★'.repeat(detailModal.review.rating || 0)}
+                                                    {'☆'.repeat(5 - (detailModal.review.rating || 0))}
+                                                </span>
+                                                <span className="rating-number">({detailModal.review.rating || 0}/5)</span>
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* 리뷰 내용 */}
+                                    <div className="detail-section">
+                                        <h4>📝 리뷰 내용</h4>
+                                        <div className="detail-info">
+                                            <div className="review-text-detail">
+                                                {detailModal.review.content || '리뷰 내용이 없습니다.'}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* 판매자 답변 */}
+                                    {detailModal.review.reply && (
+                                        <div className="detail-section">
+                                            <h4>💬 판매자 답변</h4>
+                                            <div className="detail-info">
+                                                <div className="reply-text-detail">
+                                                    {detailModal.review.reply}
+                                                </div>
+                                                {detailModal.review.replyDate && (
+                                                    <p className="reply-date">
+                                                        <strong>답변일:</strong> {new Date(detailModal.review.replyDate).toLocaleDateString()}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* 리뷰 상태 */}
+                                    <div className="detail-section">
+                                        <h4>📊 리뷰 상태</h4>
+                                        <div className="detail-info">
+                                            <p><strong>답변 상태:</strong> 
+                                                <span className={`status-badge ${detailModal.review.reply ? 'answered' : 'pending'}`}>
+                                                    {detailModal.review.reply ? '답변완료' : '답변대기'}
+                                                </span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                        
+                        <div className="modal-footer">
+                            <button className="btn-secondary" onClick={closeDetailModal}>
+                                닫기
                             </button>
                         </div>
                     </div>

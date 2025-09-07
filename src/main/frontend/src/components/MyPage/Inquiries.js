@@ -60,7 +60,7 @@ const Inquiries = () => {
             const dummyInquiries = [
                 {
                     id: 1,
-                    productName: '신선한 사과',
+                    productName: '소고기 등심 1++등급',
                     buyerName: '구매자1',
                     title: '배송 문의',
                     content: '언제쯤 배송이 가능한가요?',
@@ -70,7 +70,7 @@ const Inquiries = () => {
                 },
                 {
                     id: 2,
-                    productName: '고급 쌀',
+                    productName: '돼지고기 삼겹살 1+등급',
                     buyerName: '구매자2',
                     title: '상품 문의',
                     content: '유기농 인증서가 있나요?',

@@ -25,4 +25,8 @@ public class ReviewDto {
     private String reviewerName;    // users.user_name
     private String sellerName;      // 판매자 이름
     private List<String> productImages; // 상품 이미지들
+    
+    // 리뷰 이미지 관련
+    private List<String> reviewImages; // 리뷰 이미지 URL들
+    private String sellerReply;     // 판매자 답글
 }

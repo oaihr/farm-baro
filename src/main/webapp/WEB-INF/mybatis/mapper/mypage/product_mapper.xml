@@ -115,4 +115,29 @@
         WHERE PRODUCT_ID = #{productId} AND PRODUCT_TYPE = 'SALE'
     </delete>
 
+    <!-- 리뷰 이미지 등록 -->
+    <insert id="insertReviewImage">
+        INSERT INTO product_images (
+            IMAGE_ID, PRODUCT_ID, PRODUCT_TYPE, IMAGE_URL,
+            IS_THUMBNAIL, ORDER_INDEX, CREATED_TIME
+        ) VALUES (
+            image_seq.NEXTVAL, #{reviewId}, 'REVIEW', #{imageUrl},
+            #{isThumbnail}, #{orderIndex}, SYSTIMESTAMP
+        )
+    </insert>
+
+    <!-- 리뷰 이미지 조회 -->
+    <select id="getReviewImages" resultType="String">
+        SELECT IMAGE_URL
+        FROM product_images
+        WHERE PRODUCT_ID = #{reviewId} AND PRODUCT_TYPE = 'REVIEW'
+        ORDER BY ORDER_INDEX
+    </select>
+
+    <!-- 리뷰 이미지 삭제 -->
+    <delete id="deleteReviewImages">
+        DELETE FROM product_images 
+        WHERE PRODUCT_ID = #{reviewId} AND PRODUCT_TYPE = 'REVIEW'
+    </delete>
+
 </mapper>

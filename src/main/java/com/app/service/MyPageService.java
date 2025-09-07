@@ -209,6 +209,38 @@ public class MyPageService {
         return reviewMapper.updateSellerReply(reviewId, sellerReply) > 0;
     }
 
+    // 리뷰 이미지 등록
+    public boolean insertReviewImage(Long reviewId, String imageUrl, int orderIndex, boolean isThumbnail) {
+        try {
+            int result = productMapper.insertReviewImage(reviewId, imageUrl, orderIndex, isThumbnail);
+            return result > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // 리뷰 이미지 조회
+    public List<String> getReviewImages(Long reviewId) {
+        try {
+            return productMapper.getReviewImages(reviewId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    // 리뷰 이미지 삭제
+    public boolean deleteReviewImages(Long reviewId) {
+        try {
+            int result = productMapper.deleteReviewImages(reviewId);
+            return result >= 0; // 삭제할 이미지가 없어도 성공으로 처리
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     // 판매자 문의 목록 조회
     public List<InquiryDto> getSellerInquiries(Long productId) {
         return inquiryMapper.getInquiriesByProduct(productId);

@@ -130,7 +130,7 @@ const ProductRegistration = () => {
                                 value={formData.productName}
                                 onChange={handleInputChange}
                                 required
-                                placeholder="예: 신선한 사과"
+                                placeholder="예: 소고기 등심 1++등급"
                             />
                         </div>
 

@@ -19,7 +19,7 @@ VALUES (sale_item_seq.NEXTVAL, 50, 'on', '돼지', '삼겹살', '돼지고기 �
 -- 테스트용 경매 데이터
 INSERT INTO auctions (AUCTION_ID, TITLE, DESCRIPTION, AUCTION_STATUS, JUDGE_KIND_NAME, ITEM_NAME, 
                      INITIAL_PRICE, BUY_NOW_PRICE, BID_INCREMENT, START_DATE, END_DATE, AUTO_EXTEND, SELLER_ID, CREATED_TIME)
-VALUES (auction_seq.NEXTVAL, '특급 쌀 경매', '최고급 쌀 경매입니다', 'ACTIVE', '쌀', '특급 쌀', 
+VALUES (auction_seq.NEXTVAL, '특급 소고기 경매', '최고급 소고기 경매입니다', 'ACTIVE', '소', '특급 소고기', 
         10000, 50000, 1000, SYSTIMESTAMP, SYSTIMESTAMP + INTERVAL '7' DAY, 'N', 'seller001', SYSTIMESTAMP);
 
 -- 테스트용 판매 주문 데이터
@@ -52,5 +52,12 @@ VALUES (image_seq.NEXTVAL, 1, 'SALE', '/images/apple1.jpg', 'Y', 1, SYSTIMESTAMP
 
 INSERT INTO product_images (IMAGE_ID, PRODUCT_ID, PRODUCT_TYPE, IMAGE_URL, IS_THUMBNAIL, ORDER_INDEX, CREATED_TIME)
 VALUES (image_seq.NEXTVAL, 1, 'SALE', '/images/apple2.jpg', 'N', 2, SYSTIMESTAMP);
+
+-- 테스트용 리뷰 이미지 데이터
+INSERT INTO product_images (IMAGE_ID, PRODUCT_ID, PRODUCT_TYPE, IMAGE_URL, IS_THUMBNAIL, ORDER_INDEX, CREATED_TIME)
+VALUES (image_seq.NEXTVAL, 1, 'REVIEW', '/images/review1.jpg', 'Y', 1, SYSTIMESTAMP);
+
+INSERT INTO product_images (IMAGE_ID, PRODUCT_ID, PRODUCT_TYPE, IMAGE_URL, IS_THUMBNAIL, ORDER_INDEX, CREATED_TIME)
+VALUES (image_seq.NEXTVAL, 1, 'REVIEW', '/images/review2.jpg', 'N', 2, SYSTIMESTAMP);
 
 COMMIT;
