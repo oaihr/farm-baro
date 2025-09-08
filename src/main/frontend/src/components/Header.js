@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCurrentUser, logout } from '../store/store';
 
 import axios from 'axios';
 
@@ -7,16 +9,40 @@ import logo from '../images/farmbaro_logo.png';
 import './Header.css';
 
 function Header() {
-
     // searchKeyword
     const [searchKeyword, setSearchKeyword] = useState('');
     const navigate = useNavigate();
+
+    const dispatch = useDispatch();
+
+    const { userId } = useSelector((state) => state.auth);
+    console.log("userId 상태:", userId);
 
     const Search = () => {
         if (searchKeyword) {
             navigate(`/home/search?keyword=${searchKeyword}`);
         }
     };
+
+    const handleLogout = async () => {
+        try {
+            await axios.post("http://localhost:8080/api/auth/logout", {}, {
+                withCredentials: true,
+            });
+
+        } catch (err) {
+            console.error("서버 로그아웃 실패:", err);
+        } finally {
+            dispatch(logout()); // Redux 상태 초기화
+            navigate("/");
+        }
+    };
+
+    useEffect(() => {
+        dispatch(fetchCurrentUser()).then((res) => {
+            console.log("로그인 상태 확인:", res);
+        });
+    }, [dispatch]);
 
     return (
         <div className="home-header">
@@ -38,12 +64,21 @@ function Header() {
                                 }
                             }}
                         />
-                        <button className="home-search-btn">검색</button>
+                        <button className="home-search-btn"
+                            onClick={Search}>검색</button>
                     </div>
                     <div>
-                        <button 
-                            className="home-login-btn btn"
-                            onClick={() => navigate("/login")} >로그인</button>
+                        {
+                            userId && userId !== "" ?
+                                ( 
+                                <div className='home-logout'>
+                                <button className="home-login-btn btn"
+                                    onClick={handleLogout}>로그아웃</button>
+                                </div>) :
+                                (<button
+                                    className="home-login-btn btn"
+                                    onClick={() => navigate("/login")} >로그인</button>)
+                        }
                     </div>
                 </div>
             </div>
