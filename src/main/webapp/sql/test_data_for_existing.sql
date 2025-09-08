@@ -38,9 +38,15 @@ VALUES (bid_seq.NEXTVAL, 1, 'buyer001', 15000, 'ACTIVE', SYSTIMESTAMP, SYSTIMEST
 INSERT INTO cart (USER_ID, SALE_ITEM_ID, QUANTITY, CREATED_TIME, UPDATED_TIME)
 VALUES ('buyer001', 1, 3, SYSTIMESTAMP, SYSTIMESTAMP);
 
--- 테스트용 리뷰 데이터
-INSERT INTO reviews (REVIEW_ID, SALE_ITEM_ID, USER_ID, RATING, REVIEW_COMMENT, CREATED_TIME, UPDATED_TIME)
-VALUES (review_seq.NEXTVAL, 1, 'buyer001', 5, '정말 맛있어요!', SYSTIMESTAMP, SYSTIMESTAMP);
+-- 테스트용 리뷰 데이터 (sales 테이블의 sale_item_id와 매칭)
+INSERT INTO reviews (review_id, order_id, buyer_id, product_id, rating, review_content, review_date, seller_reply, reply_date)
+VALUES (review_seq.NEXTVAL, 1, 'buyer001', 1, 5, '맛있었습니다.', SYSTIMESTAMP, '감사합니다!', SYSTIMESTAMP);
+
+INSERT INTO reviews (review_id, order_id, buyer_id, product_id, rating, review_content, review_date, seller_reply, reply_date)
+VALUES (review_seq.NEXTVAL, 2, 'buyer002', 2, 4, '맛있었습니다.', SYSTIMESTAMP, '더 좋은 고기로 보답하겠습니다.', SYSTIMESTAMP);
+
+INSERT INTO reviews (review_id, order_id, buyer_id, product_id, rating, review_content, review_date)
+VALUES (review_seq.NEXTVAL, 3, 'buyer003', 1, 5, '맛있었습니다.', SYSTIMESTAMP);
 
 -- 테스트용 QnA 데이터
 INSERT INTO qna (QNA_ID, PRODUCT_ID, PRODUCT_TYPE, QUESTION_USER_ID, QUESTION_CONTENT, IS_ANSWERED, CREATED_TIME, UPDATED_TIME)

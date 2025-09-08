@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCurrentUser } from '../../store/store';
 import './Reviews.css';
 
 const Reviews = () => {
     const { userId } = useParams();
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+    
+    const { userId: currentUserId } = useSelector((state) => state.auth);
     const [activeTab, setActiveTab] = useState('all');
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
@@ -36,7 +41,7 @@ const Reviews = () => {
             
             // 실제 API 호출 시도 (현재는 구현되지 않음)
             try {
-                const response = await fetch(`http://localhost:8080/mypage/seller/${userId}/reviews`, {
+                const response = await fetch(`http://localhost:8080/api/mypage/seller/${userId}/reviews`, {
                     credentials: 'include'
                 });
                 
@@ -57,41 +62,9 @@ const Reviews = () => {
                 console.log('API 호출 실패, 더미 데이터 사용:', apiError);
             }
             
-            // API가 구현되지 않은 경우 더미 데이터 사용
-            const dummyReviews = [
-                {
-                    id: 1,
-                    productName: '소고기 등심 1++등급',
-                    buyerName: '구매자1',
-                    rating: 5,
-                    content: '맛있었습니다.',
-                    reviewDate: '2025-01-15',
-                    sellerReply: null,
-                    productCategory: '소고기'
-                },
-                {
-                    id: 2,
-                    productName: '돼지고기 삼겹살 1+등급',
-                    buyerName: '구매자2',
-                    rating: 4,
-                    content: '맛있었습니다.',
-                    reviewDate: '2025-01-14',
-                    sellerReply: '감사합니다! 더 좋은 고기로 보답하겠습니다.',
-                    productCategory: '돼지고기'
-                },
-                {
-                    id: 3,
-                    productName: '닭고기 가슴살 1등급',
-                    buyerName: '구매자3',
-                    rating: 5,
-                    content: '맛있었습니다.',
-                    reviewDate: '2025-01-13',
-                    sellerReply: '건강한 식단 응원합니다! 앞으로도 신선한 닭고기로 보답하겠습니다.',
-                    productCategory: '닭고기'
-                }
-            ];
-            setReviews(dummyReviews);
-            setFilteredReviews(dummyReviews);
+            // API 호출 실패 시 빈 배열 설정
+            setReviews([]);
+            setFilteredReviews([]);
             
         } catch (error) {
             console.error('리뷰 목록 조회 오류:', error);
@@ -108,13 +81,15 @@ const Reviews = () => {
             return;
         }
 
+        console.log('답변 작성 시도 - reviewId:', replyModal.reviewId, 'replyText:', replyModal.replyText);
+
         try {
             setLoading(true);
             setMessage('');
 
             // 실제 API 호출 시도
             try {
-                const response = await fetch(`http://localhost:8080/api/reviews/${replyModal.reviewId}/reply`, {
+                const response = await fetch(`http://localhost:8080/api/mypage/reviews/${replyModal.reviewId}/reply`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
@@ -127,6 +102,10 @@ const Reviews = () => {
 
                 if (response.ok) {
                     setMessage('리뷰 답변이 성공적으로 작성되었습니다! ✨');
+                    // 답변 작성 후 리뷰 목록 새로고침
+                    fetchReviews();
+                    // 답변 모달 닫기
+                    setReplyModal({ isOpen: false, reviewId: null, replyText: '' });
                 } else {
                     throw new Error('API 호출 실패');
                 }
@@ -180,6 +159,7 @@ const Reviews = () => {
 
     // 답변 모달 열기
     const openReplyModal = (reviewId) => {
+        console.log('답변 모달 열기 - reviewId:', reviewId);
         setReplyModal({ show: true, reviewId, replyText: '' });
     };
 
@@ -188,12 +168,17 @@ const Reviews = () => {
         setReplyModal({ show: false, reviewId: null, replyText: '' });
     };
 
+    // 리뷰 상태 판단 (sellerComment가 있으면 답변완료, 없으면 답변대기)
+    const getReviewStatus = (review) => {
+        return review.sellerComment && review.sellerComment.trim() !== '' ? '답변완료' : '답변대기';
+    };
+
     // 탭 변경 시 리뷰 필터링
     useEffect(() => {
         if (activeTab === 'all') {
             setFilteredReviews(reviews);
         } else if (activeTab === 'unanswered') {
-            const filtered = reviews.filter(review => review.status === '답변대기');
+            const filtered = reviews.filter(review => getReviewStatus(review) === '답변대기');
             setFilteredReviews(filtered);
         } else {
             const ratingMap = {
@@ -217,7 +202,7 @@ const Reviews = () => {
         positive: reviews.filter(r => r.rating >= 4).length,
         neutral: reviews.filter(r => r.rating === 3).length,
         negative: reviews.filter(r => r.rating <= 2).length,
-        unanswered: reviews.filter(r => r.status === '답변대기').length,
+        unanswered: reviews.filter(r => getReviewStatus(r) === '답변대기').length,
         averageRating: reviews.length > 0 ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1) : '0.0'
     };
 
@@ -381,8 +366,8 @@ const Reviews = () => {
         }
     };
 
-    const getStatusColor = (status) => {
-        return status === '답변완료' ? '#27ae60' : '#e74c3c';
+    const getStatusColor = (review) => {
+        return getReviewStatus(review) === '답변완료' ? '#27ae60' : '#e74c3c';
     };
 
     return (
@@ -532,9 +517,9 @@ const Reviews = () => {
                                     </div>
                                     <div 
                                         className="review-status"
-                                        style={{ backgroundColor: getStatusColor(review.status) }}
+                                        style={{ backgroundColor: getStatusColor(review) }}
                                     >
-                                        {review.status === '답변완료' ? '✅ 답변완료' : '❓ 답변대기'}
+                                        {getReviewStatus(review) === '답변완료' ? '✅ 답변완료' : '❓ 답변대기'}
                                     </div>
                                 </div>
                                 
@@ -561,20 +546,20 @@ const Reviews = () => {
                                         <p className="review-content-text">{review.content}</p>
                                     </div>
                                     
-                                    {review.sellerReply && (
+                                    {review.sellerComment && review.sellerComment.trim() !== '' && (
                                         <div className="reply-section">
                                             <h5>📝 판매자 답변</h5>
-                                            <p className="reply-text">{review.sellerReply}</p>
+                                            <p className="reply-text">{review.sellerComment}</p>
                                             <span className="reply-date">{review.replyDate}</span>
                                         </div>
                                     )}
                                 </div>
                                 
                                 <div className="review-actions">
-                                    {review.status === '답변대기' ? (
+                                    {getReviewStatus(review) === '답변대기' ? (
                                         <button 
                                             className="action-btn primary"
-                                            onClick={() => openReplyModal(review.id)}
+                                            onClick={() => openReplyModal(review.reviewId)}
                                             disabled={loading}
                                         >
                                             💬 답변 작성
@@ -582,7 +567,7 @@ const Reviews = () => {
                                     ) : (
                                         <button 
                                             className="action-btn secondary"
-                                            onClick={() => openReplyModal(review.id)}
+                                            onClick={() => openReplyModal(review.reviewId)}
                                         >
                                             ✏️ 답변 수정
                                         </button>

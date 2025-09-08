@@ -35,30 +35,8 @@ const InquiryManagement = () => {
                 console.log('API 호출 실패, 더미 데이터 사용:', apiError);
             }
             
-            // API가 구현되지 않은 경우 더미 데이터 사용
-            const dummyInquiries = [
-                {
-                    id: 1,
-                    productName: '소고기 등심 1++등급',
-                    buyerName: '구매자1',
-                    title: '배송 문의',
-                    content: '언제쯤 배송이 가능한가요?',
-                    inquiryDate: '2025-09-03',
-                    status: 'PENDING',
-                    sellerReply: null
-                },
-                {
-                    id: 2,
-                    productName: '돼지고기 삼겹살 1+등급',
-                    buyerName: '구매자2',
-                    title: '상품 문의',
-                    content: '유기농 인증서가 있나요?',
-                    inquiryDate: '2025-09-02',
-                    status: 'ANSWERED',
-                    sellerReply: '네, 유기농 인증서가 있습니다. 상품 상세페이지에서 확인하실 수 있습니다.'
-                }
-            ];
-            setInquiries(dummyInquiries);
+            // API 호출 실패 시 빈 배열 설정
+            setInquiries([]);
             
         } catch (error) {
             console.error('문의 조회 오류:', error);

@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCurrentUser } from '../../store/store';
 import './BuyerMainPage.css';
 
 const BuyerMainPage = () => {
     const { userId } = useParams();
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+    
+    const { userId: currentUserId } = useSelector((state) => state.auth);
     const [userInfo, setUserInfo] = useState(null);
     const [stats, setStats] = useState({
         orders: 0,

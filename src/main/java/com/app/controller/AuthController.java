@@ -34,7 +34,6 @@ public class AuthController {
 
   private final EmailService emailService;   // 인증메일 발송/검증 (requestId + code 방식)
   private final UserService userService;     // 가입/비번변경 비즈니스 로직
-  // private final UserMapper userMapper;       // 중복체크, 로그인 조회 - 임시로 주석 처리
   private final HttpSession session;
 
   // 간단한 해시 함수 (개발용 - 실제 운영에서는 BCrypt 사용 권장)
@@ -226,5 +225,16 @@ public class AuthController {
       e.printStackTrace();
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
+  }
+
+  // ===========================
+  // 현재 사용자 ID 조회 (Redux용)
+  // ===========================
+  @GetMapping("/current-user")
+  @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"}, allowCredentials = "true")
+  public String getCurrentUserId(HttpSession session) {
+    String userId = (String) session.getAttribute("LOGIN_ID");
+    System.out.println("User ID from session: " + userId);
+    return userId != null ? userId : "";
   }
 }

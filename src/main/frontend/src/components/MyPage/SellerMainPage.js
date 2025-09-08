@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCurrentUser } from '../../store/store';
 import './SellerMainPage.css';
 import ProductRegistration from './ProductRegistration';
 import OrderList from './OrderList';
@@ -9,6 +11,9 @@ import ProfileEdit from './ProfileEdit';
 
 const SellerMainPage = () => {
     const { userId } = useParams();
+    const dispatch = useDispatch();
+    
+    const { userId: currentUserId } = useSelector((state) => state.auth);
     const [activeTab, setActiveTab] = useState('dashboard');
     const [userInfo, setUserInfo] = useState(null);
     const [loading, setLoading] = useState(true);

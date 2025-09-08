@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCurrentUser } from '../../store/store';
 import './ProductRegistration.css';
 
 const ProductRegistration = () => {
+    const dispatch = useDispatch();
+    
+    const { userId } = useSelector((state) => state.auth);
     const [formData, setFormData] = useState({
         productName: '',
         productType: 'NORMAL',

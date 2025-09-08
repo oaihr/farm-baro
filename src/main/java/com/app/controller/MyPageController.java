@@ -1,5 +1,6 @@
 package com.app.controller;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,10 +20,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.app.dto.BidDto;
 import com.app.dto.CartDto;
@@ -34,7 +33,7 @@ import com.app.dto.UserDto;
 import com.app.service.MyPageService;
 
 @RestController
-@RequestMapping("/mypage")
+@RequestMapping("/api/mypage")
 @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"}, 
              allowCredentials = "true",
              allowedHeaders = "*",
@@ -110,7 +109,7 @@ public class MyPageController {
 	}
 
 	// 구매자 주문 목록 페이지
-	@GetMapping("/buyer/{buyerId}/orders")
+	@GetMapping("/buyer/{buyerId}/orders/page")
 	public String getBuyerOrdersPage(@PathVariable String buyerId, Model model,
 			@RequestParam(required = false) String orderStatus) {
 		try {
@@ -126,7 +125,7 @@ public class MyPageController {
 	}
 
 	// 판매자 주문 목록 페이지
-	@GetMapping("/seller/{sellerId}/orders")
+	@GetMapping("/seller/{sellerId}/orders/page")
 	public String getSellerOrdersPage(@PathVariable String sellerId, Model model,
 			@RequestParam(required = false) String orderStatus, @RequestParam(required = false) String buyerName,
 			@RequestParam(required = false) String buyerPhone) {
@@ -143,7 +142,7 @@ public class MyPageController {
 	}
 
 	// 구매자 리뷰 페이지
-	@GetMapping("/buyer/{buyerId}/reviews")
+	@GetMapping("/buyer/{buyerId}/reviews/page")
 	public String getBuyerReviewsPage(@PathVariable String buyerId, Model model) {
 		try {
 			List<ReviewDto> reviews = myPageService.getBuyerReviews(buyerId);
@@ -158,7 +157,7 @@ public class MyPageController {
 	}
 
 	// 판매자 리뷰 페이지
-	@GetMapping("/seller/{sellerId}/reviews")
+	@GetMapping("/seller/{sellerId}/reviews/page")
 	public String getSellerReviewsPage(@PathVariable String sellerId, Model model) {
 		try {
 			Map<String, Object> result = myPageService.getSellerMyPageInfo(sellerId);
@@ -173,7 +172,7 @@ public class MyPageController {
 	}
 
 	// 구매자 문의 페이지
-	@GetMapping("/buyer/{buyerId}/inquiries")
+	@GetMapping("/buyer/{buyerId}/inquiries/page")
 	public String getBuyerInquiriesPage(@PathVariable String buyerId, Model model) {
 		try {
 			List<InquiryDto> inquiries = myPageService.getBuyerInquiries(buyerId);
@@ -188,7 +187,7 @@ public class MyPageController {
 	}
 
 	// 판매자 문의 페이지
-	@GetMapping("/seller/{sellerId}/inquiries")
+	@GetMapping("/seller/{sellerId}/inquiries/page")
 	public String getSellerInquiriesPage(@PathVariable String sellerId, Model model) {
 		try {
 			Map<String, Object> result = myPageService.getSellerMyPageInfo(sellerId);
@@ -203,7 +202,7 @@ public class MyPageController {
 	}
 
 	// 구매자 경매 상품 페이지
-	@GetMapping("/buyer/{buyerId}/bids")
+	@GetMapping("/buyer/{buyerId}/bids/page")
 	public String getBuyerBidsPage(@PathVariable String buyerId, Model model) {
 		try {
 			List<BidDto> bids = myPageService.getBuyerBids(buyerId);
@@ -220,7 +219,7 @@ public class MyPageController {
 	}
 
 	// 구매자 장바구니 페이지
-	@GetMapping("/buyer/{buyerId}/cart")
+	@GetMapping("/buyer/{buyerId}/cart/page")
 	public String getBuyerCartPage(@PathVariable String buyerId, Model model) {
 		try {
 			List<CartDto> cartItems = myPageService.getCartItems(buyerId);
@@ -240,7 +239,7 @@ public class MyPageController {
 	}
 
 	// 판매자 상품 목록 페이지
-	@GetMapping("/seller/{sellerId}/products")
+	@GetMapping("/seller/{sellerId}/products/page")
 	public String getSellerProductsPage(@PathVariable String sellerId, Model model,
 			@RequestParam(required = false) String productName, @RequestParam(required = false) String productType) {
 		try {
@@ -373,13 +372,40 @@ public class MyPageController {
 	}
 
 	// 판매자 리뷰 답글 API
-	@PutMapping("/api/reviews/{reviewId}/reply")
+	@PutMapping("/reviews/{reviewId}/reply")
 	@ResponseBody
-	public ResponseEntity<Boolean> replyToReview(@PathVariable Long reviewId, @RequestParam String sellerReply) {
+	public ResponseEntity<Boolean> replyToReview(@PathVariable Long reviewId, @RequestBody Map<String, String> request) {
 		try {
+			String sellerReply = request.get("sellerReply");
 			boolean result = myPageService.replyToReview(reviewId, sellerReply);
 			return ResponseEntity.ok(result);
 		} catch (Exception e) {
+			return ResponseEntity.badRequest().build();
+		}
+	}
+
+
+	// 간단한 테스트 API
+	@GetMapping("/test/ping")
+	@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"})
+	@ResponseBody
+	public ResponseEntity<Map<String, String>> ping() {
+		Map<String, String> response = new HashMap<>();
+		response.put("status", "success");
+		response.put("message", "API is working");
+		return ResponseEntity.ok(response);
+	}
+
+	// 판매자 리뷰 목록 조회 API
+	@GetMapping("/seller/{userId}/reviews")
+	@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"})
+	@ResponseBody
+	public ResponseEntity<List<ReviewDto>> getSellerReviews(@PathVariable String userId) {
+		try {
+			List<ReviewDto> reviews = myPageService.getSellerReviews(userId);
+			return ResponseEntity.ok(reviews);
+		} catch (Exception e) {
+			e.printStackTrace();
 			return ResponseEntity.badRequest().build();
 		}
 	}
@@ -413,7 +439,7 @@ public class MyPageController {
 	}
 
 	// 리뷰 이미지 조회 API
-	@GetMapping("/api/reviews/{reviewId}/images")
+	@GetMapping("/reviews/{reviewId}/images")
 	@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"})
 	@ResponseBody
 	public ResponseEntity<List<String>> getReviewImages(@PathVariable Long reviewId) {
@@ -656,7 +682,7 @@ public class MyPageController {
 		}
 	}
     // 판매자 상품 목록 조회 API
-    @GetMapping("/api/mypage/seller/{sellerId}/products")
+    @GetMapping("/seller/{sellerId}/products")
     @ResponseBody
     public ResponseEntity<List<ProductDto>> getSellerProducts(@PathVariable String sellerId) {
         try {
@@ -671,7 +697,7 @@ public class MyPageController {
     // ==================== 구매자 마이페이지 API ====================
 
     // 사용자 정보 조회 (마이페이지 메인)
-    @GetMapping("/api/mypage/{userType}/{userId}")
+    @GetMapping("/{userType}/{userId}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getUserInfoMyPage(@PathVariable String userType, @PathVariable String userId) {
         try {
@@ -704,7 +730,7 @@ public class MyPageController {
     }
 
     // 구매자 통계 정보 조회 (마이페이지 경로)
-    @GetMapping("/api/mypage/buyers/{userId}/stats")
+    @GetMapping("/buyers/{userId}/stats")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getBuyerStatsMyPage(@PathVariable String userId) {
         try {
@@ -730,7 +756,7 @@ public class MyPageController {
     }
 
     // 구매자 주문 내역 조회 (마이페이지 경로)
-    @GetMapping("/api/mypage/buyers/{userId}/orders")
+    @GetMapping("/buyers/{userId}/orders")
     @ResponseBody
     public ResponseEntity<List<OrderDto>> getBuyerOrdersMyPage(@PathVariable String userId) {
         try {
@@ -858,7 +884,7 @@ public class MyPageController {
     }
 
     // 구매자 경매 내역 조회 (마이페이지 경로)
-    @GetMapping("/api/mypage/buyers/{userId}/auctions")
+    @GetMapping("/buyers/{userId}/auctions")
     @ResponseBody
     public ResponseEntity<List<BidDto>> getBuyerAuctionsMyPage(@PathVariable String userId) {
         try {
@@ -871,7 +897,7 @@ public class MyPageController {
     }
 
     // 구매자 입찰 내역 조회 (마이페이지 경로)
-    @GetMapping("/api/mypage/buyer/{userId}/bids")
+    @GetMapping("/buyer/{userId}/bids")
     @ResponseBody
     public ResponseEntity<List<BidDto>> getBuyerBidsMyPage(@PathVariable String userId) {
         try {
@@ -884,7 +910,7 @@ public class MyPageController {
     }
 
     // 구매자 낙찰 내역 조회 (마이페이지 경로)
-    @GetMapping("/api/mypage/buyer/{userId}/winning-bids")
+    @GetMapping("/buyer/{userId}/winning-bids")
     @ResponseBody
     public ResponseEntity<List<BidDto>> getWinningBidsMyPage(@PathVariable String userId) {
         try {
@@ -941,7 +967,7 @@ public class MyPageController {
     }
 
     // 장바구니 조회 (마이페이지 경로)
-    @GetMapping("/api/mypage/{userType}/{userId}/cart")
+    @GetMapping("/{userType}/{userId}/cart")
     @ResponseBody
     public ResponseEntity<List<CartDto>> getCartMyPage(@PathVariable String userType, @PathVariable String userId) {
         try {
@@ -954,7 +980,7 @@ public class MyPageController {
     }
 
     // 장바구니 총 금액 조회
-    @GetMapping("/api/mypage/{userType}/{userId}/cart/total")
+    @GetMapping("/{userType}/{userId}/cart/total")
     @ResponseBody
     public ResponseEntity<Double> getCartTotal(@PathVariable String userType, @PathVariable String userId) {
         try {

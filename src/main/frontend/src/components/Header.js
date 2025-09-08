@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCurrentUser, logout } from '../store/store';
 
 import axios from 'axios';
 
@@ -9,8 +11,13 @@ import './Header.css';
 function Header() {
 
     // searchKeyword
-    const [searchKeyword, setSearchKeyword] = useState('');
+    const [ searchKeyword, setSearchKeyword ] = useState('');
     const navigate = useNavigate();
+
+    const dispatch = useDispatch();
+
+    const { userId } = useSelector((state) => state.auth);
+    console.log("userId 상태:", userId);
 
     const Search = () => {
         if (searchKeyword) {
@@ -18,12 +25,32 @@ function Header() {
         }
     };
 
+    const handleLogout = async () => {
+        try {
+            await axios.post("http://localhost:8080/api/auth/logout", {}, {
+                withCredentials: true,
+            });
+
+        } catch (err) {
+            console.error("서버 로그아웃 실패:", err);
+        } finally {
+            dispatch(logout()); // Redux 상태 초기화
+            navigate("/");
+        }
+    };
+
+    useEffect(() => {
+        dispatch(fetchCurrentUser()).then((res) => {
+            console.log("로그인 상태 확인:", res);
+        });
+    }, [ dispatch ]);
+
     return (
         <div className="home-header">
             <div className='home-logo-search'>
                 <div className="home-search-box">
                     <img
-                        src={logo} className="logo"
+                        src={logo} class="logo"
                         onClick={() => navigate("/")} />
                     <div className='main-header-search-box'>
                         <input
@@ -40,10 +67,27 @@ function Header() {
                         />
                         <button className="home-search-btn">검색</button>
                     </div>
-                    <div>
-                        <button 
-                            className="home-login-btn btn"
-                            onClick={() => navigate("/login")} >로그인</button>
+                    <div className="header-buttons">
+                        <div className="login-button-slot">
+                            {
+                                userId && userId !== "" ? (
+                                    <button className="home-login-btn btn"
+                                        onClick={handleLogout}>로그아웃</button>
+                                ) : (
+                                    <button
+                                        className="home-login-btn btn"
+                                        onClick={() => navigate("/login")} >로그인</button>
+                                )
+                            }
+                        </div>
+                        {
+                            userId && userId !== "" && (
+                                <div className="mypage-button-slot">
+                                    <button className="home-mypage-btn btn"
+                                        onClick={() => navigate("/me")}>마이페이지</button>
+                                </div>
+                            )
+                        }
                     </div>
                 </div>
             </div>
@@ -59,7 +103,7 @@ function Header() {
                         <li className="home-menu-span span">경매
                             <ul className="home-submenu">
                                 <li><Link to="/auctions">실시간 경매</Link></li>
-                                <li><Link to="/auctions/past">지난 경매</Link></li>
+                                <li><Link to="/auctions/off">지난 경매</Link></li>
                             </ul>
                         </li>
 

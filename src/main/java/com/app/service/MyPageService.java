@@ -155,6 +155,16 @@ public class MyPageService {
         }
     }
 
+    // 판매자 리뷰 목록 조회
+    public List<ReviewDto> getSellerReviews(String userId) {
+        try {
+            return reviewMapper.getReviewsBySeller(userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
     // 구매자 문의 목록 조회
     public List<InquiryDto> getBuyerInquiries(String buyerId) {
         try {

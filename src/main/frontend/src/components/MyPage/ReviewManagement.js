@@ -35,28 +35,8 @@ const ReviewManagement = () => {
                 console.log('API 호출 실패, 더미 데이터 사용:', apiError);
             }
             
-            // API가 구현되지 않은 경우 더미 데이터 사용
-            const dummyReviews = [
-                {
-                    id: 1,
-                    productName: '소고기 등심 1++등급',
-                    buyerName: '구매자1',
-                    rating: 5,
-                    content: '맛있었습니다.',
-                    reviewDate: '2025-09-03',
-                    sellerReply: null
-                },
-                {
-                    id: 2,
-                    productName: '돼지고기 삼겹살 1+등급',
-                    buyerName: '구매자2',
-                    rating: 4,
-                    content: '맛있었습니다.',
-                    reviewDate: '2025-09-02',
-                    sellerReply: '감사합니다! 더 좋은 상품으로 보답하겠습니다.'
-                }
-            ];
-            setReviews(dummyReviews);
+            // API 호출 실패 시 빈 배열 설정
+            setReviews([]);
             
         } catch (error) {
             console.error('리뷰 조회 오류:', error);
