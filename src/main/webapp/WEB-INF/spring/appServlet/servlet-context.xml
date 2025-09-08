@@ -33,7 +33,15 @@
 	
 	<resources location="/WEB-INF/resources/" mapping="/**"></resources>
 
-
+	<cors>
+        <mapping path="/**"
+                allowed-origins="http://localhost:3000,http://localhost:3001"
+                allowed-methods="GET,POST,PUT,DELETE,PATCH,OPTIONS"
+                allowed-headers="*"
+                allow-credentials="true"
+                max-age="3600" />
+    </cors>
+    
 	<annotation-driven>								
 		<message-converters>							
 			<!-- @ResponseBody로 String 처리할때 한글처리 -->						

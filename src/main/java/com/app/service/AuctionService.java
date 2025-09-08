@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 
 import com.app.dto.auction.AuctionItem;
 import com.app.dto.auction.BidMessage;
+import com.app.dto.auction.CurrentUser;
 
 public interface AuctionService {
 
@@ -20,4 +21,6 @@ public interface AuctionService {
 	List<BidMessage> getBidHistory(Integer auctionId);
 	
 	void closeExpiredAuctions();
+	
+	CurrentUser findByUserId(String userId);
 }

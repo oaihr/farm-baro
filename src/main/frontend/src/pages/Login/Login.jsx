@@ -3,8 +3,11 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { http } from "../../api/http";
 import "../../styles/auth.css"; // 공통 스타일
+import { useDispatch } from "react-redux";
+import { fetchCurrentUser } from "../../store/store";
 
 export default function Login() {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { state } = useLocation(); // 회원가입 완료 후 이메일 프리필용
 
@@ -19,23 +22,23 @@ export default function Login() {
     if (state?.email) setEmail(state.email);
   }, [state]);
 
-  const onSubmit = async (e) => {
+   const onSubmit = async (e) => {
     e.preventDefault();
     if (!email.trim() || !password) return setMsg("이메일과 비밀번호를 입력해 주세요.");
     setMsg("");
     setLoading(true);
 
     try {
-      // 서버 요구 스키마: { email, password } (백엔드에서 email 필드로 받지만 ID/이메일 모두 처리)
-     const res = await http.post(
-  "/api/auth/login",
-  { email: email.trim(), password, keep }, // 이메일로 로그인
-  { withCredentials: true }              // ★ 세션 쿠키 받기
-);
+      const res = await http.post(
+        "/api/auth/login",
+        { email: email.trim(), password, keep },
+        { withCredentials: true }
+      );
 
-      // 로그인 성공: 유저 정보가 오면 홈/마이페이지로 이동
       if (res.status >= 200 && res.status < 300) {
-        // 로그인 성공 후 원래 요청했던 페이지로 이동
+        // ✅ 로그인 성공 후 Redux에 로그인 상태 반영
+        await dispatch(fetchCurrentUser());
+
         const from = state?.from?.pathname || "/me";
         navigate(from, { replace: true });
       } else {

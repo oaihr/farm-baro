@@ -14,6 +14,7 @@ import com.app.dao.auction.AuctionDAO;
 import com.app.dao.auction.BidDAO;
 import com.app.dto.auction.AuctionItem;
 import com.app.dto.auction.BidMessage;
+import com.app.dto.auction.CurrentUser;
 import com.app.service.AuctionService;
 
 @Service
@@ -83,6 +84,12 @@ public class AuctionServiceImpl implements AuctionService{
             
             System.out.println("경매 마감 완료: " + auctionId);
         }		
+	}
+
+	@Override
+	public CurrentUser findByUserId(String userId) {
+		CurrentUser currentUser = auctionDAO.findByUserId(userId);
+		return currentUser;
 	}
 
 }

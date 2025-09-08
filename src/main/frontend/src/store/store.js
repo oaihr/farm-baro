@@ -1,9 +1,9 @@
-import { configureStore, createSlice } from '@reduxjs/toolkit';
-
+import { configureStore, createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import axios from 'axios';
 
 const meatSlice = createSlice({
-    name: 'meat',
-    initialState: {
+  name: 'meat',
+  initialState: {
     kindNames: {
       'beef': '소',
       'chicken': '닭',
@@ -21,12 +21,71 @@ const meatSlice = createSlice({
     },
   },
   reducers: {
-    
+
   },
 });
 
-export const store = configureStore({
-    reducer:{
-        meat: meatSlice.reducer,
+export const fetchCurrentUser = createAsyncThunk(
+  'auth/fetchCurrentUser',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get('http://localhost:8080/api/auth/current-user', {
+        withCredentials: true,
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || '로그인 정보 가져오기 실패');
+    }
+  }
+);
+
+const authSlice = createSlice({
+  name: 'auth',
+  initialState: {
+    userId: null,
+    totalBalance: 0,
+    bidDeposit: 0,
+    isLoggedIn: false,
+    status: 'idle',
+    error: null,
+  },
+  reducers: {
+    logout(state) {
+      state.userId = null;
+      state.totalBalance = 0;
+      state.bidDeposit = 0;
+      state.isLoggedIn = false;
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchCurrentUser.pending, (state) => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(fetchCurrentUser.fulfilled, (state, action) => {
+        const { userId, totalBalance, bidDeposit } = action.payload;
+        state.userId = userId;
+        state.totalBalance = totalBalance;
+        state.bidDeposit = bidDeposit;
+        state.isLoggedIn = true;
+        state.status = 'succeeded';
+      })
+      .addCase(fetchCurrentUser.rejected, (state, action) => {
+        state.userId = null;
+        state.totalBalance = 0;
+        state.bidDeposit = 0;
+        state.isLoggedIn = false;
+        state.status = 'failed';
+        state.error = action.payload;
+      });
+  },
+});
+
+export const { logout } = authSlice.actions;
+export const store = configureStore({
+  reducer: {
+    meat: meatSlice.reducer,
+    auth: authSlice.reducer
+  },
 })

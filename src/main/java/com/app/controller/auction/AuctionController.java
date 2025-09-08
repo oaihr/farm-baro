@@ -3,6 +3,8 @@ package com.app.controller.auction;
 import java.util.List;
 import java.util.Optional;
 
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -57,7 +59,7 @@ public class AuctionController {
 	public List<BidMessage> getBidHistory(@PathVariable Integer auctionId){
 		List<BidMessage> bidHistory = auctionService.getBidHistory(auctionId);
 		return bidHistory;
-	} 
+	}
 	
 }
 

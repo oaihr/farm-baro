@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import com.app.dto.auction.AuctionItem;
+import com.app.dto.auction.CurrentUser;
 
 @Repository
 public interface AuctionDAO {
@@ -25,4 +26,6 @@ public interface AuctionDAO {
 	Integer findLatestBidPrice(Integer auctionId);
 	
 	void updateAuctionStatusAndWinner(AuctionItem auctionItem);
+	
+	CurrentUser findByUserId(String userId);
 }

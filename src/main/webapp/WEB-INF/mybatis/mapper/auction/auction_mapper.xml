@@ -147,4 +147,11 @@
         	WINNER_ID = #{winnerId}
         WHERE AUCTION_ID = #{auctionId}
     </update>
+    
+    <select id="findByUserId" resultType="CurrentUser">
+    	SELECT
+    		ID, TOTAL_BALANCE, BID_DEPOSIT
+    	FROM USERS
+    	WHERE ID = #{userId}	
+    </select>
 </mapper>

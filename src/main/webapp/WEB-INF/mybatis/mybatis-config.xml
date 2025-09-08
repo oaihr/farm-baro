@@ -20,6 +20,7 @@
 		<typeAlias type="com.app.dto.sale.Review" alias="Review" />
 		<typeAlias type="com.app.dto.auction.AuctionItem" alias="AuctionItem" />
 		<typeAlias type="com.app.dto.auction.Bid" alias="Bid" />
+		<typeAlias type="com.app.dto.auction.CurrentUser" alias="CurrentUser" />
 	</typeAliases>
 
 </configuration>
