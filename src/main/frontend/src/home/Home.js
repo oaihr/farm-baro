@@ -68,7 +68,7 @@ function Home() {
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
         const formattedDate = formatDateToYYYYMMDD(yesterday);
-        const endpoint = `/quote/checkDay?day=${formattedDate}`;
+        const endpoint = `http://localhost:8080/quote/checkDay?day=${formattedDate}`;
 
         try {
             const response = await axios.get(endpoint);

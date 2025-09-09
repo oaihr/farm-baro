@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.app.dao.sale.SaleDAO;
+import com.app.dto.sale.Review;
 import com.app.dto.sale.SaleItem;
 import com.app.service.SaleService;
 

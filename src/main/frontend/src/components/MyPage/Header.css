@@ -91,6 +91,7 @@
     cursor: pointer;
     font-size: 15px;
     transition: all 0.2s ease-in-out;
+    border-radius: 0;
 }
 
 .home-search-btn:hover {

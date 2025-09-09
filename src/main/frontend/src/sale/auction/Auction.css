@@ -126,12 +126,12 @@
 }
 
 /* 페이지네이션 */
-.pagination {
+.auction-pagination {
   text-align: center;
   margin-top: 30px;
 }
 
-.pagination button {
+.auction-pagination button {
   background-color: #f0f0f0;
   border: 1px solid #ccc;
   padding: 10px 15px;
@@ -141,11 +141,11 @@
   transition: background-color 0.3s;
 }
 
-.pagination button:hover {
+.auction-pagination button:hover {
   background-color: #e0e0e0;
 }
 
-.pagination button.active {
+.auction-pagination button.active {
   background-color: #38761D;
   color: white;
   border-color: #38761D;

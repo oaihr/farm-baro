@@ -1,0 +1,210 @@
+.review-container {
+    max-width: 90%;
+    margin: 40px auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.review-header h2 {
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+    margin: 0;
+}
+
+.review-buttons button {
+    padding: 8px 15px;
+    margin-left: 10px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 4px;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.review-buttons button:hover {
+    background-color: #f0f0f0;
+    border-color: #bbb;
+}
+
+.review-buttons .btn-write {
+    background-color: #333;
+    color: #fff;
+    border-color: #333;
+}
+
+.review-buttons .btn-write:hover {
+    background-color: #555;
+    border-color: #555;
+}
+
+.review-table-container {
+    border-top: 2px solid #333; /* 상단 두꺼운 선 */
+    border-bottom: 1px solid #eee; /* 하단 얇은 선 */
+    margin-bottom: 20px;
+}
+
+.review-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+    text-align: center;
+}
+
+.review-table th, .review-table td {
+    padding: 12px 10px;
+    vertical-align: middle;
+}
+
+.review-table thead th {
+    background-color: #f8f8f8;
+    color: #333;
+    font-weight: bold;
+    border-bottom: 1px solid #ddd;
+}
+
+.review-table tbody td {
+    border-bottom: 1px solid #eee;
+    color: #555;
+}
+
+.review-table tbody tr:last-child td {
+    border-bottom: none; /* 마지막 줄에는 하단 테두리 없음 */
+}
+
+.review-table tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+.expandable-row{
+    
+    cursor: pointer;
+}
+
+.review-table .review-title {
+    text-align: left;
+    padding-left: 20px;
+    color: #333;
+    font-weight: 400;
+    font-size: 1rem;
+}
+
+.report-box{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.report-box-btn{
+    border: none;
+    background-color: white;
+    cursor: pointer;
+}
+
+.review-table .no-reviews {
+    padding: 50px 0;
+    color: #777;
+    font-size: 16px;
+}
+
+.review-images-container{
+    max-width: 70%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.review-images-container img{
+    width: 100%;
+}
+
+.expanded-content-container p{
+    margin-top: 10px;
+    text-align: left;
+}
+
+/* 리뷰 판매자 답글 */
+.admin-reply-container {
+    width: 70%;
+    background-color: #f8f8f8; 
+    border-radius: 8px; 
+    padding: 20px; 
+    margin-top: 20px; 
+    border: 1px solid #e0e0e0; 
+    font-family: 'Segoe UI', 'Roboto', sans-serif; 
+}
+
+.admin-reply-header {
+    display: flex; 
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #dcdcdc;
+}
+
+.admin-name {
+    font-weight: 600; 
+    color: #444; 
+    font-size: 16px;
+}
+
+.admin-date {
+    font-size: 13px;
+    color: #888; 
+}
+
+.admin-comment {
+    color: #333; 
+    line-height: 1.6; 
+    font-size: 14px;
+    margin-top: 0;
+}
+
+/* 페이지네이션 */
+.review-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 30px;
+    gap: 5px; /* 버튼 사이 간격 */
+}
+
+.review-pagination button {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    background-color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 4px;
+    transition: background-color 0.2s, border-color 0.2s;
+    min-width: 38px;
+}
+
+.review-pagination button:hover:not(.active):not(:disabled) {
+    background-color: #f0f0f0;
+    border-color: #bbb;
+}
+
+.review-pagination button.active {
+    background-color: #38761D;
+    color: #fff;
+    border-color: #38761D;
+    font-weight: bold;
+}
+
+.review-pagination button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    background-color: #f8f8f8;
+}

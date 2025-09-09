@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>						
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"						
+					"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+					
+<mapper namespace="com.app.dao.sale.ReviewDAO">
+
+	<select id="getReviews" resultType="Review">
+		SELECT 
+            R.REVIEW_ID,
+            R.SALE_ITEM_ID, 
+            R.USER_ID,
+            R.RATING,
+            R.REVIEW_COMMENT,
+            R.UPDATED_TIME,
+            R.TITLE,
+            R.VIEWS,
+            U.USER_NAME
+        FROM REVIEWS R
+        INNER JOIN USERS U
+        ON R.USER_ID = U.ID
+        WHERE R.SALE_ITEM_ID = #{param1}
+        ORDER BY R.CREATED_TIME DESC
+        OFFSET #{param3} ROWS
+        FETCH NEXT #{param2} ROWS ONLY			
+	</select>
+	
+	<select id="getReviewCount">
+		SELECT COUNT(*)
+		FROM REVIEWS
+		WHERE SALE_ITEM_ID = #{saleId}
+	</select>
+	
+	
+<!-- 	<insert id="insertReview" parameterType="Review"> -->
+<!--         INSERT INTO REVIEWS ( -->
+<!--         	REVIEW_ID, -->
+<!--             SALE_ITEM_ID, -->
+<!--             USER_ID, -->
+<!--             RATING, -->
+<!--             REVIEW_COMMENT, -->
+<!--             CREATED_TIME -->
+<!--         ) VALUES ( -->
+<!--         	seq_review_id.nextval  -->
+<!--             #{saleItemId}, -->
+<!--             #{userId}, -->
+<!--             #{rating}, -->
+<!--             #{reviewComment}, -->
+<!--             SYSDATE -->
+<!--         ) -->
+<!--     </insert> -->
+    
+    <resultMap type="Review" id="ReviewResultMap">
+		<id property="reviewId" column="review_id" />
+		<result property="saleItemId" column="sale_item_id" />
+		<result property="userId" column="user_id" />
+		<result property="rating" column="rating" />
+		<result property="reviewComment" column="review_comment" />
+		<result property="updatedTime" column="updated_time" />
+		<result property="title" column="title" />
+		<result property="sellerComment" column="seller_comment" />
+		
+		<collection property="images" ofType="com.app.dto.sale.Image">
+			<id property="imageId" column="IMAGE_ID" />
+			<result property="imageUrl" column="IMAGE_URL" />
+		</collection>
+	</resultMap>
+	
+    <select id="getReviewById" parameterType="Integer" resultMap="ReviewResultMap">
+    	SELECT 
+    		R.review_id,
+    		R.sale_item_id,
+    		R.user_id,
+    		R.rating,
+    		R.review_comment,
+    		R.updated_time,
+    		R.title,
+    		R.seller_comment,
+    		I.image_id,
+    		I.image_url
+    	FROM REVIEWS R
+    	LEFT JOIN PRODUCT_IMAGES I ON R.sale_item_id = I.PRODUCT_ID AND I.PRODUCT_TYPE = 'review'
+    	WHERE R.REVIEW_ID = #{reviewId}
+    </select>
+    
+    
+</mapper>

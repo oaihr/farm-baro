@@ -22,7 +22,8 @@ public class BidController {
 	
 	@MessageMapping("/bid")
 	public void handleBid(BidMessage bidMessage) throws Exception{		
-       
+		
+		System.out.println("Bidder User ID: " + bidMessage.getUserId()); 
         // DB 저장 및 최고 입찰가 업데이트 + 클라이언트에 응답 (최종 입찰 정보)        
         List<BidMessage> bidHistory = bidService.processBidAndGetLatest(bidMessage);
         

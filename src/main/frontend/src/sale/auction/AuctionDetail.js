@@ -1,5 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCurrentUser } from '../../store/store';
 import axios from 'axios';
 import * as StompJs from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
@@ -8,12 +10,18 @@ import ImageSlider from '../common/ImageSlider';
 import refridge from '../../images/refridge.png';
 import BidModal from './BidModal';
 import useRemainingTime from '../common/RemainigTime';
+import Alert from './Alert';
 
 function AuctionDetail() {
 
     const { auctionId } = useParams();
+    const location = useLocation();
     const [item, setItem] = useState(null);
     const [loading, setLoading] = useState(true);
+
+    const dispatch = useDispatch();
+    
+    const { userId, totalBalance, bidDeposit } = useSelector((state) => state.auth);
 
     // 현재 최고 입찰가 
     const [currentBid, setCurrentBid] = useState(0);
@@ -22,8 +30,9 @@ function AuctionDetail() {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    //입찰내역 리스트
     const [bidHistory, setBidHistory] = useState([]);
+
+    const navigate = useNavigate();    
 
     // WebSocket 연결 
     const connect = () => {
@@ -83,32 +92,54 @@ function AuctionDetail() {
 
                 const bidHistoryResponse = await axios.get(`http://localhost:8080/api/auction/bid-history/${auctionId}`);                                
                 setBidHistory(bidHistoryResponse.data);
+
+                dispatch(fetchCurrentUser());
+
+                connect();
             } catch (e) {
                 console.error("API 호출 실패:", e);
                 setItem(null);
+            } finally {
+                setLoading(false);
             }
-            setLoading(false);
         };
 
         if (auctionId) {
             fetchData();
-            // 데이터 로드 후 WebSocket 연결
-            connect();
         }
 
         return () => disconnect();
-    }, [auctionId]);
+    }, [auctionId, dispatch]);
 
-    // 모달 핸들러
+    const timeLeft = useRemainingTime(item?.endDate);
+
+    const isAuctionActive = timeLeft !== '로딩 중 ...' ? timeLeft !== "0일 0시간 0분 0초" : false;
+
+
+    const isPastAuction = location.pathname.includes('/off/');
+
     const handleOpenBidModal = () => {
-        setIsModalOpen(true);
+
+        if (loading || !item) {
+            return; 
+        }
+
+        if(!isAuctionActive){
+            alert('이미 종료된 경매입니다');
+            return
+        }
+
+        if(userId === null || userId === ""){
+            navigate('/login');
+        }else{
+            setIsModalOpen(true);
+        }
     };
 
-    const handleCloseBidModal = () => {
-        setIsModalOpen(false);
-    };
 
-    // 모달로부터 입찰 금액을 받아 WebSocket으로 전송하는 함수
+    const handleCloseBidModal = () => setIsModalOpen(false);
+
+    // 모달로부터 입찰 금액을 받아 WebSocket으로 전송
     const handleBid = (bidPrice) => {
         if (!client.current || !client.current.connected) {
             console.error("WebSocket이 연결되지 않았습니다.");
@@ -117,8 +148,8 @@ function AuctionDetail() {
 
         const bidMessage = {
             auctionId: parseInt(auctionId, 10),
-            userId: 'abcde', // 로그인된 사용자 ID로 대체 필요
-            bidPrice: bidPrice
+            userId, 
+            bidPrice: bidPrice            
         };
 
         client.current.publish({
@@ -211,21 +242,28 @@ function AuctionDetail() {
                         </div>
 
                         <div className='real-time-bid'>
-                            <span className='bid-price-label'>현재 입찰가</span>
+                            <span className='bid-price-label'>
+                                {isPastAuction ? '최종 낙찰가' : '현재 입찰가'}
+                            </span>
                             <span className='bid-price-value'>{currentBid === 0 ? '미입찰' : `${currentBid.toLocaleString()} 원`} </span>
                         </div>
 
                     </div>
-                    <div className='action-buttons'>
-                        <button className='cart-button' onClick={() => {/* 즉시구매*/ }}>즉시구매</button>
-                        <button className='purchase-button' onClick={handleOpenBidModal}>입찰하기</button>
-                    </div>
+                    {!isPastAuction && (
+                        <div className='action-buttons'>
+                            <button className='cart-button' onClick={() => {/* 즉시구매*/ }}>즉시구매</button>
+                            <button className='purchase-button' onClick={handleOpenBidModal}>입찰하기</button>
+                        </div>
+                    )}
                     <BidModal
                         isOpen={isModalOpen}
                         onClose={handleCloseBidModal}
                         onBid={handleBid}
                         currentBid={currentBid}
                         initialPrice={item.initialPrice}
+                        totalBalance={totalBalance}
+                        bidDeposit={bidDeposit}
+                        isAuctionActive={isAuctionActive}
                     />
                 </div>
             </div>

@@ -9,12 +9,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import com.app.dto.auction.AuctionItem;
+import com.app.dto.auction.CurrentUser;
 
 @Repository
 public interface AuctionDAO {
-	List<AuctionItem> getAuctionPage(@Param("pageable") Pageable pageable, @Param("kind") String kind);
+	List<AuctionItem> getAuctionPage(@Param("pageable") Pageable pageable, @Param("kind") String kind, @Param("status") String status);
 	
-	long getAuctionCount(@Param("kind") String kind);
+	long getAuctionCount(@Param("kind") String kind, @Param("status") String status);
 	
 	Optional<AuctionItem> getAuctionItem(Integer auctionId);
 	
@@ -25,4 +26,6 @@ public interface AuctionDAO {
 	Integer findLatestBidPrice(Integer auctionId);
 	
 	void updateAuctionStatusAndWinner(AuctionItem auctionItem);
+	
+	CurrentUser findByUserId(String userId);
 }

@@ -7,9 +7,9 @@ import { http } from "../../api/http";
 import "../../styles/auth.css"; // 공통 스타일
 
 export default function Login() {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { state } = useLocation(); // 회원가입 완료 후 이메일 프리필용
-  const dispatch = useDispatch();
 
   const [ email, setEmail ] = useState("");
   const [ password, setPassword ] = useState("");
@@ -22,7 +22,7 @@ export default function Login() {
     if (state?.email) setEmail(state.email);
   }, [ state ]);
 
-  const onSubmit = async (e) => {
+   const onSubmit = async (e) => {
     e.preventDefault();
     if (!email.trim() || !password) return setMsg("이메일과 비밀번호를 입력해 주세요.");
     setMsg("");
@@ -36,7 +36,6 @@ export default function Login() {
         { withCredentials: true }              // ★ 세션 쿠키 받기
       );
 
-      // 로그인 성공: 유저 정보가 오면 홈/마이페이지로 이동
       if (res.status >= 200 && res.status < 300) {
         // Redux 상태 즉시 업데이트
         dispatch(fetchCurrentUser());

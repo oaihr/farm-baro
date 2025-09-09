@@ -2,8 +2,8 @@ import { configureStore, createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axios from 'axios';
 
 const meatSlice = createSlice({
-    name: 'meat',
-    initialState: {
+  name: 'meat',
+  initialState: {
     kindNames: {
       'beef': '소',
       'chicken': '닭',
@@ -21,14 +21,20 @@ const meatSlice = createSlice({
     },
   },
   reducers: {
-    
+
   },
 });
 
 export const fetchCurrentUser = createAsyncThunk(
   'auth/fetchCurrentUser',
-  async (_, { rejectWithValue }) => {
+  async (_, { rejectWithValue, getState }) => {
     try {
+      // 중복 호출 방지
+      const state = getState();
+      if (state.auth.status === 'loading' || state.auth.status === 'succeeded') {
+        return state.auth.userId;
+      }
+
       const response = await axios.get('http://localhost:8080/api/auth/current-user', {
         withCredentials: true,
       });
@@ -43,6 +49,8 @@ const authSlice = createSlice({
   name: 'auth',
   initialState: {
     userId: null,
+    totalBalance: 0,
+    bidDeposit: 0,
     isLoggedIn: false,
     status: 'idle', // 'idle', 'loading', 'succeeded', 'failed'
     error: null,
@@ -50,6 +58,8 @@ const authSlice = createSlice({
   reducers: {
     logout(state) {
       state.userId = null;
+      state.totalBalance = 0;
+      state.bidDeposit = 0;
       state.isLoggedIn = false;
       state.status = 'idle';
       state.error = null;
@@ -81,5 +91,7 @@ export const store = configureStore({
     reducer:{
         meat: meatSlice.reducer,
         auth: authSlice.reducer
-    },
-})
+    }
+});
+
+export default store;

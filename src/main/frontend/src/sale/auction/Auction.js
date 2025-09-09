@@ -3,34 +3,14 @@ import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import './Auction.css';
 import useRemainingTime from '../common/RemainigTime';
+import { useAuctionData } from './useAuctionData';
 
 function Auction(){
 
-    const [data, setData] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(0);
-    const [totalPages, setTotalPages] = useState(0);
     const [filter, setFilter] = useState('');
-
-    useEffect(()=>{
-        const fetchData = async()=>{
-            setLoading(true);
-            try{
-                const response = await axios.get(`http://localhost:8080/api/auction?page=${currentPage}`+
-                                                    (filter !== '' ? `&kind=${filter}` : ''));
-                setData(response.data.content);
-                setTotalPages(response.data.totalPages);
-
-            } catch(e) {
-                console.error("API 호출 실패:", e);
-                setData([]);
-            }
-            setLoading(false);
-        };
-
-        fetchData();
-        
-    }, [currentPage, filter]);
+    
+    const { data, loading, totalPages } = useAuctionData(filter, 'on', currentPage);    
     
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
@@ -98,7 +78,7 @@ function Auction(){
                 ))
             }
             </div>
-            <div className="pagination">
+            <div className="auction-pagination">
                 {Array.from({ length: totalPages }, (_, index) => (
                     <button
                         key={index}

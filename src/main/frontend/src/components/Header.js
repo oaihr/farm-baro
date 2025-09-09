@@ -7,6 +7,7 @@ import axios from 'axios';
 
 import logo from '../images/farmbaro_logo.png';
 import './Header.css';
+//import logoutLogo from '../images/logout.png'
 
 function Header() {
 
@@ -16,7 +17,7 @@ function Header() {
 
     const dispatch = useDispatch();
 
-    const { userId } = useSelector((state) => state.auth);
+    const { userId, isLoggedIn } = useSelector((state) => state.auth);
     console.log("userId 상태:", userId);
 
     const Search = () => {
@@ -43,7 +44,7 @@ function Header() {
         dispatch(fetchCurrentUser()).then((res) => {
             console.log("로그인 상태 확인:", res);
         });
-    }, [ dispatch ]);
+    }, [dispatch]);
 
     return (
         <div className="home-header">

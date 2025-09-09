@@ -6,6 +6,7 @@ import ImageSlider from './common/ImageSlider';
 import './SaleDetail.css';
 import refridge from '../images/refridge.png';
 import ProductInfoTable from './common/ProductInfoTable';
+import ReviewList from './ReviewList';
 
 function SaleDetail(){
 
@@ -16,7 +17,7 @@ function SaleDetail(){
     const [totalPrice, setTotalPrice] = useState(0); 
     const kindNames = useSelector(state => state.meat.kindNames);
     const partNames = useSelector(state => state.meat.partNames);
-
+    
     useEffect(()=>{
         const fetchData = async()=>{
             setLoading(true);
@@ -61,7 +62,7 @@ function SaleDetail(){
                 </div>
                 <div className='item-detail-info'>
                     <h2>{item.title}</h2>
-                    <p className='item-price'>{item.price.toLocaleString('ko-KR')}원</p>
+                    <p className='item-detail-price'>{item.price.toLocaleString('ko-KR')}원</p>
                     <div className='traceability-number'>
                         <div>
                             <span className='bold-span'>이력번호</span>
@@ -102,7 +103,7 @@ function SaleDetail(){
                             </div>
                         </div>
                     </div>
-                    <div className='total-price'>
+                    <div className='detail-total-price'>
                         <span>총 상품 금액</span>
                         <p>{totalPrice.toLocaleString('ko-KR')}원</p>
                     </div>
@@ -112,7 +113,8 @@ function SaleDetail(){
                     </div>
                 </div>
             </div>
-            <ProductInfoTable title={item.title}/>
+            <ProductInfoTable title={item.title} />
+            <ReviewList saleId={saleId} />
         </div>
     );
 }
