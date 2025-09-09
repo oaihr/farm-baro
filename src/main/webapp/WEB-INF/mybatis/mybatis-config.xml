@@ -13,6 +13,7 @@
 	<typeAliases>
 		<typeAlias type="com.app.dto.home.AuctionItemHome" alias="AuctionItemHome" />
 		<typeAlias type="com.app.dto.home.SalesItemHome" alias="SalesItemHome" />
+		<typeAlias type="com.app.dto.noti.NotificationDTO" alias="NotificationDTO" />
 		<typeAlias type="com.app.dto.quote.QuoteDTO" alias="Quote" />
 		<typeAlias type="com.app.dto.quote.QuoteDTOM" alias="QuoteM" />
 		<typeAlias type="com.app.dto.quote.QuoteDTOY" alias="QuoteY" />	
