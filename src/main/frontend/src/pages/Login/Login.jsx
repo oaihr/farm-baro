@@ -55,31 +55,21 @@ export default function Login() {
           console.log("쿠키 설정 시도:", document.cookie);
         }
         
-        // 로그인 성공 후 바로 사용자 정보를 Redux에 저장 (임시 해결책)
-        const userInfo = {
-          id: "seller001",
-          email: "seller1@example.com", 
-          name: "판매자1",
-          userType: "SELLER",
-          tel: "010-3456-7890",
-          address: "경기도 성남시",
-          businessNumber: "123-45-67890"
-        };
+        // 로그인 성공 후 Redux 상태 완전 초기화
+        dispatch({ type: 'auth/clearAuth' });
         
-        console.log("임시 사용자 정보 설정:", userInfo);
-        
-        // Redux 상태에 직접 사용자 정보 저장
-        dispatch({
-          type: 'auth/fetchCurrentUser/fulfilled',
-          payload: userInfo
-        });
-        
-        // 쿠키 설정 후 잠시 대기 후 Redux 상태 업데이트
+        // 쿠키 설정 후 서버에서 실제 사용자 정보 가져오기
         setTimeout(() => {
           console.log("쿠키 설정 후 쿠키 상태:", document.cookie);
           console.log("fetchCurrentUser 호출 시작...");
+          
           dispatch(fetchCurrentUser()).then((result) => {
             console.log("fetchCurrentUser 결과:", result);
+            if (result.payload) {
+              console.log("사용자 정보 로드 성공:", result.payload);
+            } else {
+              console.log("사용자 정보 로드 실패");
+            }
           }).catch((error) => {
             console.error("fetchCurrentUser 에러:", error);
           });

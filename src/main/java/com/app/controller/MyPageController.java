@@ -1024,7 +1024,58 @@ public class MyPageController {
         }
     }
 
-    // 구매자 장바구니 조회
+    // 구매자 장바구니 조회 (세션 기반)
+    @GetMapping("/cart")
+    @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"}, allowCredentials = "true")
+    @ResponseBody
+    public ResponseEntity<List<CartDto>> getBuyerCartBySession(HttpSession session) {
+        try {
+            String userId = (String) session.getAttribute("LOGIN_ID");
+            if (userId == null) {
+                System.out.println("세션에 로그인 정보가 없습니다.");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+            
+            System.out.println("=== 세션 기반 장바구니 조회 ===");
+            System.out.println("세션에서 가져온 userId: " + userId);
+            
+            List<CartDto> cartItems = myPageService.getBuyerCart(userId);
+            return ResponseEntity.ok(cartItems);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    // 장바구니에 상품 추가 (세션 기반)
+    @PostMapping("/cart")
+    @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"}, allowCredentials = "true")
+    @ResponseBody
+    public ResponseEntity<Boolean> addToCartBySession(@RequestBody Map<String, Object> cartData, HttpSession session) {
+        try {
+            String userId = (String) session.getAttribute("LOGIN_ID");
+            if (userId == null) {
+                System.out.println("세션에 로그인 정보가 없습니다.");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
+            }
+            
+            Long saleItemId = Long.valueOf(cartData.get("saleItemId").toString());
+            Integer quantity = Integer.valueOf(cartData.get("quantity").toString());
+            
+            System.out.println("=== 세션 기반 장바구니 추가 ===");
+            System.out.println("세션에서 가져온 userId: " + userId);
+            System.out.println("saleItemId: " + saleItemId);
+            System.out.println("quantity: " + quantity);
+            
+            boolean result = myPageService.addToCart(userId, saleItemId, quantity);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(false);
+        }
+    }
+
+    // 구매자 장바구니 조회 (기존 - URL 파라미터 기반)
     @GetMapping("/api/buyers/{userId}/cart")
     @ResponseBody
     public ResponseEntity<List<CartDto>> getBuyerCart(@PathVariable String userId) {
@@ -1083,22 +1134,42 @@ public class MyPageController {
         }
     }
 
+    // OPTIONS 요청 처리 (CORS preflight)
+    @RequestMapping(value = "/cart/{cartId}/quantity", method = RequestMethod.OPTIONS)
+    @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"}, allowCredentials = "true")
+    public ResponseEntity<Void> handleOptionsRequest() {
+        return ResponseEntity.ok().build();
+    }
+
     // 장바구니 수량 변경 (마이페이지 경로)
-    @PutMapping("/api/mypage/cart/{cartId}/quantity")
+    @PutMapping("/cart/{cartId}/quantity")
+    @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"}, allowCredentials = "true")
     @ResponseBody
     public ResponseEntity<Boolean> updateCartQuantityMyPage(
             @PathVariable Long cartId,
-            @RequestParam Integer quantity) {
+            @RequestBody Map<String, Integer> requestBody,
+            HttpSession session) {
         try {
-            // cartId에서 userId와 saleItemId를 추출하는 로직 필요
-            // 현재는 임시로 userId를 "temp"로 설정
-            String userId = "temp"; // 실제로는 cartId에서 추출 필요
-            Long saleItemId = cartId; // 실제로는 cartId에서 추출 필요
+            // 세션에서 현재 사용자 ID 가져오기
+            String userId = (String) session.getAttribute("LOGIN_ID");
+            if (userId == null) {
+                System.out.println("세션에 로그인 정보가 없습니다.");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
+            }
+            
+            // cartId는 실제로는 saleItemId입니다 (프론트엔드에서 전달)
+            Long saleItemId = cartId;
+            Integer quantity = requestBody.get("quantity");
+            
+            System.out.println("장바구니 수량 변경 요청 - userId: " + userId + ", saleItemId: " + saleItemId + ", quantity: " + quantity);
+            
             boolean result = myPageService.updateCartQuantity(userId, saleItemId, quantity);
+            System.out.println("장바구니 수량 변경 결과: " + result);
+            
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(false);
         }
     }
 
@@ -1119,32 +1190,75 @@ public class MyPageController {
         }
     }
 
+    // OPTIONS 요청 처리 (CORS preflight) - 삭제
+    @RequestMapping(value = "/cart/{cartId}", method = RequestMethod.OPTIONS)
+    @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"}, allowCredentials = "true")
+    public ResponseEntity<Void> handleDeleteOptionsRequest() {
+        return ResponseEntity.ok().build();
+    }
+
     // 장바구니 상품 삭제 (마이페이지 경로)
-    @DeleteMapping("/api/mypage/cart/{cartId}")
+    @DeleteMapping("/cart/{cartId}")
+    @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"}, allowCredentials = "true")
     @ResponseBody
-    public ResponseEntity<Boolean> removeCartItemMyPage(@PathVariable Long cartId) {
+    public ResponseEntity<Boolean> removeCartItemMyPage(@PathVariable Long cartId, HttpSession session) {
         try {
-            // cartId에서 userId와 saleItemId를 추출하는 로직 필요
-            // 현재는 임시로 userId를 "temp"로 설정
-            String userId = "temp"; // 실제로는 cartId에서 추출 필요
-            Long saleItemId = cartId; // 실제로는 cartId에서 추출 필요
+            System.out.println("=== 장바구니 삭제 API 호출 ===");
+            System.out.println("cartId (saleItemId): " + cartId);
+            System.out.println("세션 ID: " + session.getId());
+            
+            // 세션에서 현재 사용자 ID 가져오기
+            String userId = (String) session.getAttribute("LOGIN_ID");
+            System.out.println("세션에서 가져온 userId: " + userId);
+            
+            if (userId == null) {
+                System.out.println("세션에 로그인 정보가 없습니다.");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
+            }
+            
+            // cartId는 실제로는 saleItemId입니다 (프론트엔드에서 전달)
+            Long saleItemId = cartId;
+            
+            System.out.println("장바구니 삭제 요청 - userId: " + userId + ", saleItemId: " + saleItemId);
+            
             boolean result = myPageService.removeCartItem(userId, saleItemId);
+            System.out.println("장바구니 삭제 결과: " + result);
+            
             return ResponseEntity.ok(result);
         } catch (Exception e) {
+            System.out.println("=== 장바구니 삭제 API 오류 ===");
             e.printStackTrace();
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(false);
         }
     }
 
+    // OPTIONS 요청 처리 (CORS preflight) - 배치 삭제
+    @RequestMapping(value = "/cart/batch-remove", method = RequestMethod.OPTIONS)
+    @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"}, allowCredentials = "true")
+    public ResponseEntity<Void> handleBatchDeleteOptionsRequest() {
+        return ResponseEntity.ok().build();
+    }
+
     // 선택된 장바구니 상품들 삭제
-    @DeleteMapping("/api/cart/batch-remove")
+    @DeleteMapping("/cart/batch-remove")
+    @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"}, allowCredentials = "true")
     @ResponseBody
-    public ResponseEntity<Boolean> removeCartItems(@RequestBody Map<String, Object> removeData) {
+    public ResponseEntity<Boolean> removeCartItems(@RequestBody Map<String, Object> removeData, HttpSession session) {
         try {
+            // 세션에서 현재 사용자 ID 가져오기
+            String userId = (String) session.getAttribute("LOGIN_ID");
+            if (userId == null) {
+                System.out.println("세션에 로그인 정보가 없습니다.");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
+            }
+            
             @SuppressWarnings("unchecked")
             List<Long> itemIds = (List<Long>) removeData.get("itemIds");
-            String userId = (String) removeData.get("userId");
+            
+            System.out.println("장바구니 배치 삭제 요청 - userId: " + userId + ", itemIds: " + itemIds);
+            
             boolean result = myPageService.removeCartItems(userId, itemIds);
+            System.out.println("장바구니 배치 삭제 결과: " + result);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             e.printStackTrace();

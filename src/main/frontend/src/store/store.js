@@ -31,11 +31,7 @@ export const fetchCurrentUser = createAsyncThunk(
   'auth/fetchCurrentUser',
   async (_, { rejectWithValue, getState }) => {
     try {
-      // 중복 호출 방지
-      const state = getState();
-      if (state.auth.status === 'loading' || (state.auth.status === 'succeeded' && state.auth.user)) {
-        return state.auth.user;
-      }
+      // 중복 호출 방지 제거 - 로그인/로그아웃 시 세션 초기화로 대체
 
       console.log('fetchCurrentUser 호출 시작 - /api/auth/me');
       console.log('현재 쿠키:', document.cookie);
@@ -48,13 +44,15 @@ export const fetchCurrentUser = createAsyncThunk(
       const response = await http.get(url);
       console.log('fetchCurrentUser 응답:', response.data);
       console.log('응답 헤더:', response.headers);
+      console.log('응답 상태 코드:', response.status);
       
       // 응답이 성공적이면 세션 ID를 localStorage에 저장
       if (response.data && response.data.id) {
         console.log('사용자 정보 조회 성공, 세션 유지');
         return response.data;
       } else {
-        console.log('사용자 정보 없음, 로그아웃 처리');
+        console.log('사용자 정보 없음 또는 세션 무효화, 로그아웃 처리');
+        console.log('응답 데이터:', response.data);
         localStorage.removeItem('JSESSIONID');
         return rejectWithValue('사용자 정보 없음');
       }
@@ -115,20 +113,55 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchCurrentUser.fulfilled, (state, action) => {
+        console.log('fetchCurrentUser.fulfilled 호출됨');
+        console.log('action.payload:', action.payload);
+        
+        // action.payload가 null인 경우 처리
+        if (!action.payload) {
+          console.log('action.payload가 null이므로 로그아웃 처리');
+          state.user = null;
+          state.userId = null;
+          state.totalBalance = 0;
+          state.bidDeposit = 0;
+          state.isLoggedIn = false;
+          state.status = 'failed';
+          state.error = '사용자 정보를 가져올 수 없습니다.';
+          return;
+        }
+        
         const { id, totalBalance, bidDeposit } = action.payload;
+        console.log('사용자 정보 업데이트:', { id, totalBalance, bidDeposit });
+        
+        state.user = action.payload; // 전체 사용자 정보 저장
         state.userId = id;
-        state.totalBalance = totalBalance;
-        state.bidDeposit = bidDeposit;
-        state.isLoggedIn = !!id;
+        state.totalBalance = totalBalance || 0;
+        state.bidDeposit = bidDeposit || 0;
+        state.isLoggedIn = !!(id && id !== null && id !== undefined);
         state.status = 'succeeded';
         state.error = null;
+        
+        console.log('Redux 상태 업데이트 완료:', {
+          userId: state.userId,
+          isLoggedIn: state.isLoggedIn,
+          status: state.status
+        });
       })
       .addCase(fetchCurrentUser.rejected, (state, action) => {
+        console.log('fetchCurrentUser.rejected 호출됨');
+        console.log('action.payload:', action.payload);
+        
         state.user = null;
         state.userId = null;
+        state.totalBalance = 0;
+        state.bidDeposit = 0;
         state.isLoggedIn = false;
         state.status = 'failed';
         state.error = action.payload;
+        
+        // 세션 무효화 시 localStorage에서도 제거
+        localStorage.removeItem('JSESSIONID');
+        
+        console.log('세션 무효화로 인한 로그아웃 처리 완료');
       });
   },
 });
@@ -147,9 +180,8 @@ const rootReducer = combineReducers({
   auth: authSlice.reducer
 });
 
-// 개발 환경에서는 persist 비활성화
-const isDevelopment = process.env.NODE_ENV === 'development';
-const persistedReducer = isDevelopment ? rootReducer : persistReducer(persistConfig, rootReducer);
+// 모든 환경에서 persist 사용
+const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({
   reducer: persistedReducer,
@@ -161,6 +193,6 @@ export const store = configureStore({
     }),
 });
 
-export const persistor = isDevelopment ? null : persistStore(store);
+export const persistor = persistStore(store);
 
 export default store;

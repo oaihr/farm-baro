@@ -20,6 +20,9 @@ function Header() {
     const { user, userId, isLoggedIn } = useSelector((state) => state.auth);
     console.log("user 상태:", user);
     console.log("userId 상태:", userId);
+    
+    // userId가 null이면 로그아웃 상태로 처리
+    const isUserLoggedIn = isLoggedIn && userId !== null && userId !== undefined;
 
     const Search = () => {
         if (searchKeyword) {
@@ -45,7 +48,7 @@ function Header() {
         
         e.preventDefault();
 
-        if (isLoggedIn) {
+        if (isUserLoggedIn) {
             navigate('/cs/inquire');
         } else {
             navigate('/login');
@@ -61,10 +64,18 @@ function Header() {
             dispatch(fetchCurrentUser()).then((res) => {
                 console.log("Header - fetchCurrentUser 결과:", res);
                 console.log("Header - 현재 auth 상태:", { user, userId, isLoggedIn });
+                
+                // 세션이 무효화된 경우 (사용자 정보가 없는 경우)
+                if (!res.payload || !res.payload.id) {
+                    console.log("Header - 세션이 무효화됨, 로그아웃 처리");
+                    localStorage.removeItem('JSESSIONID');
+                    dispatch({ type: 'auth/clearAuth' });
+                }
             }).catch((err) => {
                 console.error("Header - fetchCurrentUser 에러:", err);
                 // 세션 ID가 유효하지 않으면 제거
                 localStorage.removeItem('JSESSIONID');
+                dispatch({ type: 'auth/clearAuth' });
             });
         } else {
             console.log("localStorage에 세션 ID 없음");
@@ -96,7 +107,7 @@ function Header() {
                     <div className="header-buttons">
                         <div className="login-button-slot">
                             {
-                                isLoggedIn ? (
+                                isUserLoggedIn ? (
                                     <button className="home-login-btn btn"
                                         onClick={handleLogout}>로그아웃</button>
                                 ) : (
@@ -107,7 +118,7 @@ function Header() {
                             }
                         </div>
                         {
-                            isLoggedIn && (
+                            isUserLoggedIn && (
                                 <div className="mypage-button-slot">
                                     <button className="home-mypage-btn btn"
                                         onClick={() => navigate("/me")}>마이페이지</button>

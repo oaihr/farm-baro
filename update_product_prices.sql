@@ -34,7 +34,7 @@ SET PRICE = CASE
 END
 WHERE PRICE IS NULL;
 
--- 상품 상태를 'on'으로 설정 (판매중)
+-- 상품 상태를 'ON'으로 설정 (판매중)
 UPDATE sales 
 SET SALE_STATUS = 'ON'
 WHERE SALE_STATUS IS NULL OR SALE_STATUS = 'ACTIVE';

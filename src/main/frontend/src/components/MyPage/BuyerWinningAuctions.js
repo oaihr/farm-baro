@@ -116,7 +116,7 @@ const BuyerWinningAuctions = () => {
                             className="auction-now-btn"
                             onClick={() => navigate('/auctions')}
                         >
-                            🎯 경매 참여하기
+                            경매 참여하기
                         </button>
                     </div>
                 ) : (
@@ -166,7 +166,7 @@ const BuyerWinningAuctions = () => {
                                         className="purchase-confirm-btn"
                                         onClick={() => handlePurchaseConfirm(auction.auctionId, auction.bidPrice)}
                                     >
-                                        💳 구매 확정
+                                        구매 확정
                                     </button>
                                 </div>
                             </div>

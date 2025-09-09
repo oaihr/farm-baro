@@ -270,13 +270,12 @@ public class AuthController {
   }
 
   // ===========================
-  // 현재 사용자 ID 조회 (Redux용)
+  // 현재 사용자 ID 조회 (Redux용) - ApiController로 이동됨
   // ===========================
-  @GetMapping("/current-user")
-  @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"}, allowCredentials = "true")
-  public String getCurrentUserId(HttpSession session) {
-    String userId = (String) session.getAttribute("LOGIN_ID");
-    System.out.println("User ID from session: " + userId);
-    return userId != null ? userId : "";
-  }
+  // @GetMapping("/current-user") - ApiController와 충돌로 인해 제거됨
+  // public String getCurrentUserId(HttpSession session) {
+  //   String userId = (String) session.getAttribute("LOGIN_ID");
+  //   System.out.println("User ID from session: " + userId);
+  //   return userId != null ? userId : "";
+  // }
 }

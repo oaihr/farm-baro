@@ -11,18 +11,12 @@ import { store, persistor } from './store/store';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
-// 개발 환경에서는 PersistGate 사용하지 않음
-const isDevelopment = process.env.NODE_ENV === 'development';
-
+// 모든 환경에서 PersistGate 사용
 const AppWithProvider = () => (
   <Provider store={store}>
-    {isDevelopment ? (
+    <PersistGate loading={<div>로딩 중...</div>} persistor={persistor}>
       <App />
-    ) : (
-      <PersistGate loading={<div>로딩 중...</div>} persistor={persistor}>
-        <App />
-      </PersistGate>
-    )}
+    </PersistGate>
   </Provider>
 );
 

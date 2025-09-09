@@ -185,6 +185,28 @@ public class MyPageService {
         }
     }
 
+    // 장바구니에 상품 추가
+    public boolean addToCart(String userId, Long saleItemId, Integer quantity) {
+        try {
+            System.out.println("=== MyPageService.addToCart 호출 ===");
+            System.out.println("userId: " + userId);
+            System.out.println("saleItemId: " + saleItemId);
+            System.out.println("quantity: " + quantity);
+            
+            int result = cartMapper.addOrUpdateCartItem(userId, saleItemId, quantity);
+            System.out.println("장바구니 추가 결과: " + result);
+            
+            boolean success = result > 0;
+            System.out.println("장바구니 추가 성공 여부: " + success);
+            
+            return success;
+        } catch (Exception e) {
+            System.out.println("=== MyPageService.addToCart 오류 ===");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     // 장바구니 상품 수량 수정
     public boolean updateCartQuantity(String userId, Long saleItemId, Integer quantity) {
         try {
@@ -626,8 +648,23 @@ public class MyPageService {
     // 구매자 장바구니 조회
     public List<CartDto> getBuyerCart(String userId) {
         try {
-            return cartMapper.getCartByBuyer(userId);
+            System.out.println("=== MyPageService.getBuyerCart 호출 ===");
+            System.out.println("userId: " + userId);
+            
+            List<CartDto> cartItems = cartMapper.getCartByBuyer(userId);
+            System.out.println("조회된 장바구니 아이템 수: " + cartItems.size());
+            
+            for (CartDto item : cartItems) {
+                System.out.println("장바구니 아이템 - userId: " + item.getUserId() + 
+                                 ", saleItemId: " + item.getSaleItemId() + 
+                                 ", quantity: " + item.getQuantity() +
+                                 ", title: " + item.getProductTitle() +
+                                 ", productImageUrl: " + item.getProductImageUrl());
+            }
+            
+            return cartItems;
         } catch (Exception e) {
+            System.out.println("=== MyPageService.getBuyerCart 오류 ===");
             e.printStackTrace();
             return new ArrayList<>();
         }
@@ -647,9 +684,38 @@ public class MyPageService {
     // 장바구니 상품 삭제
     public boolean removeCartItem(String userId, Long saleItemId) {
         try {
+            System.out.println("=== MyPageService.removeCartItem 호출 ===");
+            System.out.println("userId: " + userId);
+            System.out.println("saleItemId: " + saleItemId);
+            
+            // 디버깅: 모든 장바구니 아이템 조회
+            List<CartDto> allCartItems = cartMapper.getAllCartItems();
+            System.out.println("=== 데이터베이스의 모든 장바구니 아이템 ===");
+            for (CartDto item : allCartItems) {
+                System.out.println("DB 아이템 - userId: " + item.getUserId() + 
+                                 ", saleItemId: " + item.getSaleItemId() + 
+                                 ", quantity: " + item.getQuantity());
+            }
+            
+            // 삭제 전 해당 아이템이 존재하는지 확인
+            List<CartDto> existingItems = cartMapper.checkCartItem(userId, saleItemId);
+            System.out.println("삭제 전 존재하는 아이템 수: " + existingItems.size());
+            System.out.println("삭제 전 존재하는 아이템들: " + existingItems);
+            
+            if (existingItems == null || existingItems.isEmpty()) {
+                System.out.println("삭제할 아이템이 존재하지 않습니다.");
+                return false;
+            }
+            
             int result = cartMapper.deleteCartItem(userId, saleItemId);
-            return result > 0;
+            System.out.println("삭제된 행 수: " + result);
+            
+            boolean success = result > 0;
+            System.out.println("삭제 성공 여부: " + success);
+            
+            return success;
         } catch (Exception e) {
+            System.out.println("=== MyPageService.removeCartItem 오류 ===");
             e.printStackTrace();
             return false;
         }
