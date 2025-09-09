@@ -50,7 +50,7 @@ function Header() {
             <div className='home-logo-search'>
                 <div className="home-search-box">
                     <img
-                        src={logo} class="logo"
+                        src={logo} className="logo"
                         onClick={() => navigate("/")} />
                     <div className='main-header-search-box'>
                         <input

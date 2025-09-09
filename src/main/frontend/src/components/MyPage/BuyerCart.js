@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './BuyerCart.css';
 
@@ -12,10 +12,10 @@ const BuyerCart = () => {
     const [selectAll, setSelectAll] = useState(false);
 
     // 장바구니 목록 가져오기
-    const fetchCartItems = async () => {
+    const fetchCartItems = useCallback(async () => {
         try {
             setLoading(true);
-            const response = await fetch(`http://localhost:8080/mypage/api/buyers/${userId}/cart`);
+            const response = await fetch(`http://localhost:8080/api/mypage/buyers/${userId}/cart`);
             if (response.ok) {
                 const data = await response.json();
                 setCartItems(data);
@@ -32,11 +32,11 @@ const BuyerCart = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [userId]);
 
     useEffect(() => {
         fetchCartItems();
-    }, [userId]);
+    }, [fetchCartItems]);
 
     // 전체 선택/해제
     const handleSelectAll = () => {
@@ -233,10 +233,6 @@ const BuyerCart = () => {
                         <div className="stat-label">총 상품</div>
                     </div>
                     <div className="stat-item">
-                        <div className="stat-number">{selectedCount}</div>
-                        <div className="stat-label">선택된 상품</div>
-                    </div>
-                    <div className="stat-item">
                         <div className="stat-number">{calculateTotal().toLocaleString()}원</div>
                         <div className="stat-label">총 결제 금액</div>
                     </div>
@@ -429,17 +425,6 @@ const BuyerCart = () => {
                 </div>
             </div>
 
-            {/* 추천 상품 */}
-            <div className="recommended-products">
-                <h3>🔥 추천 상품</h3>
-                <p>장바구니와 함께 구매하면 좋은 상품들을 확인해보세요!</p>
-                <button 
-                    className="view-recommendations-btn"
-                    onClick={() => navigate('/products/recommended')}
-                >
-                    🔥 추천 상품 보기
-                </button>
-            </div>
         </div>
     );
 };

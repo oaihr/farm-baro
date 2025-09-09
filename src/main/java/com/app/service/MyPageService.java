@@ -47,10 +47,10 @@ public class MyPageService {
     private InquiryMapper inquiryMapper;
     
     @Autowired
-    private BidMapper bidMapper;
+    private CartMapper cartMapper;
     
     @Autowired
-    private CartMapper cartMapper;
+    private BidMapper bidMapper;
 
     // 구매자 마이페이지 메인 정보 조회
     public Map<String, Object> getBuyerMyPageInfo(String buyerId) {
@@ -251,6 +251,38 @@ public class MyPageService {
         }
     }
 
+    // ==================== 구매자 장바구니 서비스 ====================
+
+    // 구매자 장바구니 목록 조회
+    public List<CartDto> getCartItems(String buyerId) {
+        return cartMapper.getCartByBuyer(buyerId);
+    }
+
+    // 구매자 장바구니 통계 조회 (총 상품 수, 총 금액)
+    public Map<String, Object> getCartStats(String buyerId) {
+        Map<String, Object> stats = new HashMap<>();
+        try {
+            // 총 상품 수 (CART 테이블의 SALE_ITEM_ID 종류 수)
+            List<CartDto> cartItems = cartMapper.getCartByBuyer(buyerId);
+            int totalItemCount = cartItems.size();
+            
+            // 총 결제 금액 (SALES 테이블의 PRICE 합계)
+            Double totalAmount = cartMapper.getCartTotalAmount(buyerId);
+            if (totalAmount == null) {
+                totalAmount = 0.0;
+            }
+            
+            stats.put("totalItemCount", totalItemCount);
+            stats.put("totalAmount", totalAmount);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            stats.put("totalItemCount", 0);
+            stats.put("totalAmount", 0.0);
+        }
+        return stats;
+    }
+
     // 판매자 문의 목록 조회
     public List<InquiryDto> getSellerInquiries(Long productId) {
         return inquiryMapper.getInquiriesByProduct(productId);
@@ -281,10 +313,6 @@ public class MyPageService {
         return bidMapper.insertBid(bid) > 0;
     }
 
-    // 장바구니 목록 조회
-    public List<CartDto> getCartItems(String buyerId) {
-        return cartMapper.getCartByBuyer(buyerId);
-    }
 
     // 장바구니 상품 추가
     public boolean addToCart(CartDto cart) {

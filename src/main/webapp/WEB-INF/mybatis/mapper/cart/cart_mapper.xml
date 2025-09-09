@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.app.mapper.CartMapper">
+    
+    <!-- 구매자별 장바구니 목록 조회 (SALES 테이블과 조인) -->
+    <select id="getCartByBuyer" parameterType="string" resultType="com.app.dto.CartDto">
+        SELECT 
+            c.USER_ID as userId,
+            c.SALE_ITEM_ID as saleItemId,
+            c.QUANTITY as quantity,
+            s.TITLE as productTitle,
+            s.PRICE as price,
+            s.QTY as stock,
+            s.JUDGE_KIND_NAME as productType,
+            s.CUT_NAME as cutType,
+            s.GRADE as grade,
+            (c.QUANTITY * s.PRICE) as totalPrice
+        FROM CART c
+        INNER JOIN SALES s ON c.SALE_ITEM_ID = s.SALE_ITEM_ID
+        WHERE c.USER_ID = #{buyerId}
+        ORDER BY c.SALE_ITEM_ID
+    </select>
+    
+    <!-- 장바구니 상품 상세 조회 -->
+    <select id="getCartItem" resultType="com.app.dto.CartDto">
+        SELECT 
+            c.USER_ID as userId,
+            c.SALE_ITEM_ID as saleItemId,
+            c.QUANTITY as quantity,
+            s.TITLE as productTitle,
+            s.PRICE as price,
+            s.QTY as stock,
+            s.JUDGE_KIND_NAME as productType,
+            s.CUT_NAME as cutType,
+            s.GRADE as grade,
+            (c.QUANTITY * s.PRICE) as totalPrice
+        FROM CART c
+        INNER JOIN SALES s ON c.SALE_ITEM_ID = s.SALE_ITEM_ID
+        WHERE c.USER_ID = #{userId} AND c.SALE_ITEM_ID = #{saleItemId}
+    </select>
+    
+    <!-- 장바구니에 상품 추가 -->
+    <insert id="insertCartItem" parameterType="com.app.dto.CartDto">
+        INSERT INTO CART (USER_ID, SALE_ITEM_ID, QUANTITY)
+        VALUES (#{userId}, #{saleItemId}, #{quantity})
+    </insert>
+    
+    <!-- 장바구니 상품 수량 수정 -->
+    <update id="updateCartQuantity">
+        UPDATE CART 
+        SET QUANTITY = #{quantity}
+        WHERE USER_ID = #{userId} AND SALE_ITEM_ID = #{saleItemId}
+    </update>
+    
+    <!-- 장바구니 상품 삭제 -->
+    <delete id="deleteCartItem">
+        DELETE FROM CART 
+        WHERE USER_ID = #{userId} AND SALE_ITEM_ID = #{saleItemId}
+    </delete>
+    
+    <!-- 구매자 장바구니 전체 삭제 -->
+    <delete id="deleteAllCartItems" parameterType="string">
+        DELETE FROM CART WHERE USER_ID = #{buyerId}
+    </delete>
+    
+    <!-- 장바구니 상품 존재 여부 확인 -->
+    <select id="checkCartItem" resultType="com.app.dto.CartDto">
+        SELECT 
+            c.USER_ID as userId,
+            c.SALE_ITEM_ID as saleItemId,
+            c.QUANTITY as quantity
+        FROM CART c
+        WHERE c.USER_ID = #{userId} AND c.SALE_ITEM_ID = #{saleItemId}
+    </select>
+    
+    <!-- 장바구니 총 금액 계산 (SALES 테이블의 PRICE 합계) -->
+    <select id="getCartTotalAmount" parameterType="string" resultType="double">
+        SELECT NVL(SUM(c.QUANTITY * s.PRICE), 0)
+        FROM CART c
+        INNER JOIN SALES s ON c.SALE_ITEM_ID = s.SALE_ITEM_ID
+        WHERE c.USER_ID = #{buyerId}
+    </select>
+    
+</mapper>

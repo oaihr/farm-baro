@@ -1,15 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchCurrentUser } from '../../store/store';
 import './BuyerMainPage.css';
 
 const BuyerMainPage = () => {
     const { userId } = useParams();
     const navigate = useNavigate();
-    const dispatch = useDispatch();
-    
-    const { userId: currentUserId } = useSelector((state) => state.auth);
     const [userInfo, setUserInfo] = useState(null);
     const [stats, setStats] = useState({
         orders: 0,
@@ -21,10 +16,8 @@ const BuyerMainPage = () => {
         inquiries: 0,
         pendingInquiries: 0,
         answeredInquiries: 0,
-        bids: 0,
-        activeBids: 0,
-        wonAuctions: 0,
-        cartItems: 0
+        cartItems: 0,
+        cartTotalAmount: 0
     });
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('overview');
@@ -44,9 +37,22 @@ const BuyerMainPage = () => {
         }
     };
 
-    // 통계 정보 가져오기 (임시로 기본값 설정)
-    const fetchStats = async () => {
+    // 통계 정보 가져오기
+    const fetchStats = useCallback(async () => {
         try {
+            // 장바구니 통계 가져오기
+            const cartResponse = await fetch(`http://localhost:8080/api/mypage/buyers/${userId}/cart/stats`, {
+                credentials: 'include'
+            });
+            if (cartResponse.ok) {
+                const cartStats = await cartResponse.json();
+                setStats(prevStats => ({
+                    ...prevStats,
+                    cartItems: cartStats.totalItemCount || 0,
+                    cartTotalAmount: cartStats.totalAmount || 0
+                }));
+            }
+            
             // 실제 API가 구현되면 여기서 호출
             // const response = await fetch(`/api/mypage/buyers/${userId}/stats`);
             // if (response.ok) {
@@ -73,13 +79,13 @@ const BuyerMainPage = () => {
         } catch (error) {
             console.error('통계 정보 조회 오류:', error);
         }
-    };
+    }, [userId]);
 
     useEffect(() => {
         fetchUserInfo();
         fetchStats();
         setLoading(false);
-    }, [userId]);
+    }, [fetchStats]);
 
     // 빠른 액션 카드들
     const quickActions = [
@@ -97,11 +103,6 @@ const BuyerMainPage = () => {
             icon: '❓',
             label: '문의',
             path: `/mypage/buyer/${userId}/inquiries`
-        },
-        {
-            icon: '🏆',
-            label: '경매',
-            path: `/mypage/buyer/${userId}/auctions`
         },
         {
             icon: '🛒',
@@ -159,13 +160,6 @@ const BuyerMainPage = () => {
                         <span className="tab-icon">⭐</span>
                         리뷰
                     </button>
-                    <button 
-                        className={`tab ${activeTab === 'auctions' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('auctions')}
-                    >
-                        <span className="tab-icon">🏆</span>
-                        경매
-                    </button>
                 </div>
             </div>
 
@@ -216,8 +210,9 @@ const BuyerMainPage = () => {
                         <div className="stat-label">작성한 리뷰</div>
                     </div>
                     <div className="stat-card">
-                        <div className="stat-number">{stats.cartItems}</div>
-                        <div className="stat-label">장바구니</div>
+                        <div className="stat-number">{stats.cartItems || 0}</div>
+                        <div className="stat-label">장바구니 상품</div>
+                        <div className="stat-detail">총 {(stats.cartTotalAmount || 0).toLocaleString()}원</div>
                     </div>
                 </div>
             </div>
