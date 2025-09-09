@@ -10,13 +10,25 @@ import reportWebVitals from './reportWebVitals';
 import { store, persistor } from './store/store';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <Provider store={store}>
+
+// 개발 환경에서는 PersistGate 사용하지 않음
+const isDevelopment = process.env.NODE_ENV === 'development';
+
+const AppWithProvider = () => (
+  <Provider store={store}>
+    {isDevelopment ? (
+      <App />
+    ) : (
       <PersistGate loading={<div>로딩 중...</div>} persistor={persistor}>
         <App />
       </PersistGate>
-    </Provider>
+    )}
+  </Provider>
+);
+
+root.render(
+  <React.StrictMode>
+    <AppWithProvider />
   </React.StrictMode>
 );
 

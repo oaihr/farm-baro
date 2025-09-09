@@ -133,7 +133,7 @@ const authSlice = createSlice({
 
 export const { logout, clearAuth } = authSlice.actions;
 
-// Redux Persist 설정
+// Redux Persist 설정 (개발 중에는 비활성화)
 const persistConfig = {
   key: 'root',
   storage,
@@ -145,7 +145,9 @@ const rootReducer = combineReducers({
   auth: authSlice.reducer
 });
 
-const persistedReducer = persistReducer(persistConfig, rootReducer);
+// 개발 환경에서는 persist 비활성화
+const isDevelopment = process.env.NODE_ENV === 'development';
+const persistedReducer = isDevelopment ? rootReducer : persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({
   reducer: persistedReducer,
@@ -157,6 +159,6 @@ export const store = configureStore({
     }),
 });
 
-export const persistor = persistStore(store);
+export const persistor = isDevelopment ? null : persistStore(store);
 
 export default store;

@@ -117,7 +117,7 @@ export default function Login() {
         </header>
 
         <form className="auth-form" onSubmit={onSubmit} noValidate>
-          <div className="form-row">
+          <div className="login-input">
             <label className="sr-only" htmlFor="email">이메일</label>
             <input
               id="email"
@@ -131,7 +131,7 @@ export default function Login() {
             />
           </div>
 
-          <div className="form-row">
+          <div className="password-input">
             <label className="sr-only" htmlFor="password">비밀번호</label>
             <input
               id="password"
