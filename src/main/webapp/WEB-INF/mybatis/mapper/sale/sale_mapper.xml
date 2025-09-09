@@ -69,7 +69,8 @@
 		<result property="qty" column="qty" />
 		<result property="judgeKindName" column="judge_kind_name" />
 		<result property="cutName" column="cut_name" />
-		<result property="traceabilityNum" column="traceability_num" />
+		<result property="traceabilityNum" column="traceability_num" />		
+		<result property="detailDescription" column="detail_description" />
 		
 		
 		<collection property="images" ofType="com.app.dto.sale.Image">
@@ -91,6 +92,7 @@
 			S.judge_kind_name,
 			S.cut_name,
 			S.traceability_num,
+			S.detail_description,
 			I.image_id,
 			I.image_url,
 			I.order_index
@@ -101,5 +103,16 @@
 			S.sale_item_id = #{saleId}
 			
 	</select>
+	
+	<insert id="addItemToCart">
+		INSERT INTO CART
+		VALUES (
+			#{userId},
+			#{saleItemId},
+			#{quantity},
+			sysdate,
+			sysdate			
+		)
+	</insert>
 	
 </mapper>

@@ -115,9 +115,11 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchCurrentUser.fulfilled, (state, action) => {
-        state.user = action.payload;
-        state.userId = action.payload?.id || null;
-        state.isLoggedIn = !!action.payload; // user 객체가 있으면 로그인 상태
+        const { id, totalBalance, bidDeposit } = action.payload;
+        state.userId = id;
+        state.totalBalance = totalBalance;
+        state.bidDeposit = bidDeposit;
+        state.isLoggedIn = !!id;
         state.status = 'succeeded';
         state.error = null;
       })

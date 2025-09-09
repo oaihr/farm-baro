@@ -72,7 +72,7 @@ function Sale(){
                 ))
             }
             </div>
-            <div className="pagination">
+            <div className="sale-pagination">
                 {Array.from({ length: totalPages }, (_, index) => (
                     <button
                         key={index}

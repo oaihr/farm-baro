@@ -41,6 +41,8 @@ import BuyerAuctions from './components/MyPage/BuyerAuctions.js';
 import BuyerCart from './components/MyPage/BuyerCart.js';
 import BuyerWinningAuctions from './components/MyPage/BuyerWinningAuctions.js';
 
+import FaqPage from './cs/FaqPage.js';
+import InquirePage from './cs/InquirePage.js';
 
 function App() {
 
@@ -124,6 +126,9 @@ function App() {
           <Route path="/mypage/buyer/:userId/auctions" element={<BuyerAuctions />} />
           <Route path="/mypage/buyer/:userId/cart" element={<BuyerCart />} />
           <Route path="/mypage/buyer/:userId/winning-auctions" element={<BuyerWinningAuctions />} />
+
+          <Route path="/cs/faq" element={<FaqPage />} />
+          <Route path="/cs/inquire" element={<InquirePage />} />
 
           {/* 없는 경로는 메인으로 */}
           <Route path="*" element={<Navigate to="/" replace />} />

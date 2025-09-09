@@ -41,6 +41,17 @@ function Header() {
         }
     };
 
+    const handleInquireClick = (e) => {
+        
+        e.preventDefault();
+
+        if (isLoggedIn) {
+            navigate('/cs/inquire');
+        } else {
+            navigate('/login');
+        }
+    };
+
     useEffect(() => {
         console.log("Header useEffect - fetchCurrentUser 호출");
         // localStorage에 세션 ID가 있으면 사용자 정보를 가져옴
@@ -151,7 +162,7 @@ function Header() {
                         <li className="home-menu-span span">고객센터
                             <ul className="home-submenu">
                                 <li><Link to="/cs/faq" >FAQ</Link></li>
-                                <li><Link to="/cs/inquire">문의하기</Link></li>
+                                <li><Link to="/cs/inquire" onClick={handleInquireClick}>1:1 문의</Link></li>
                             </ul>
                         </li>
                     </ul>

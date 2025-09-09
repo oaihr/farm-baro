@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.app.dao.sale.SaleDAO;
+import com.app.dto.sale.CartItemReq;
 import com.app.dto.sale.Review;
 import com.app.dto.sale.SaleItem;
 import com.app.service.SaleService;
@@ -33,6 +34,11 @@ public class SaleServiceImpl implements SaleService{
 	public SaleItem getSaleItem(Integer saleId) {
 		SaleItem saleItem = saleDAO.getSaleItem(saleId);
 		return saleItem;
+	}
+
+	@Override
+	public void addItemToCart(CartItemReq cartItem) {
+		saleDAO.addItemToCart(cartItem);
 	}
 	
 	
