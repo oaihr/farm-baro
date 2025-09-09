@@ -9,7 +9,7 @@ import com.app.dto.noti.NotificationDTO;
 
 @Mapper
 public interface NotificationDAO {
-
+	
     // 알림을 데이터베이스에 저장
     int insertNotification(NotificationDTO notification);
 

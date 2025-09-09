@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<!-- DAO 인터페이스의 전체 경로를 namespace로 지정합니다. -->
 <mapper namespace="com.app.dao.NotificationDAO">
 
 	<!-- 1. 새로운 알림을 데이터베이스에 저장하는 SQL -->
@@ -51,7 +50,7 @@
 	</update>
 
 
-	<select id="maxBidId" parameterType="long" resultType="NotificationDTO">
+	<select id="maxBidId" parameterType="java.util.Map" resultType="string">
 		select user_id from bids
 		where auction_id = #{auctionId} AND bid_price = #{currentMaxBid}
 	</select>

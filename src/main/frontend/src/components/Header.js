@@ -6,13 +6,18 @@ import { fetchCurrentUser, logout } from '../store/store';
 import axios from 'axios';
 
 import logo from '../images/farmbaro_logo.png';
+import NotificationList from '../noti/NotificationList';
 
 import './Header.css';
 import logoutLogo from '../images/log-out.png';
 import loginLogo from '../images/log-in.png';
 import mypageLogo from '../images/user2.png';
+import notiBell from '../images/noti.png';
 
 function Header() {
+
+    //noti
+    const [isNotiOpen, setIsNotiOpen] = useState(false);
 
     // searchKeyword
     const [searchKeyword, setSearchKeyword] = useState('');
@@ -72,31 +77,36 @@ function Header() {
                         <button className="home-search-btn">검색</button>
                     </div>
                     <div className="header-buttons">
-
-                        {
-                            userId && userId !== "" && (
-
+                        {userId && userId !== "" ? (
+                            <> {/* React Fragment로 요소를 그룹화합니다. */}
+                                <img
+                                    src={notiBell}
+                                    alt="알림"
+                                    className="home-noti-btn"
+                                    onClick={() => setIsNotiOpen(!isNotiOpen)}
+                                />
                                 <img
                                     src={mypageLogo}
+                                    alt="마이페이지"
                                     className="home-mypage-btn"
-                                    onClick={() => navigate("/me")} />
-
-                            )
-                        }
-                        {
-                            userId && userId !== "" ? (
-                                <img 
-                                    src={logoutLogo}
-                                    className="home-login-btn"
-                                    onClick={handleLogout}/>
-                            ) : (
+                                    onClick={() => navigate("/me")}
+                                />
+                                {isNotiOpen && <NotificationList userId={userId} />}
                                 <img
-                                    src={loginLogo}
+                                    src={logoutLogo}
+                                    alt="로그아웃"
                                     className="home-login-btn"
-                                    onClick={() => navigate("/login")} />
-                            )
-                        }
-
+                                    onClick={handleLogout}
+                                />
+                            </>
+                        ) : (
+                            <img
+                                src={loginLogo}
+                                alt="로그인"
+                                className="home-login-btn"
+                                onClick={() => navigate("/login")}
+                            />
+                        )}
                     </div>
                 </div>
             </div>

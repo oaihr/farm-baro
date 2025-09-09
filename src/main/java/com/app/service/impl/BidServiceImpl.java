@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +13,7 @@ import com.app.dao.auction.BidDAO;
 import com.app.dto.auction.AuctionItem;
 import com.app.dto.auction.Bid;
 import com.app.dto.auction.BidMessage;
+import com.app.dto.noti.WebSocketMessage;
 import com.app.service.BidService;
 import com.app.service.noti.NotificationService;
 
@@ -27,6 +29,9 @@ public class BidServiceImpl implements BidService{
     // 알림 서비스 주입
     @Autowired
     NotificationService notificationService;
+    
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
     
 	@Override
 	@Transactional
@@ -82,16 +87,21 @@ public class BidServiceImpl implements BidService{
             );
         }
 
-        // --- 💡 웹소켓(SSE)을 통한 실시간 알림 전송 ---
+     // --- 💡 웹소켓을 통한 실시간 알림 전송 ---
         // 모든 경매 참여자에게 최신 입찰 정보를 실시간으로 업데이트
         // 이 메시지는 프론트엔드에서 입찰 현황을 갱신하는 데 사용됩니다.
-        SseMessage updateMessage = new SseMessage(
+        WebSocketMessage updateMessage = new WebSocketMessage(
             "auction_update", 
             "새로운 입찰이 발생했습니다.",
             auctionItem.getAuctionId(),
             bidMessage.getBidPrice()
         );
-        sseService.broadcastToAuction(auctionItem.getAuctionId(), updateMessage);
+        
+        // 💡 messagingTemplate을 사용해 '/topic/auction/{id}' 채널로 메시지 전송
+        messagingTemplate.convertAndSend(
+            "/topic/auction/" + auctionItem.getAuctionId(),
+            updateMessage
+        );
         
         // 알림 전송 후, 입찰 내역 반환
         

@@ -20,4 +20,6 @@ public interface NotificationService {
     //현재 최고 입찰자 정보
     String maxBidId(Integer auctionId, double currentMaxBid);
     
+    void sendNotification(String userId, String type, String message, Integer integer);
+    
 }

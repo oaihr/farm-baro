@@ -1,0 +1,71 @@
+/* 부모 컨테이너에 Flexbox 적용 */
+.noti-main-header {
+    width: 100%;
+    padding: 10px 20px;
+    background-color: #f8f8f8;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative; /* 자식 요소의 absolute 위치 기준이 됩니다. */
+}
+
+/* 아이콘들을 담는 컨테이너 */
+.noti-header-icons {
+    display: flex;
+    justify-content: flex-end; /* 아이콘들을 오른쪽으로 정렬 */
+    align-items: center;
+    gap: 15px; /* 아이콘 사이 간격 */
+}
+
+.noti-mypage-btn, .noti-bell-btn {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+
+/* NotificationList 컴포넌트의 CSS */
+.notification-container {
+    position: absolute; /* header를 기준으로 위치 지정 */
+    top: 60px; /* 헤더 아래로 배치 */
+    right: 20px; /* 오른쪽 끝에 배치 */
+    width: 300px;
+    max-height: 400px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    padding: 15px;
+    z-index: 1000; /* 다른 요소 위로 올라오게 설정 */
+    overflow-y: auto; /* 내용이 넘치면 스크롤바 생성 */
+}
+
+.notification-container h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.notification-container ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.notification-item {
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item strong {
+    display: block;
+    font-weight: bold;
+    color: #007bff;
+    margin-bottom: 5px;
+}

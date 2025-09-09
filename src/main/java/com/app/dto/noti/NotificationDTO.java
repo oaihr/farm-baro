@@ -10,7 +10,7 @@ public class NotificationDTO {
     String userId;
     String type;
     String message;
-    Long relatedId;
+    Integer relatedId;
     String isRead; // 또는 boolean 타입
     LocalDateTime createdTime;
 }

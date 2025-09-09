@@ -25,7 +25,7 @@ public class NotificationDAOImpl implements NotificationDAO{
 
 	@Override
 	public List<NotificationDTO> findByUserId(String userId) {
-		List<NotificationDTO> result = sqlSessionTemplate.selectOne("com.app.dao.NotificationDAO.findByUserId", userId);
+		List<NotificationDTO> result = sqlSessionTemplate.selectList("com.app.dao.NotificationDAO.findByUserId", userId);
 		return result;
 	}
 
@@ -46,5 +46,7 @@ public class NotificationDAOImpl implements NotificationDAO{
 	    String result = sqlSessionTemplate.selectOne("com.app.dao.NotificationDAO.maxBidId", params);
 		return result;
 	}
+	
+
 
 }

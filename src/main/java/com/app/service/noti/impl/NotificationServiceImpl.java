@@ -1,5 +1,6 @@
 package com.app.service.noti.impl;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ public class NotificationServiceImpl implements NotificationService{
     
 	@Autowired
     private NotificationDAO notificationDAO;
+	
 
 	@Override
 	public int insertNotification(NotificationDTO notification) {
@@ -38,7 +40,25 @@ public class NotificationServiceImpl implements NotificationService{
 		String result = notificationDAO.maxBidId(auctionId, currentMaxBid);
 		return result;
 	}
-    
+
+    @Override
+    public void sendNotification(String userId, String type, String message, Integer relatedId) {
+        // 1. DTO 객체 생성 및 데이터 설정
+        NotificationDTO notification = new NotificationDTO();
+        notification.setUserId(userId);
+        notification.setType(type);
+        notification.setMessage(message);
+        notification.setRelatedId(relatedId);
+        notification.setIsRead("N");
+        notification.setCreatedTime(LocalDateTime.now());
+
+        // 2. DAO를 호출해 데이터베이스에 저장
+        notificationDAO.insertNotification(notification);
+    }
+
+
+
+
     
     
 }
