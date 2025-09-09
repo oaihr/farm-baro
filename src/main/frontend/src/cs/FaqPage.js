@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './FaqPage.css'; // ✅ CSS 파일을 import 합니다.
+import './FaqPage.css';
 
 const faqData = [
   {
@@ -42,9 +42,26 @@ const faqData = [
 
 const FaqPage = () => {
   const [openAnswerId, setOpenAnswerId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredFaqs, setFilteredFaqs] = useState(faqData);
 
   const toggleAnswer = (id) => {
     setOpenAnswerId(openAnswerId === id ? null : id);
+  };
+
+  const handleSearch = () => {
+    const term = searchTerm.toLowerCase();
+    const newFilteredFaqs = faqData.filter(item => 
+      item.question.toLowerCase().includes(term) || item.answer.toLowerCase().includes(term)
+    );
+    setFilteredFaqs(newFilteredFaqs);
+    setOpenAnswerId(null); // 검색 시 답변 모두 닫기
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      handleSearch();
+    }
   };
 
   return (
@@ -55,27 +72,35 @@ const FaqPage = () => {
           type="text" 
           className="search-input" 
           placeholder="궁금하신 점을 검색해 보세요." 
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyDown={handleKeyDown}
         />
+        <button className="search-button" onClick={handleSearch}>검색</button>
       </div>
       
       <h2 className="section-header">자주 묻는 질문</h2>
 
-      {faqData.map((item) => (
-        <div 
-          className="question-item" 
-          key={item.id} 
-          onClick={() => toggleAnswer(item.id)}
-        >
-          <div className="question-title">
-            <span className="question-icon">Q.</span>
-            {item.question}
-          </div>
-          {openAnswerId === item.id && (
-            <div className="answer-content" dangerouslySetInnerHTML={{ __html: item.answer }} >
+      {filteredFaqs.length > 0 ? (
+        filteredFaqs.map((item) => (
+          <div 
+            className="question-item" 
+            key={item.id} 
+            onClick={() => toggleAnswer(item.id)}
+          >
+            <div className="question-title">
+              <span className="question-icon">Q.</span>
+              {item.question}
             </div>
-          )}
-        </div>
-      ))}
+            {openAnswerId === item.id && (
+              <div className="answer-content" dangerouslySetInnerHTML={{ __html: item.answer }} >
+              </div>
+            )}
+          </div>
+        ))
+      ) : (
+        <div className="no-results">검색 결과가 없습니다.</div>
+      )}
     </div>
   );
 };

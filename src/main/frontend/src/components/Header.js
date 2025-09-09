@@ -139,7 +139,8 @@ function Header() {
 
                         <li className="home-menu-span span">고객센터
                             <ul className="home-submenu">
-                                <li><Link to="/cs/faq" >FAQ</Link></li>
+                                <li><Link to="/cs/notice">공지사항</Link></li>
+                                <li><Link to="/cs/faq">FAQ</Link></li>
                                 <li><Link to="/cs/inquire" onClick={handleInquireClick}>1:1 문의</Link></li>
                             </ul>
                         </li>

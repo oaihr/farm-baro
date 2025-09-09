@@ -44,6 +44,7 @@ import BuyerCart from './components/MyPage/BuyerCart.js';
 
 import FaqPage from './cs/FaqPage.js';
 import InquirePage from './cs/InquirePage.js';
+import NoticePage from './cs/Notice.js';
 
 function App() {
 
@@ -128,6 +129,7 @@ function App() {
           <Route path="/mypage/buyer/:userId/auctions" element={<BuyerAuctions />} />
           <Route path="/mypage/buyer/:userId/cart" element={<BuyerCart />} />
 
+          <Route path="/cs/notice" element={<NoticePage />} />
           <Route path="/cs/faq" element={<FaqPage />} />
           <Route path="/cs/inquire" element={<InquirePage />} />
 
