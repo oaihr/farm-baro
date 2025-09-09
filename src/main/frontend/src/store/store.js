@@ -64,11 +64,11 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchCurrentUser.fulfilled, (state, action) => {
-        const { userId, totalBalance, bidDeposit } = action.payload;
-        state.userId = userId;
+        const { id, totalBalance, bidDeposit } = action.payload;
+        state.userId = id;
         state.totalBalance = totalBalance;
         state.bidDeposit = bidDeposit;
-        state.isLoggedIn = true;
+        state.isLoggedIn = !!id;
         state.status = 'succeeded';
       })
       .addCase(fetchCurrentUser.rejected, (state, action) => {

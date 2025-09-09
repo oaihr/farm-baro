@@ -40,6 +40,17 @@ function Header() {
         }
     };
 
+    const handleInquireClick = (e) => {
+        
+        e.preventDefault();
+
+        if (isLoggedIn) {
+            navigate('/cs/inquire');
+        } else {
+            navigate('/login');
+        }
+    };
+
     useEffect(() => {
         dispatch(fetchCurrentUser()).then((res) => {
             console.log("로그인 상태 확인:", res);
@@ -129,7 +140,7 @@ function Header() {
                         <li className="home-menu-span span">고객센터
                             <ul className="home-submenu">
                                 <li><Link to="/cs/faq" >FAQ</Link></li>
-                                <li><Link to="/cs/inquire">문의하기</Link></li>
+                                <li><Link to="/cs/inquire" onClick={handleInquireClick}>1:1 문의</Link></li>
                             </ul>
                         </li>
                     </ul>

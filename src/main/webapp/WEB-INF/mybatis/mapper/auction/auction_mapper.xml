@@ -49,10 +49,10 @@
 			
 		<where>
             <if test="kind != null and kind != ''">
-                OR A.judge_kind_name = #{kind}
+                AND A.judge_kind_name = #{kind}
             </if>
             <if test="status != null and status != ''">
-                OR A.auction_status = #{status}
+                AND A.auction_status = #{status}
             </if>
         </where>
 		)
@@ -65,10 +65,10 @@
         FROM AUCTIONS
         <where> 
         	<if test="kind != null and kind != ''">
-                OR judge_kind_name = #{kind}
+                AND judge_kind_name = #{kind}
             </if>
             <if test="status != null and status != ''">
-                OR auction_status = #{status}
+                AND auction_status = #{status}
             </if>
         </where>
     </select>
@@ -137,7 +137,7 @@
 		SELECT
 			AUCTION_ID			
 		FROM AUCTIONS
-		WHERE END_DATE &lt;= #{currentTime} AND AUCTION_STATUS = 'ON'
+		WHERE END_DATE &lt;= #{currentTime} AND AUCTION_STATUS = 'on'
 	</select>
 	
 	<update id="updateAuctionStatusAndWinner">

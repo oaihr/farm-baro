@@ -5,6 +5,7 @@ import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.dto.auction.CurrentUser;
@@ -30,8 +31,8 @@ public class ApiController {
 		return currentUser;
 	}
 	
-	@GetMapping("/api/auth/logout")
-	public void logout(HttpSession session) {
-		session.invalidate();
-	}
+//	@PostMapping("/api/auth/logout")
+//	public void logout(HttpSession session) {
+//		session.invalidate();
+//	}
 }

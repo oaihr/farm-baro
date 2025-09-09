@@ -151,7 +151,7 @@ public class AuthController {
     try {
       User user = userService.login(req.getEmail(), req.getPassword());
       if (user != null) {
-        session.setAttribute("LOGIN_ID", user.getId());
+        session.setAttribute("LOGIN_ID", user.getId());	
         session.setAttribute("LOGIN_EMAIL", user.getEmail());
         session.setAttribute("LOGIN_NAME", user.getUserName());
         session.setAttribute("LOGIN_TYPE", user.getUserType());

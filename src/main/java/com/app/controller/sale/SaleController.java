@@ -1,19 +1,19 @@
 package com.app.controller.sale;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.app.dto.sale.CartItemReq;
 import com.app.dto.sale.Review;
 import com.app.dto.sale.SaleItem;
 import com.app.service.ReviewService;
@@ -64,4 +64,11 @@ public class SaleController {
 		Review review = reviewService.getReviewById(reviewId);
 		return review;
 	}
+	
+	@PostMapping("/api/cart/add")
+	public void addItemToCart(@RequestBody CartItemReq cartItem){
+		System.out.println("Received userId: " + cartItem.getUserId());
+		saleService.addItemToCart(cartItem);
+	}
+	
 }

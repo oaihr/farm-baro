@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCurrentUser } from '../store/store';
 import axios from 'axios';
 import ImageSlider from './common/ImageSlider';
 import './SaleDetail.css';
@@ -8,30 +9,99 @@ import refridge from '../images/refridge.png';
 import ProductInfoTable from './common/ProductInfoTable';
 import ReviewList from './ReviewList';
 
-function SaleDetail(){
+function SaleDetail() {
 
     const { saleId } = useParams();
     const [item, setItem] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [quantity, setQuantity] = useState(1); 
-    const [totalPrice, setTotalPrice] = useState(0); 
+    const [quantity, setQuantity] = useState(1);
+    const [totalPrice, setTotalPrice] = useState(0);
     const kindNames = useSelector(state => state.meat.kindNames);
     const partNames = useSelector(state => state.meat.partNames);
-    
-    useEffect(()=>{
-        const fetchData = async()=>{
+
+    const { userId, isLoggedIn, status: authStatus } = useSelector((state) => state.auth);
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    const handleAddToCart = async () => {
+        
+        if (authStatus === 'loading') {
+            alert('사용자 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
+            return;
+        }
+
+        if (!isLoggedIn) {
+            alert('로그인이 필요합니다.');
+            navigate('/login');
+            return;
+        }
+
+        try {
+            const response = await axios.post('http://localhost:8080/api/cart/add', {
+                userId: userId,
+                saleItemId: saleId,
+                quantity: quantity, 
+            });
+
+            if (response.status === 200) {
+                if (window.confirm('장바구니에 상품을 담았습니다. 장바구니로 이동하시겠습니까?')) {
+                    navigate(`/mypage/buyer/${userId}/cart`); 
+                }
+            }
+        } catch (error) {
+            console.error("장바구니 추가 실패:", error);
+            const errorMessage = error.response?.data?.message || '상품 추가에 실패했습니다. 다시 시도해 주세요.';
+            alert(errorMessage);
+        }
+    };
+
+    const handleBuyNow = async () => {
+        
+        if (authStatus === 'loading') {
+            alert('사용자 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
+            return;
+        }
+
+        if (!isLoggedIn) {
+            alert('로그인이 필요합니다.');
+            navigate('/login');
+            return;
+        }
+
+        try {
+            const response = await axios.post('http://localhost:8080/api/cart/add', {
+                userId: userId,
+                saleItemId: saleId,
+                quantity: quantity, 
+            });
+
+            if (response.status === 200) {               
+                 navigate(`/mypage/buyer/${userId}/cart`);
+            }
+        } catch (error) {
+            console.error("장바구니 추가 실패:", error);
+            const errorMessage = error.response?.data?.message || '상품 추가에 실패했습니다. 다시 시도해 주세요.';
+            alert(errorMessage);
+        }
+    };
+
+    useEffect(() => {
+        const fetchData = async () => {
             setLoading(true);
-            try{
-                const response = await axios.get(`http://localhost:8080/api/sale/detail/${saleId}`);
-                setItem(response.data);
-            } catch(e) {
+            try {
+                const [itemResponse] = await Promise.all([
+                    axios.get(`http://localhost:8080/api/sale/detail/${saleId}`),
+                    dispatch(fetchCurrentUser()), // 사용자 정보 로딩 시작
+                ]);
+                setItem(itemResponse.data);
+            } catch (e) {
                 console.error("API 호출 실패:", e);
                 setItem(null);
             }
             setLoading(false);
         };
 
-        if (saleId){
+        if (saleId) {
             fetchData();
         }
     }, [saleId]);
@@ -57,7 +127,7 @@ function SaleDetail(){
                 </ul>
             </div>
             <div className='item-info' style={{ position: 'relative' }}>
-                <div className='image-slider-container'>            
+                <div className='image-slider-container'>
                     <ImageSlider images={item.images} interval={4000} />
                 </div>
                 <div className='item-detail-info'>
@@ -66,7 +136,7 @@ function SaleDetail(){
                     <div className='traceability-number'>
                         <div>
                             <span className='bold-span'>이력번호</span>
-                            <p>{item.traceabilityNum}</p>                            
+                            <p>{item.traceabilityNum}</p>
                             <a href={`https://mtrace.go.kr/search.do?mtraceNo=${item.traceabilityNum}`} target="_blank"><button className='traceability-number-btn'>축산물 이력정보 &#10095;</button></a>
                         </div>
                     </div>
@@ -82,7 +152,7 @@ function SaleDetail(){
                         <span className='bold-span'>배송안내</span>
                         <div className='shipping-info-detail'>
                             <div className='shipping-info-detail-icon'>
-                                <img src={refridge} alt='냉장배송'/>
+                                <img src={refridge} alt='냉장배송' />
                                 <span>냉장배송</span>
                             </div>
                             <p>오늘 <span className='color-text'>오후 3시</span>까지 결제 시 <span className='color-text'>당일출고</span></p>
@@ -90,7 +160,7 @@ function SaleDetail(){
                     </div>
                     <div className='qty-info'>
                         <span className='bold-span'>재고</span>
-                        <p>{item.qty} 박스</p>
+                        <p>{item.qty}개</p>
                     </div>
                     <div className='qty-selector'>
                         <div>
@@ -108,11 +178,12 @@ function SaleDetail(){
                         <p>{totalPrice.toLocaleString('ko-KR')}원</p>
                     </div>
                     <div className='action-buttons'>
-                        <button className='cart-button' onClick={() => {/* 장바구니에 상품 추가 로직 */}}>장바구니</button>
-                        <button className='purchase-button' onClick={() => {/* 구매하기 로직 */}}>구매하기</button>
+                        <button className='cart-button' onClick={handleAddToCart}>장바구니</button>
+                        <button className='purchase-button' onClick={handleBuyNow}>구매하기</button>
                     </div>
                 </div>
             </div>
+            <div dangerouslySetInnerHTML={{ __html: item.detailDescription }} />
             <ProductInfoTable title={item.title} />
             <ReviewList saleId={saleId} />
         </div>
