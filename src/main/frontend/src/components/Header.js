@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchCurrentUser, logout } from '../store/store';
+import { fetchCurrentUser, logout, clearAuth } from '../store/store';
 
-import axios from 'axios';
+import { http } from '../api/http';
 
 import logo from '../images/farmbaro_logo.png';
 import './Header.css';
@@ -17,7 +17,8 @@ function Header() {
 
     const dispatch = useDispatch();
 
-    const { userId, isLoggedIn } = useSelector((state) => state.auth);
+    const { user, userId, isLoggedIn } = useSelector((state) => state.auth);
+    console.log("user 상태:", user);
     console.log("userId 상태:", userId);
 
     const Search = () => {
@@ -28,22 +29,35 @@ function Header() {
 
     const handleLogout = async () => {
         try {
-            await axios.post("http://localhost:8080/api/auth/logout", {}, {
-                withCredentials: true,
-            });
-
+            await http.post("/api/auth/logout");
         } catch (err) {
             console.error("서버 로그아웃 실패:", err);
         } finally {
+            // localStorage에서 세션 ID 제거
+            localStorage.removeItem('JSESSIONID');
             dispatch(logout()); // Redux 상태 초기화
+            dispatch(clearAuth()); // Redux Persist 초기화
             navigate("/");
         }
     };
 
     useEffect(() => {
-        dispatch(fetchCurrentUser()).then((res) => {
-            console.log("로그인 상태 확인:", res);
-        });
+        console.log("Header useEffect - fetchCurrentUser 호출");
+        // localStorage에 세션 ID가 있으면 사용자 정보를 가져옴
+        const sessionId = localStorage.getItem('JSESSIONID');
+        if (sessionId) {
+            console.log("localStorage에 세션 ID 발견, 사용자 정보 조회:", sessionId);
+            dispatch(fetchCurrentUser()).then((res) => {
+                console.log("Header - fetchCurrentUser 결과:", res);
+                console.log("Header - 현재 auth 상태:", { user, userId, isLoggedIn });
+            }).catch((err) => {
+                console.error("Header - fetchCurrentUser 에러:", err);
+                // 세션 ID가 유효하지 않으면 제거
+                localStorage.removeItem('JSESSIONID');
+            });
+        } else {
+            console.log("localStorage에 세션 ID 없음");
+        }
     }, [dispatch]);
 
     return (
@@ -71,7 +85,7 @@ function Header() {
                     <div className="header-buttons">
                         <div className="login-button-slot">
                             {
-                                userId && userId !== "" ? (
+                                isLoggedIn ? (
                                     <button className="home-login-btn btn"
                                         onClick={handleLogout}>로그아웃</button>
                                 ) : (
@@ -82,7 +96,7 @@ function Header() {
                             }
                         </div>
                         {
-                            userId && userId !== "" && (
+                            isLoggedIn && (
                                 <div className="mypage-button-slot">
                                     <button className="home-mypage-btn btn"
                                         onClick={() => navigate("/me")}>마이페이지</button>

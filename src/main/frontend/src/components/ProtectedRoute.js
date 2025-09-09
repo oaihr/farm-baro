@@ -7,7 +7,7 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const location = useLocation();
   const dispatch = useDispatch();
   
-  const { userId, status } = useSelector((state) => state.auth);
+  const { user, userId, isLoggedIn, status } = useSelector((state) => state.auth);
   
   useEffect(() => {
     // 인증 상태가 아직 확인되지 않았을 때만 fetchCurrentUser 호출
@@ -32,13 +32,22 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   }
   
   // 인증 실패 시 로그인 페이지로 리다이렉트
-  if (status === 'failed' || !userId) {
+  if (status === 'failed' || !isLoggedIn) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
   
-  // 특정 역할만 허용하는 경우 역할 확인 (추후 구현)
+  // 특정 역할만 허용하는 경우 역할 확인
   if (allowedRoles.length > 0) {
-    // TODO: 사용자 역할 확인 로직 추가
+    const userRole = user?.userType?.toLowerCase();
+    const hasPermission = allowedRoles.some(role => 
+      role.toLowerCase() === userRole || 
+      (role.toLowerCase() === 'seller' && userRole === 'seller') ||
+      (role.toLowerCase() === 'buyer' && userRole === 'buyer')
+    );
+    
+    if (!hasPermission) {
+      return <Navigate to="/" replace />;
+    }
   }
   
   // 인증된 사용자는 원래 요청한 페이지로 이동

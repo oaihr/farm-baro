@@ -537,7 +537,8 @@ public class MyPageController {
             @RequestParam("grade") String grade,
             @RequestParam("traceabilityNum") String traceabilityNum,
             @RequestParam("sellerId") String sellerId,
-            @RequestParam(value = "imageUrls", required = false) String[] imageUrls) {
+            @RequestParam(value = "imageUrls", required = false) String[] imageUrls,
+            @RequestParam(value = "imageOrderIndexes", required = false) Integer[] imageOrderIndexes) {
 
         System.out.println("=== 상품 등록 요청 받음 ===");
         System.out.println("title: " + title);
@@ -577,7 +578,10 @@ public class MyPageController {
                     String imageUrl = imageUrls[i];
                     if (imageUrl != null && !imageUrl.trim().isEmpty()) {
                         boolean isThumbnail = (i == 0); // 첫 번째 이미지를 대표 이미지로 설정
-                        myPageService.insertProductImage(productId, imageUrl.trim(), i + 1, isThumbnail);
+                        // 프론트엔드에서 전송한 순서 정보 사용, 없으면 기본값 사용
+                        int orderIndex = (imageOrderIndexes != null && i < imageOrderIndexes.length && imageOrderIndexes[i] != null) 
+                            ? imageOrderIndexes[i].intValue() : (i + 1);
+                        myPageService.insertProductImage(productId, imageUrl.trim(), orderIndex, isThumbnail);
                     }
                 }
             }
@@ -630,7 +634,8 @@ public class MyPageController {
             @RequestParam("detailDescription") String detailDescription,
             @RequestParam("grade") String grade,
             @RequestParam("traceabilityNum") String traceabilityNum,
-            @RequestParam(value = "imageUrls", required = false) String[] imageUrls) {
+            @RequestParam(value = "imageUrls", required = false) String[] imageUrls,
+            @RequestParam(value = "imageOrderIndexes", required = false) Integer[] imageOrderIndexes) {
         try {
             ProductDto product = new ProductDto();
             product.setSaleItemId(productId);
@@ -656,7 +661,10 @@ public class MyPageController {
                     String imageUrl = imageUrls[i];
                     if (imageUrl != null && !imageUrl.trim().isEmpty()) {
                         boolean isThumbnail = (i == 0); // 첫 번째 이미지를 대표 이미지로 설정
-                        myPageService.insertProductImage(productId, imageUrl.trim(), i + 1, isThumbnail);
+                        // 프론트엔드에서 전송한 순서 정보 사용, 없으면 기본값 사용
+                        int orderIndex = (imageOrderIndexes != null && i < imageOrderIndexes.length && imageOrderIndexes[i] != null) 
+                            ? imageOrderIndexes[i].intValue() : (i + 1);
+                        myPageService.insertProductImage(productId, imageUrl.trim(), orderIndex, isThumbnail);
                     }
                 }
             }
@@ -689,6 +697,57 @@ public class MyPageController {
             List<ProductDto> products = myPageService.getSellerProducts(sellerId, null, null);
             return ResponseEntity.ok(products);
         } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    // 판매자 주문 목록 조회 API
+    @GetMapping("/api/sellers/{sellerId}/orders")
+    @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"})
+    @ResponseBody
+    public ResponseEntity<List<OrderDto>> getSellerOrders(@PathVariable String sellerId,
+                                                         @RequestParam(required = false) String orderStatus,
+                                                         @RequestParam(required = false) String buyerName,
+                                                         @RequestParam(required = false) String buyerPhone) {
+        try {
+            System.out.println("=== 판매자 주문 목록 조회 요청 ===");
+            System.out.println("sellerId: " + sellerId);
+            System.out.println("orderStatus: " + orderStatus);
+            System.out.println("buyerName: " + buyerName);
+            System.out.println("buyerPhone: " + buyerPhone);
+            
+            List<OrderDto> orders = myPageService.getSellerOrders(sellerId, orderStatus, buyerName, buyerPhone);
+            System.out.println("조회된 주문 수: " + orders.size());
+            
+            return ResponseEntity.ok(orders);
+        } catch (Exception e) {
+            System.out.println("=== 판매자 주문 목록 조회 오류: " + e.getMessage() + " ===");
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    // 판매자 최근 주문 조회 API (대시보드용 - 최근 5개)
+    @GetMapping("/api/sellers/{sellerId}/recent-orders")
+    @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"})
+    @ResponseBody
+    public ResponseEntity<List<OrderDto>> getSellerRecentOrders(@PathVariable String sellerId) {
+        try {
+            System.out.println("=== 판매자 최근 주문 조회 요청 ===");
+            System.out.println("sellerId: " + sellerId);
+            
+            List<OrderDto> allOrders = myPageService.getSellerOrders(sellerId, null, null, null);
+            // 최근 5개만 반환
+            List<OrderDto> recentOrders = allOrders.stream()
+                    .limit(5)
+                    .collect(java.util.stream.Collectors.toList());
+            
+            System.out.println("조회된 최근 주문 수: " + recentOrders.size());
+            
+            return ResponseEntity.ok(recentOrders);
+        } catch (Exception e) {
+            System.out.println("=== 판매자 최근 주문 조회 오류: " + e.getMessage() + " ===");
             e.printStackTrace();
             return ResponseEntity.badRequest().build();
         }
@@ -915,6 +974,19 @@ public class MyPageController {
         try {
             List<BidDto> winningBids = myPageService.getWinningBids(userId);
             return ResponseEntity.ok(winningBids);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    // 구매자 낙찰상품 납부 대기 리스트 조회 (마이페이지 경로)
+    @GetMapping("/buyer/{userId}/winning-auctions")
+    @ResponseBody
+    public ResponseEntity<List<BidDto>> getWinningAuctionsForPaymentMyPage(@PathVariable String userId) {
+        try {
+            List<BidDto> winningAuctions = myPageService.getWinningAuctionsForPayment(userId);
+            return ResponseEntity.ok(winningAuctions);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().build();

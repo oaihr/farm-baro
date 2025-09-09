@@ -116,6 +116,16 @@ public class MyPageService {
 
     // 개인정보 수정
     public boolean updateUserInfo(UserDto user) {
+        // 사업자번호는 수정할 수 없도록 제한
+        if (user.getBusinessNumber() != null && !user.getBusinessNumber().trim().isEmpty()) {
+            // 기존 사용자 정보 조회
+            UserDto existingUser = userMapper.getUserById(user.getId());
+            if (existingUser != null && existingUser.getBusinessNumber() != null) {
+                // 기존 사업자번호가 있으면 변경하지 않음
+                user.setBusinessNumber(existingUser.getBusinessNumber());
+                System.out.println("사업자번호 수정 제한: " + existingUser.getBusinessNumber());
+            }
+        }
         return userMapper.updateUser(user) > 0;
     }
 
@@ -308,20 +318,30 @@ public class MyPageService {
         return bidMapper.getWinningBids(buyerId);
     }
 
+    // 구매자별 낙찰상품 납부 대기 리스트 조회
+    public List<BidDto> getWinningAuctionsForPayment(String winnerId) {
+        try {
+            return bidMapper.getWinningAuctionsForPayment(winnerId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
     // 입찰 생성
     public boolean createBid(BidDto bid) {
         return bidMapper.insertBid(bid) > 0;
     }
 
 
-    // 장바구니 상품 추가
+    // 장바구니에 상품 추가 (기존 상품이 있으면 수량 증가)
     public boolean addToCart(CartDto cart) {
-        CartDto existingItem = cartMapper.checkCartItem(cart.getUserId(), cart.getSaleItemId());
-        if (existingItem != null) {
-            return cartMapper.updateCartQuantity(cart.getUserId(), cart.getSaleItemId(), 
-                existingItem.getQuantity() + cart.getQuantity()) > 0;
-        } else {
-            return cartMapper.insertCartItem(cart) > 0;
+        try {
+            int result = cartMapper.addOrUpdateCartItem(cart.getUserId(), cart.getSaleItemId(), cart.getQuantity());
+            return result > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
     }
 

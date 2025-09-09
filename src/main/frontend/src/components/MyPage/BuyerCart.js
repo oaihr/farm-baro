@@ -119,6 +119,48 @@ const BuyerCart = () => {
         }
     };
 
+    // 개별 상품 구매 확정
+    const handlePurchaseConfirm = async (itemId) => {
+        const item = cartItems.find(item => item.cartItemId === itemId);
+        if (!item) return;
+
+        const totalAmount = item.price * item.quantity;
+        
+        if (!window.confirm(`${item.title} 상품을 ${totalAmount.toLocaleString()}원에 구매 확정하시겠습니까?`)) {
+            return;
+        }
+
+        try {
+            // TODO: 실제 구매 확정 API 호출 (추후 구현)
+            const response = await fetch(`http://localhost:8080/mypage/api/cart/${itemId}/purchase-confirm`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    itemId: itemId,
+                    totalAmount: totalAmount
+                })
+            });
+
+            if (response.ok) {
+                setMessage('구매가 확정되었습니다! 🎉');
+                // 구매 확정된 상품을 장바구니에서 제거
+                setCartItems(prev => prev.filter(cartItem => cartItem.cartItemId !== itemId));
+                setSelectedItems(prev => {
+                    const newSet = new Set(prev);
+                    newSet.delete(itemId);
+                    return newSet;
+                });
+            } else {
+                setMessage('구매 확정에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('구매 확정 오류:', error);
+            setMessage('구매 확정 중 오류가 발생했습니다.');
+        }
+    };
+
     // 선택된 상품들 삭제
     const handleRemoveSelected = async () => {
         if (selectedItems.size === 0) {
@@ -362,6 +404,12 @@ const BuyerCart = () => {
                                 </div>
 
                                 <div className="item-actions">
+                                    <button 
+                                        className="purchase-confirm-btn"
+                                        onClick={() => handlePurchaseConfirm(item.cartItemId)}
+                                    >
+                                        💳 구매 확정
+                                    </button>
                                     <button 
                                         className="remove-item-btn"
                                         onClick={() => handleRemoveItem(item.cartItemId)}

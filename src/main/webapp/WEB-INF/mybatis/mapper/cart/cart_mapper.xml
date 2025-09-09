@@ -8,17 +8,18 @@
         SELECT 
             c.USER_ID as userId,
             c.SALE_ITEM_ID as saleItemId,
-            c.QUANTITY as quantity,
+            SUM(c.QUANTITY) as quantity,
             s.TITLE as productTitle,
             s.PRICE as price,
             s.QTY as stock,
             s.JUDGE_KIND_NAME as productType,
             s.CUT_NAME as cutType,
             s.GRADE as grade,
-            (c.QUANTITY * s.PRICE) as totalPrice
+            (SUM(c.QUANTITY) * s.PRICE) as totalPrice
         FROM CART c
         INNER JOIN SALES s ON c.SALE_ITEM_ID = s.SALE_ITEM_ID
         WHERE c.USER_ID = #{buyerId}
+        GROUP BY c.USER_ID, c.SALE_ITEM_ID, s.TITLE, s.PRICE, s.QTY, s.JUDGE_KIND_NAME, s.CUT_NAME, s.GRADE
         ORDER BY c.SALE_ITEM_ID
     </select>
     
@@ -73,6 +74,18 @@
         FROM CART c
         WHERE c.USER_ID = #{userId} AND c.SALE_ITEM_ID = #{saleItemId}
     </select>
+    
+    <!-- 장바구니에 상품 추가 또는 수량 증가 (MERGE 사용) -->
+    <insert id="addOrUpdateCartItem">
+        MERGE INTO CART c
+        USING (SELECT #{userId} as USER_ID, #{saleItemId} as SALE_ITEM_ID, #{quantity} as QUANTITY FROM DUAL) s
+        ON (c.USER_ID = s.USER_ID AND c.SALE_ITEM_ID = s.SALE_ITEM_ID)
+        WHEN MATCHED THEN
+            UPDATE SET c.QUANTITY = c.QUANTITY + s.QUANTITY
+        WHEN NOT MATCHED THEN
+            INSERT (USER_ID, SALE_ITEM_ID, QUANTITY)
+            VALUES (s.USER_ID, s.SALE_ITEM_ID, s.QUANTITY)
+    </insert>
     
     <!-- 장바구니 총 금액 계산 (SALES 테이블의 PRICE 합계) -->
     <select id="getCartTotalAmount" parameterType="string" resultType="double">

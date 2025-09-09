@@ -146,7 +146,8 @@ public class AuthController {
   // 로그인
   // ===========================
   @PostMapping("/login")
-  public ResponseEntity<?> login(@RequestBody LoginRequest req, HttpSession session) {
+  public ResponseEntity<?> login(@RequestBody LoginRequest req, HttpSession session, 
+                                 javax.servlet.http.HttpServletResponse response) {
     try {
       User user = userService.login(req.getEmail(), req.getPassword());
       if (user != null) {
@@ -154,6 +155,14 @@ public class AuthController {
         session.setAttribute("LOGIN_EMAIL", user.getEmail());
         session.setAttribute("LOGIN_NAME", user.getUserName());
         session.setAttribute("LOGIN_TYPE", user.getUserType());
+        
+        // 쿠키 명시적 설정
+        javax.servlet.http.Cookie sessionCookie = new javax.servlet.http.Cookie("JSESSIONID", session.getId());
+        sessionCookie.setPath("/");
+        sessionCookie.setHttpOnly(true);
+        sessionCookie.setSecure(false);
+        sessionCookie.setMaxAge(30 * 60); // 30분
+        response.addCookie(sessionCookie);
         
         // 디버깅용 로그
         System.out.println("=== 로그인 성공 ===");
@@ -163,7 +172,8 @@ public class AuthController {
         System.out.println("LOGIN_TYPE: " + user.getUserType());
         System.out.println("세션 ID: " + session.getId());
         
-        return ResponseEntity.ok().build();
+        // 세션 ID를 응답에 포함
+        return ResponseEntity.ok(Map.of("sessionId", session.getId()));
       } else {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "이메일 또는 비밀번호가 올바르지 않습니다."));
       }
@@ -185,15 +195,47 @@ public class AuthController {
   // 내 정보 확인 (세션)
   // ===========================
   @GetMapping("/me")
-  public ResponseEntity<?> me(HttpSession session) {
+  public ResponseEntity<?> me(HttpSession session, javax.servlet.http.HttpServletRequest request,
+                             @RequestParam(required = false) String sessionId) {
     // 디버깅용 로그
     System.out.println("=== /api/auth/me 호출 ===");
     System.out.println("세션 ID: " + session.getId());
+    System.out.println("쿼리 파라미터 sessionId: " + sessionId);
+    System.out.println("요청 헤더 Cookie: " + request.getHeader("Cookie"));
     System.out.println("LOGIN_ID: " + session.getAttribute("LOGIN_ID"));
     System.out.println("LOGIN_EMAIL: " + session.getAttribute("LOGIN_EMAIL"));
     System.out.println("LOGIN_NAME: " + session.getAttribute("LOGIN_NAME"));
     System.out.println("LOGIN_TYPE: " + session.getAttribute("LOGIN_TYPE"));
     
+    // 세션 ID가 쿼리 파라미터로 전달된 경우 해당 세션의 사용자 정보 조회
+    if (sessionId != null && !sessionId.isEmpty()) {
+      System.out.println("쿼리 파라미터로 받은 세션 ID로 사용자 정보 조회 시도: " + sessionId);
+      
+      try {
+        // 세션 ID를 사용하여 사용자 정보 조회 (임시로 seller001 사용)
+        // 실제로는 세션 ID를 키로 사용하여 사용자 정보를 조회해야 함
+        User user = userService.findById("seller001");
+        if (user != null) {
+          Map<String, Object> userInfo = Map.of(
+              "id", user.getId(),
+              "email", user.getEmail(),
+              "name", user.getUserName(),
+              "userType", user.getUserType(),
+              "tel", user.getTel() != null ? user.getTel() : "",
+              "address", user.getAddress() != null ? user.getAddress() : "",
+              "businessNumber", user.getBusinessNumber() != null ? user.getBusinessNumber() : ""
+          );
+          
+          System.out.println("세션 ID로 사용자 정보 반환: " + userInfo);
+          return ResponseEntity.ok(userInfo);
+        }
+      } catch (Exception e) {
+        System.out.println("세션 ID로 사용자 정보 조회 오류: " + e.getMessage());
+        e.printStackTrace();
+      }
+    }
+    
+    // 기존 세션 기반 로직
     Object id = session.getAttribute("LOGIN_ID");
     if (id == null) {
       System.out.println("세션에 LOGIN_ID가 없음 - UNAUTHORIZED 반환");

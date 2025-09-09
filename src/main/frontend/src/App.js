@@ -3,8 +3,6 @@ import './App.css';
 import Home from './home/Home';
 import HomeSearch from './home/HomeSearch.js';
 import Quote from './quote/Quote.js';
-import { Provider } from 'react-redux';
-import { store } from './store/store';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Sale from './sale/Sale';
@@ -41,15 +39,15 @@ import BuyerReviews from './components/MyPage/BuyerReviews.js';
 import BuyerInquiries from './components/MyPage/BuyerInquiries.js';
 import BuyerAuctions from './components/MyPage/BuyerAuctions.js';
 import BuyerCart from './components/MyPage/BuyerCart.js';
+import BuyerWinningAuctions from './components/MyPage/BuyerWinningAuctions.js';
 
 
 function App() {
 
   return (
-    <Provider store={store}>
-      <Router>
-        <Header />
-        <Routes>
+    <Router>
+      <Header />
+      <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/home/search" element={<HomeSearch />} />
           <Route path="/quote" element={<Quote />} />
@@ -125,6 +123,7 @@ function App() {
           <Route path="/mypage/buyer/:userId/inquiries" element={<BuyerInquiries />} />
           <Route path="/mypage/buyer/:userId/auctions" element={<BuyerAuctions />} />
           <Route path="/mypage/buyer/:userId/cart" element={<BuyerCart />} />
+          <Route path="/mypage/buyer/:userId/winning-auctions" element={<BuyerWinningAuctions />} />
 
           {/* 없는 경로는 메인으로 */}
           <Route path="*" element={<Navigate to="/" replace />} />
@@ -132,7 +131,6 @@ function App() {
         </Routes>
         <Footer />
       </Router>
-    </Provider>
   );
 }
 

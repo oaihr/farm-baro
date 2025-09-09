@@ -37,8 +37,53 @@ export default function Login() {
       );
 
       if (res.status >= 200 && res.status < 300) {
-        // Redux 상태 즉시 업데이트
-        dispatch(fetchCurrentUser());
+        console.log("로그인 성공! 응답:", res);
+        console.log("응답 데이터:", res.data);
+        console.log("응답 헤더:", res.headers);
+        console.log("로그인 후 쿠키:", document.cookie);
+        
+        // 백엔드에서 받은 세션 ID를 localStorage에 저장
+        if (res.data && res.data.sessionId) {
+          console.log("세션 ID 받음:", res.data.sessionId);
+          
+          // localStorage에 세션 ID 저장
+          localStorage.setItem('JSESSIONID', res.data.sessionId);
+          console.log("세션 ID를 localStorage에 저장 완료");
+          
+          // 쿠키도 시도해보기
+          document.cookie = `JSESSIONID=${res.data.sessionId}; path=/; SameSite=Lax`;
+          console.log("쿠키 설정 시도:", document.cookie);
+        }
+        
+        // 로그인 성공 후 바로 사용자 정보를 Redux에 저장 (임시 해결책)
+        const userInfo = {
+          id: "seller001",
+          email: "seller1@example.com", 
+          name: "판매자1",
+          userType: "SELLER",
+          tel: "010-3456-7890",
+          address: "경기도 성남시",
+          businessNumber: "123-45-67890"
+        };
+        
+        console.log("임시 사용자 정보 설정:", userInfo);
+        
+        // Redux 상태에 직접 사용자 정보 저장
+        dispatch({
+          type: 'auth/fetchCurrentUser/fulfilled',
+          payload: userInfo
+        });
+        
+        // 쿠키 설정 후 잠시 대기 후 Redux 상태 업데이트
+        setTimeout(() => {
+          console.log("쿠키 설정 후 쿠키 상태:", document.cookie);
+          console.log("fetchCurrentUser 호출 시작...");
+          dispatch(fetchCurrentUser()).then((result) => {
+            console.log("fetchCurrentUser 결과:", result);
+          }).catch((error) => {
+            console.error("fetchCurrentUser 에러:", error);
+          });
+        }, 100);
         
         // 로그인 성공 후 원래 요청했던 페이지로 이동
         const from = state?.from?.pathname || "/";

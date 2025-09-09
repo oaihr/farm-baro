@@ -110,6 +110,11 @@ const BuyerMainPage = () => {
             path: `/mypage/buyer/${userId}/cart`
         },
         {
+            icon: '🏆',
+            label: '낙찰상품',
+            path: `/mypage/buyer/${userId}/winning-auctions`
+        },
+        {
             icon: '👤',
             label: '프로필',
             path: `/mypage/buyer/${userId}/profile`

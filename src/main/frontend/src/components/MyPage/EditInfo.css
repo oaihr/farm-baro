@@ -254,6 +254,14 @@
     border-color: #dee2e6 !important;
 }
 
+/* 폼 도움말 텍스트 */
+.form-help {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-top: 5px;
+    font-style: italic;
+}
+
 /* 체크박스 그룹 */
 .checkbox-group {
     display: flex;

@@ -21,7 +21,7 @@ const ProductRegister = () => {
         saleStatus: 'draft', // sales.SALE_STATUS (보류중)
         description: '',     // sales.DESCRIPTION (요약 설명)
         detailDescription: '', // sales.DETAIL_DESCRIPTION (상세 설명)
-        grade: '',           // sales.GRADE (고기 등급: A, B, C 등)
+        grade: '',           // sales.GRADE (고기 등급: 1++, 1+, 1, 2, 3 등)
         traceabilityNum: '', // sales.TRACEABILITY_NUM (가축 이력번호)
         imageUrls: []        // product_images 테이블용 (이미지 URL 배열)
     });
@@ -222,9 +222,10 @@ const ProductRegister = () => {
                     formData.append('traceabilityNum', viewingProduct.traceabilityNum);
                     formData.append('saleStatus', viewingProduct.saleStatus);
                     
-                    // 새로운 이미지 URL들 추가
-                    imageUrls.forEach(url => {
+                    // 새로운 이미지 URL들 추가 (순서 정보 포함)
+                    imageUrls.forEach((url, index) => {
                         formData.append('imageUrls', url);
+                        formData.append('imageOrderIndexes', index + 1); // ORDER_INDEX는 1부터 시작
                     });
                     
                     return formData;
@@ -342,6 +343,7 @@ const ProductRegister = () => {
             if (formData.imageUrls && formData.imageUrls.length > 0) {
                 formData.imageUrls.forEach((url, index) => {
                     formDataToSend.append(`imageUrls`, url);
+                    formDataToSend.append(`imageOrderIndexes`, index + 1); // ORDER_INDEX는 1부터 시작
                 });
             }
 
@@ -428,6 +430,7 @@ const ProductRegister = () => {
             if (formData.imageUrls && formData.imageUrls.length > 0) {
                 formData.imageUrls.forEach((url, index) => {
                     formDataToSend.append(`imageUrls`, url);
+                    formDataToSend.append(`imageOrderIndexes`, index + 1); // ORDER_INDEX는 1부터 시작
                 });
             }
 
@@ -693,7 +696,7 @@ const ProductRegister = () => {
                         </div>
 
                         <div className="form-group">
-                            <label>kg당 가격 (원) *</label>
+                            <label>kg당 가격 *</label>
                             <input
                                 type="number"
                                 name="price"
@@ -803,7 +806,7 @@ const ProductRegister = () => {
                                 name="description"
                                 value={formData.description}
                                 onChange={handleInputChange}
-                                placeholder="상품의 핵심 특징을 간단히 설명하세요 (예: 한우 등심, A등급, 신선도 보장)"
+                                placeholder="상품의 핵심 특징을 간단히 설명하세요 (예: 한우 등심, 1++등급, 신선도 보장)"
                                 rows="3"
                             />
                         </div>
