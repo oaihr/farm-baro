@@ -86,6 +86,7 @@
 }
 
 .homeSearch-noSearch img {
+    display: inline;
     width: 200px;
     margin-top: 60px;
     opacity: 0.6;

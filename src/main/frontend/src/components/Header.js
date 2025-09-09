@@ -6,9 +6,14 @@ import { fetchCurrentUser, logout } from '../store/store';
 import axios from 'axios';
 
 import logo from '../images/farmbaro_logo.png';
+
 import './Header.css';
+import logoutLogo from '../images/log-out.png';
+import loginLogo from '../images/log-in.png';
+import mypageLogo from '../images/user2.png';
 
 function Header() {
+
     // searchKeyword
     const [searchKeyword, setSearchKeyword] = useState('');
     const navigate = useNavigate();
@@ -64,21 +69,34 @@ function Header() {
                                 }
                             }}
                         />
-                        <button className="home-search-btn"
-                            onClick={Search}>검색</button>
+                        <button className="home-search-btn">검색</button>
                     </div>
-                    <div>
+                    <div className="header-buttons">
+
                         {
-                            userId && userId !== "" ?
-                                ( 
-                                <div className='home-logout'>
-                                <button className="home-login-btn btn"
-                                    onClick={handleLogout}>로그아웃</button>
-                                </div>) :
-                                (<button
-                                    className="home-login-btn btn"
-                                    onClick={() => navigate("/login")} >로그인</button>)
+                            userId && userId !== "" && (
+
+                                <img
+                                    src={mypageLogo}
+                                    className="home-mypage-btn"
+                                    onClick={() => navigate("/me")} />
+
+                            )
                         }
+                        {
+                            userId && userId !== "" ? (
+                                <img 
+                                    src={logoutLogo}
+                                    className="home-login-btn"
+                                    onClick={handleLogout}/>
+                            ) : (
+                                <img
+                                    src={loginLogo}
+                                    className="home-login-btn"
+                                    onClick={() => navigate("/login")} />
+                            )
+                        }
+
                     </div>
                 </div>
             </div>
@@ -94,7 +112,7 @@ function Header() {
                         <li className="home-menu-span span">경매
                             <ul className="home-submenu">
                                 <li><Link to="/auctions">실시간 경매</Link></li>
-                                <li><Link to="/auctions/past">지난 경매</Link></li>
+                                <li><Link to="/auctions/off">지난 경매</Link></li>
                             </ul>
                         </li>
 
