@@ -16,6 +16,12 @@ const formatBrn = (s) => {
   if (d.length < 6) return `${d.slice(0, 3)}-${d.slice(3)}`;
   return `${d.slice(0, 3)}-${d.slice(3, 5)}-${d.slice(5)}`;
 };
+const formatPhone = (s) => {
+  const d = s.replace(/\D/g, "").slice(0, 11);
+  if (d.length < 4) return d;
+  if (d.length < 8) return `${d.slice(0,3)}-${d.slice(3)}`;
+  return `${d.slice(0,3)}-${d.slice(3,7)}-${d.slice(7)}`;
+};
 
 const HOMETAX_URL =
   "https://hometax.go.kr/websquare/websquare.html?w2xPath=/ui/pp/index_pp.xml&tmIdx=43&tm2lIdx=4306000000&tm3lIdx=4306080000";
@@ -54,6 +60,7 @@ export default function SellerWizard() {
   const [emailVerified, setEmailVerified] = useState(false);
   const [pass, setPass] = useState("");
   const [pass2, setPass2] = useState("");
+  const [tel, setTel] = useState("");
   const [agree, setAgree] = useState({ t1: false, t2: false, t3: false });
 
   useEffect(() => {
@@ -198,9 +205,9 @@ export default function SellerWizard() {
     setSubmitting(true);
     try {
       const payload = {
-        basic: { name, email, pass: snsMode ? undefined : pass },
+        basic: { name, email, pass: snsMode ? undefined : pass, tel: onlyDigits(tel)  },
         business: { brn, sellerType, repName, zip, addr1, addr2, traceNo },
-        settlement: { accHolder, bank, accNo },
+        settlement: {  accHolder, bank, accNo: onlyDigits(accNo) },
       };
       const fd = new FormData();
       fd.append("payload", new Blob([JSON.stringify(payload)], { type: "application/json; charset=UTF-8" }));
@@ -273,6 +280,16 @@ export default function SellerWizard() {
                 {pass2 && pass!==pass2 && <div className="err">비밀번호가 일치하지 않습니다</div>}
               </div>
             </>}
+
+            <div className="row">
+              <label>전화번호</label>
+              <input
+                value={tel}
+                onChange={(e) => setTel(formatPhone(e.target.value))}
+                placeholder="010-1234-5678"
+                maxLength={13}
+              />
+            </div>
 
             <div className="agreements">
               <label className="check"><input type="checkbox" checked={agree.t1} onChange={(e)=>setAgree(a=>({...a,t1:e.target.checked}))}/><span>이용약관 동의</span></label>

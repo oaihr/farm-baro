@@ -67,6 +67,7 @@ export default function BuyerWizard() {
   const [leftSec, setLeftSec] = useState(0);
   const [emailVerified, setEmailVerified] = useState(false);
   const [sending, setSending] = useState(false);
+  const [emailChecked, setEmailChecked] = useState(false);  // 이메일 중복 체크 완료 여부
 
   const allRequiredAgreed = useMemo(
     () => f.agreeTerms && f.agreePrivacy && f.agreeAge14,
@@ -257,6 +258,12 @@ export default function BuyerWizard() {
       {step === 1 && (
         <div className="card">
           <div className="row">
+            <label>닉네임</label>
+            <input name="id" placeholder="사용할 닉네임을 입력하세요" value={f.id} onChange={onChange}
+onBlur={onBlur} className={errors.id && touched.id ? "invalid" : ""} />
+{errors.id && touched.id && <p className="err">{errors.id}</p>}
+          </div>
+          <div className="row">
             <label>이름</label>
             <input
               name="name"
@@ -282,6 +289,9 @@ export default function BuyerWizard() {
               placeholder={snsMode ? "SNS로 전달된 이메일" : "이메일을 입력하세요"}
             />
             {snsMode && <p className="hint">SNS 로그인으로 받은 이메일입니다.</p>}
+            {errors.email && touched.email && (
+              <p className="err">{errors.email}</p>
+            )}
           </div>
 
           {!snsMode && (
@@ -313,6 +323,10 @@ export default function BuyerWizard() {
               className={errors.birth && touched.birth ? "invalid" : ""}
             />
             {errors.birth && touched.birth && <p className="err">{errors.birth}</p>}
+          </div>
+          <div className="row">
+            <label>전화번호</label>
+            <input name="tel" placeholder="010-1234-5678" value={f.tel} onChange={onChange} maxLength={13} />
           </div>
         </div>
       )}

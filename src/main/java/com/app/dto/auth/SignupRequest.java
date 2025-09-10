@@ -16,6 +16,10 @@ import lombok.Data;
 @Data
 public class SignupRequest {
 
+	@NotBlank(message = "아이디를 입력하세요.")
+	@Size(min = 3, max = 20, message = "아이디는 3~20자여야 합니다.")
+	private String id;
+
 	@NotBlank(message = "이메일은 입력하세요.")
 	@Email(message = "올바른 이메일 형식이 아닙니다.")
 	// 이메일은 DB 컬럼보다 좁혀도 무방. (너무 큰 값 차단용)

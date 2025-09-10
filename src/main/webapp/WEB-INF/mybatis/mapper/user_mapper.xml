@@ -23,6 +23,25 @@
   </resultMap>  
    -->
   
+  <select id="findById" parameterType="string" resultType="com.app.domain.User">
+  SELECT
+    ID           AS id,
+    PW           AS pw,
+    EMAIL        AS email,
+    ADDRESS      AS address,
+    TEL          AS tel,
+    USER_NAME    AS userName,
+    USER_TYPE    AS userType,
+    USER_STATUS  AS userStatus,
+    CREATED_TIME AS createdTime,
+    TOTAL_BALANCE AS totalBalance,
+    BID_DEPOSIT   AS bidDeposit,
+    PROVIDER     AS provider,
+    PROVIDER_ID  AS providerId
+  FROM USERS
+  WHERE ID = #{id}
+</select>
+
   <select id="findByEmail" parameterType="string" resultType="com.app.domain.User">
   SELECT
     ID           AS id,
@@ -41,12 +60,37 @@
   FROM USERS
   WHERE EMAIL = #{email}
 </select>
+
+  <select id="existsByEmail" parameterType="string" resultType="int">
+    SELECT COUNT(*)
+    FROM USERS
+    WHERE EMAIL = #{email}
+  </select>
+
+  <!-- User 도메인 객체 삽입 -->
+  <insert id="insertUser" parameterType="com.app.domain.User">
+    INSERT INTO USERS
+      (ID, PW, EMAIL, ADDRESS, TEL, USER_NAME, USER_TYPE, USER_STATUS,
+       CREATED_TIME, TOTAL_BALANCE, BID_DEPOSIT, PROVIDER, PROVIDER_ID)
+    VALUES
+      (#{id}, #{pw}, #{email}, #{address,jdbcType=VARCHAR}, #{tel,jdbcType=VARCHAR}, #{userName}, #{userType}, 
+       COALESCE(#{userStatus}, 'ACTIVE'), SYSTIMESTAMP, 
+       COALESCE(#{totalBalance}, 0), COALESCE(#{bidDeposit}, 0), 
+       #{provider,jdbcType=VARCHAR}, #{providerId,jdbcType=VARCHAR})
+  </insert>
   
   <!-- 이메일 존재 여부 -->
   <select id="existsByEmail" parameterType="string" resultType="int">
     SELECT COUNT(*)
     FROM USERS
     WHERE EMAIL = #{email}
+  </select>
+
+  <!-- ID 존재 여부 -->
+  <select id="existsById" parameterType="string" resultType="int">
+    SELECT COUNT(*)
+    FROM USERS
+    WHERE ID = #{id}
   </select>
   
     <!-- 판매자 가입: USERS 테이블에 바로 INSERT -->
@@ -56,8 +100,8 @@
      (ID, PW, EMAIL, ADDRESS, TEL, USER_NAME, USER_TYPE, USER_STATUS,
       BUSINESS_NUMBER, CREATED_TIME, TOTAL_BALANCE, BID_DEPOSIT, PROVIDER, PROVIDER_ID)
     VALUES
-     (#{u.id}, #{u.pw}, #{u.email}, #{u.address}, #{u.tel}, #{u.userName},
-      'SELLER', 'PENDING', #{u.brn}, SYSTIMESTAMP, 0, 0, NULL, NULL)
+     (#{id}, #{pw}, #{email}, #{address,jdbcType=VARCHAR}, #{tel,jdbcType=VARCHAR}, #{userName},
+      'SELLER', 'PENDING', #{brn,jdbcType=VARCHAR}, SYSTIMESTAMP, 0, 0, NULL, NULL)
   </insert>
   
   <!-- 구매자 가입 -->
@@ -66,7 +110,7 @@
     (ID, PW, EMAIL, USER_NAME, ADDRESS, TEL,
      USER_TYPE, USER_STATUS, CREATED_TIME, TOTAL_BALANCE, BID_DEPOSIT, PROVIDER, PROVIDER_ID)
   VALUES
-    (#{id}, #{pw}, #{email}, #{name}, #{address}, #{tel},
+    (#{id}, #{pw}, #{email}, #{name}, #{address,jdbcType=VARCHAR}, #{tel,jdbcType=VARCHAR},
      'BUYER', 'ACTIVE', SYSTIMESTAMP, 0, 0, NULL, NULL)
 </insert>
 

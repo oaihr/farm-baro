@@ -59,6 +59,7 @@ export default function Login() {
         } catch { /* 무시하고 비로그인 처리 */ }
       }
 
+      const target = state?.from?.pathname || decideNextRoute(user) || "/me";
       navigate(decideNextRoute(user), { replace: true });
     } catch (err) {
       const r = err?.response;

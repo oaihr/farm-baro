@@ -10,7 +10,8 @@ import java.util.Properties;
 @Configuration
 public class MailConfig {
 
-    @Bean
+    // 이메일 서비스가 필요하지 않을 때는 이 빈을 비활성화
+    // @Bean
     public JavaMailSender javaMailSender() {
         JavaMailSenderImpl s = new JavaMailSenderImpl();
         s.setHost("smtp.gmail.com");  // 사용 메일 서버로 교체 가능

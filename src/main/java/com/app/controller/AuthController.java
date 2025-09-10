@@ -1,44 +1,55 @@
 // com.app.controller.AuthController.java
 package com.app.controller;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.*;
-import org.springframework.web.bind.annotation.*;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+
+import javax.servlet.http.HttpSession;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.DigestUtils;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.mail.MailAuthenticationException;
-import org.springframework.mail.MailSendException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.app.domain.User;
 import com.app.dto.auth.LoginRequest;
 import com.app.dto.auth.SignupRequest;
-import com.app.mapper.UserMapper;
 import com.app.service.user.UserService;
 import com.app.service.user.email.EmailService;
 
-import javax.servlet.http.HttpSession;
-
-import java.util.List;
-import java.util.Map;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/auth")
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"}, allowCredentials = "true")
 @RequiredArgsConstructor
 public class AuthController {
 
   private final EmailService emailService;   // 인증메일 발송/검증 (requestId + code 방식)
   private final UserService userService;     // 가입/비번변경 비즈니스 로직
-  private final UserMapper userMapper;       // 중복체크, 로그인 조회
-  private final PasswordEncoder passwordEncoder;
+  // private final UserMapper userMapper;       // 중복체크, 로그인 조회 - 임시로 주석 처리
   private final HttpSession session;
+
+  // 간단한 해시 함수 (개발용 - 실제 운영에서는 BCrypt 사용 권장)
+  private String hashPassword(String rawPassword) {
+    return DigestUtils.md5DigestAsHex(rawPassword.getBytes(StandardCharsets.UTF_8));
+  }
 
   // ===========================
   // 이메일: 중복 확인
   // ===========================
   @GetMapping("/email/validate")
   public Map<String, Object> validateEmail(@RequestParam String email) {
-    boolean ok = userMapper.existsByEmail(email) == 0; // 없으면 true
-    return Map.of("ok", ok);
+    // 임시로 항상 true 반환 (개발용)
+    return Map.of("ok", true);
   }
 
   // ===========================
@@ -50,10 +61,11 @@ public class AuthController {
       if (email == null || !email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
           throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이메일 형식 오류");
       }
-      // 이미 가입된 이메일이면 막기 (원하면 제거)
-      if (userMapper.existsByEmail(email) > 0) {
-          return Map.of("ok", false, "message", "이미 사용 중인 이메일입니다.");
-      }
+      
+      // 임시로 항상 성공 반환 (개발용)
+      // if (userMapper.existsByEmail(email) > 0) {
+      //     return Map.of("ok", false, "message", "이미 사용 중인 이메일입니다.");
+      // }
 
       // 6자리 코드 생성 + 세션에 저장(3분 유효)
       String code = String.format("%06d", new java.util.Random().nextInt(1_000_000));
@@ -91,20 +103,34 @@ public class AuthController {
   }
 
   // ===========================
+  // 이메일 중복 체크
+  // ===========================
+  @PostMapping("/check-email")
+  public ResponseEntity<?> checkEmail(@RequestBody Map<String, String> body) {
+    try {
+      String email = body.get("email");
+      if (email == null || email.trim().isEmpty()) {
+        return ResponseEntity.badRequest().body(Map.of("ok", false, "message", "이메일을 입력해주세요."));
+      }
+      
+      boolean exists = userService.findByEmail(email.trim()) != null;
+      return ResponseEntity.ok(Map.of("ok", true, "exists", exists, "message", 
+        exists ? "이미 사용 중인 이메일입니다." : "사용 가능한 이메일입니다."));
+    } catch (Exception e) {
+      return ResponseEntity.badRequest().body(Map.of("ok", false, "message", e.getMessage()));
+    }
+  }
+
+  // ===========================
   // 구매자 회원가입 (DB 저장)
   // ===========================
   @PostMapping("/signup/buyer")
   public ResponseEntity<?> signupBuyer(@RequestBody SignupRequest req) {
     try {
-      userService.registerBuyer(req); // 존재 체크 + 비번 Bcrypt + USERS INSERT (서비스에서 처리)
+      userService.registerBuyer(req);
       return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("ok", true));
-    } catch (IllegalStateException dup) {
-      // 서비스에서 "이미 가입된 이메일" 등으로 던진 경우
-      return ResponseEntity.status(HttpStatus.CONFLICT)
-          .body(Map.of("ok", false, "message", dup.getMessage()));
     } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .body(Map.of("ok", false, "message", "가입 저장 실패"));
+      return ResponseEntity.badRequest().body(Map.of("ok", false, "message", e.getMessage()));
     }
   }
 
@@ -151,7 +177,7 @@ public class AuthController {
   // body: { requestId, code, newPass }
   // ===========================
   @PostMapping("/password/reset")
-  public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> body) {
+  public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> body, HttpSession session) {
     String requestId = body.get("requestId");
     String code      = body.get("code");
     String newPass   = body.get("newPass");
@@ -192,17 +218,29 @@ public class AuthController {
   // ===========================
   @PostMapping("/login")
   public ResponseEntity<?> login(@RequestBody LoginRequest req, HttpSession session) {
-    User u = userMapper.findByEmail(req.getEmail());
-    if (u == null) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("계정을 찾을 수 없습니다.");
+    try {
+      User user = userService.login(req.getEmail(), req.getPassword());
+      if (user != null) {
+        session.setAttribute("LOGIN_ID", user.getId());
+        session.setAttribute("LOGIN_EMAIL", user.getEmail());
+        session.setAttribute("LOGIN_NAME", user.getUserName());
+        session.setAttribute("LOGIN_TYPE", user.getUserType());
+        
+        // 디버깅용 로그
+        System.out.println("=== 로그인 성공 ===");
+        System.out.println("LOGIN_ID: " + user.getId());
+        System.out.println("LOGIN_EMAIL: " + user.getEmail());
+        System.out.println("LOGIN_NAME: " + user.getUserName());
+        System.out.println("LOGIN_TYPE: " + user.getUserType());
+        System.out.println("세션 ID: " + session.getId());
+        
+        return ResponseEntity.ok().build();
+      } else {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "이메일 또는 비밀번호가 올바르지 않습니다."));
+      }
+    } catch (Exception e) {
+      return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
     }
-    if (!passwordEncoder.matches(req.getPassword(), u.getPw())) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 일치하지 않습니다.");
-    }
-    session.setAttribute("LOGIN_ID", u.getId());
-    session.setAttribute("LOGIN_EMAIL", u.getEmail());
-    session.setAttribute("LOGIN_NAME", u.getUserName());
-    return ResponseEntity.ok().build();
   }
 
   // ===========================
@@ -227,16 +265,17 @@ public class AuthController {
 	   String userType = (String) session.getAttribute("LOGIN_USER_TYPE"); // 첫 SNS 가입 직후엔 null일 수 있음
 	   String provider = (String) session.getAttribute("LOGIN_PROVIDER");   // 로컬이면 null일 수 있음
 	
-	   // 세션에 누락된 값만 DB로 보완
-	   if (email == null || name == null || userType == null || provider == null) {
-	       User u = userMapper.findById(id);
-	       if (u != null) {
-	           if (email == null)    { email = u.getEmail();       session.setAttribute("LOGIN_EMAIL", email); }
-	           if (name == null)     { name = u.getUserName();     session.setAttribute("LOGIN_NAME", name); }
-	           if (userType == null) { userType = u.getUserType(); session.setAttribute("LOGIN_USER_TYPE", userType); }
-	           if (provider == null) { provider = u.getProvider(); session.setAttribute("LOGIN_PROVIDER", provider); }
-	       }
-	   }
+	    try {
+      // 세션에 누락된 값 보완
+      if (email == null || name == null || userType == null || provider == null) {
+        User u = userService.findById(id);
+        if (u != null) {
+          if (email == null)    { email = u.getEmail();       session.setAttribute("LOGIN_EMAIL", email); }
+          if (name == null)     { name = u.getUserName();     session.setAttribute("LOGIN_NAME", name); }
+          if (userType == null) { userType = u.getUserType(); session.setAttribute("LOGIN_TYPE", userType); }
+          if (provider == null) { provider = u.getProvider(); session.setAttribute("LOGIN_PROVIDER", provider); }
+        }
+      }
 	
 	   Map<String, Object> res = new java.util.LinkedHashMap<>();
 	   res.put("id", id);
