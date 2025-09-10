@@ -29,7 +29,7 @@ function HomeSearch() {
 
             setIsLoading(true);
             try {
-                const response = await axios.get(`http://localhost:8080/home/search?keyword=${keyword}`);
+                const response = await axios.get(`/home/search?keyword=${keyword}`);
                 setSearchResults(response.data);
             } catch (error) {
                 console.error("검색 결과를 가져오는 데 실패했습니다:", error);

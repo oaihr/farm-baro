@@ -160,11 +160,6 @@ function Home() {
                                     ? item.images.find(img => img.isThumbnail === 'Y') || item.images[0]
                                     : null;
 
-                                const BASE_URL = 'http://localhost:8080';
-                                const imageUrl = thumbnailImage
-                                    ? `${BASE_URL}${thumbnailImage.imageUrl}`
-                                    : 'https://via.placeholder.com/150?text=No+Image';
-
                                 return (
                                     <div key={index} className="home-auction-card">
                                         <img src={item.images[0].imageUrl} alt={item.title} />
@@ -189,7 +184,7 @@ function Home() {
                         ) : (
                             saleData.map((item, index) => (
                                 <div key={index} className="home-sale-card">
-                                    <img src={`http://localhost:8080${item.images[0].imageUrl}`} alt={item.title} />
+                                    <img src={`${item.images[0].imageUrl}`} alt={item.title} />
                                     <h3>{item.title}</h3>
                                     <hr className='hr'></hr>
                                     <h5>등급 : {item.grade}</h5>
