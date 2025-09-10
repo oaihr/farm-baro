@@ -18,8 +18,8 @@ public class HomeDAOImpl implements HomeDAO{
 
 	@Override
 	public List<AuctionItemHome> getAuctionPage() {
-		List<AuctionItemHome> homeList = sqlSessionTemplate.selectList("com.app.dao.home.HomeDAO.getAuctionPage");
-		return homeList;
+		List<AuctionItemHome> auctionList = sqlSessionTemplate.selectList("com.app.dao.home.HomeDAO.getAuctionPage");
+		return auctionList;
 	}
 
 	@Override

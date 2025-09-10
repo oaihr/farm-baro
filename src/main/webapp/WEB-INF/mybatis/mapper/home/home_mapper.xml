@@ -69,7 +69,7 @@
 		I.IS_THUMBNAIL = 'y'
 		INNER JOIN USERS U ON A.seller_id = U.id
 
-		WHERE A.auction_status = 'ON'
+		WHERE A.auction_status = 'on'
 
 	</select>
 	
@@ -94,7 +94,7 @@
 	    I.IS_THUMBNAIL = 'y'
 	    INNER JOIN USERS U ON A.seller_id = U.id
 	    WHERE 
-	        A.auction_status = 'ON'
+	        A.auction_status = 'on'
 	        AND (A.title LIKE '%' || #{keyword} || '%' OR A.description LIKE '%' || #{keyword} || '%')
 	</select>
 	

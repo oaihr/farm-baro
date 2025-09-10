@@ -1,10 +1,10 @@
 // src/pages/Login/Login.jsx
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { fetchCurrentUser } from "../../store/store";
 import { http } from "../../api/http";
 import "../../styles/auth.css"; // 공통 스타일
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCurrentUser, logout } from '../../store/store';
 
 export default function Login() {
   const dispatch = useDispatch();

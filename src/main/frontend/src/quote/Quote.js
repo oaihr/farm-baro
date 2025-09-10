@@ -13,7 +13,7 @@ function Quote() {
     const [chartData, setChartData] = useState({
         labels: [],
         datasets: [],
-        fullData: [] // API로부터 받은 전체 데이터를 저장할 공간 추가
+        fullData: []
     });
     // 2. 로딩 상태를 저장할 상태 변수
     const [isLoading, setIsLoading] = useState(false);
@@ -120,45 +120,95 @@ function Quote() {
         if (chartData.fullData.length === 0) return;
 
         const filteredData = chartData.fullData.filter(item => item.judgeKindName === activeKind);
-        const labels = filteredData.map(item => item.itemName);
 
         let datasets = [];
 
-        // 기간에 따라 다른 데이터셋 설정
-        if (activePeriod === 'month') {
-            // 월별 데이터일 경우 netSalePrice만 사용
-            const netSalePrices = filteredData.map(item => item.netSalePrice);
-            datasets = [
-                {
-                    label: '판매가',
-                    data: netSalePrices,
-                    borderColor: 'rgb(75, 192, 192)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
-                    tension: 0.4,
-                }
-            ];
+        let labels;
+        if (activeKind === '소') {
+            // 소일 경우 itemName과 gradeName을 결합하여 라벨 생성
+            labels = filteredData.map(item => `${item.itemName} (${item.gradeName})`);
         } else {
-            // 일자 또는 년도 데이터일 경우 최고가, 최저가 모두 사용
-            const maxPrices = filteredData.map(item => item.maxPrice);
-            const minPrices = filteredData.map(item => item.minPrice);
-            datasets = [
-                {
-                    label: '최고가',
-                    data: maxPrices,
-                    borderColor: 'rgb(255, 99, 132)',
-                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                    tension: 0.4,
-                },
-                {
-                    label: '최저가',
-                    data: minPrices,
-                    borderColor: 'rgb(53, 162, 235)',
-                    backgroundColor: 'rgba(53, 162, 235, 0.5)',
-                    tension: 0.4,
-                },
-            ];
+            // 그 외의 경우 itemName만 사용
+            labels = [...new Set(filteredData.map(item => item.itemName))];
         }
 
+        if (activeKind === '소') {
+            if (activePeriod === 'month') {
+                // 소 - 월별 데이터셋 (판매가)
+                labels = [...new Set(filteredData.map(item => item.itemName))];
+                const netSalePrices = labels.map(label => {
+                    const item = filteredData.find(d => d.itemName === label);
+                    return item ? item.netSalePrice : null;
+                });
+                datasets = [
+                    {
+                        label: '판매가',
+                        data: netSalePrices,
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                        tension: 0.4,
+                    }
+                ];
+            } else {
+                // 소 - 일자/년도 데이터셋 (등급별, 최고가, 최저가)
+                labels = [...new Set(filteredData.map(item => `${item.itemName} (${item.gradeName})`))];
+
+                const maxPrices = filteredData.map(item => item.maxPrice);
+                const minPrices = filteredData.map(item => item.minPrice);
+
+                datasets = [
+                    {
+                        label: '최고가',
+                        data: maxPrices,
+                        borderColor: 'rgb(255, 99, 132)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                        tension: 0.4,
+                    },
+                    {
+                        label: '최저가',
+                        data: minPrices,
+                        borderColor: 'rgb(53, 162, 235)',
+                        backgroundColor: 'rgba(53, 162, 235, 0.5)',
+                        tension: 0.4,
+                    },
+                ];
+            }
+
+        } else {
+            // 돼지 또는 닭일 경우 (기존 로직)
+            labels = [...new Set(filteredData.map(item => item.itemName))];
+            if (activePeriod === 'month') {
+                const netSalePrices = filteredData.map(item => item.netSalePrice);
+                datasets = [
+                    {
+                        label: '판매가',
+                        data: netSalePrices,
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                        tension: 0.4,
+                    }
+                ];
+            } else {
+                const maxPrices = filteredData.map(item => item.maxPrice);
+                const minPrices = filteredData.map(item => item.minPrice);
+                datasets = [
+                    {
+                        label: '최고가',
+                        data: maxPrices,
+                        borderColor: 'rgb(255, 99, 132)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                        tension: 0.4,
+                    },
+                    {
+                        label: '최저가',
+                        data: minPrices,
+                        borderColor: 'rgb(53, 162, 235)',
+                        backgroundColor: 'rgba(53, 162, 235, 0.5)',
+                        tension: 0.4,
+                    },
+                ];
+            }
+        }
         setChartData(prevData => ({
             ...prevData,
             labels: labels,
@@ -175,99 +225,99 @@ function Quote() {
 
 
     return (
-    <div className='quote-home-quote'>
-        <div className="quote-section">
-            <div className="quote-container">
-                <div className="quote">
-                    {meatTypes.map((meat) => (
-                        <div
-                            key={meat.kind}
-                            className={`quote-inner ${activeKind === meat.kind ? 'quote-active' : ''}`}
-                            onClick={() => setActiveKind(meat.kind)}
-                        >
-                            <div className="">
-                                <span className='quote-img'>{meat.icon}</span>
-                                <h3>{meat.kind}</h3>
-                                <p>{prices[meat.kind]} 원</p>
+        <div className='quote-home-quote'>
+            <div className="quote-section">
+                <div className="quote-container">
+                    <div className="quote">
+                        {meatTypes.map((meat) => (
+                            <div
+                                key={meat.kind}
+                                className={`quote-inner ${activeKind === meat.kind ? 'quote-active' : ''}`}
+                                onClick={() => setActiveKind(meat.kind)}
+                            >
+                                <div className="">
+                                    <span className='quote-img'>{meat.icon}</span>
+                                    <h3>{meat.kind}</h3>
+                                    <p>{prices[meat.kind]} 원/100g</p>
+                                </div>
+                                <div>
+                                    {/* 사용하지 않는 빈 <p> 태그 삭제 */}
+                                </div>
                             </div>
-                            <div>
-                                {/* 사용하지 않는 빈 <p> 태그 삭제 */}
-                            </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
             </div>
-        </div>
 
-        {/* 사용하지 않는 <hr> 태그의 클래스 삭제 */}
-        <hr className='hr'></hr>
+            {/* 사용하지 않는 <hr> 태그의 클래스 삭제 */}
+            <hr className='hr'></hr>
 
-        <div className='quote-day'>
-            <div className='quote-yesterday'>
-                <button
-                    className={`btn quote-btn ${activePeriod === 'day' ? 'quote-active-btn' : ''}`}
-                    onClick={() => {
-                        const yesterday = new Date();
-                        yesterday.setDate(yesterday.getDate() - 1);
-                        setActiveDate(yesterday);
-                        setActivePeriod('day');
-                    }}
-                >어제</button>
+            <div className='quote-day'>
+                <div className='quote-yesterday'>
+                    <button
+                        className={`quote-btn ${activePeriod === 'day' ? 'quote-active-btn' : ''}`}
+                        onClick={() => {
+                            const yesterday = new Date();
+                            yesterday.setDate(yesterday.getDate() - 1);
+                            setActiveDate(yesterday);
+                            setActivePeriod('day');
+                        }}
+                    >어제</button>
+                </div>
+                <div className='quote-month'>
+                    <button
+                        className={`quote-btn ${activePeriod === 'month' ? 'quote-active-btn' : ''}`}
+                        onClick={() => {
+                            const lastMonth = new Date();
+                            lastMonth.setMonth(lastMonth.getMonth() - 1);
+                            setActiveDate(lastMonth);
+                            setActivePeriod('month');
+                        }}
+                    >저번 달</button>
+                </div>
+                <div className='quote-year'>
+                    <button
+                        className={`quote-btn ${activePeriod === 'year' ? 'quote-active-btn' : ''}`}
+                        onClick={() => {
+                            const lastYear = new Date();
+                            lastYear.setFullYear(lastYear.getFullYear() - 1);
+                            setActiveDate(lastYear);
+                            setActivePeriod('year');
+                        }}
+                    >저번 년도</button>
+                </div>
             </div>
-            <div className='quote-month'>
-                <button
-                    className={`btn quote-btn ${activePeriod === 'month' ? 'quote-active-btn' : ''}`}
-                    onClick={() => {
-                        const lastMonth = new Date();
-                        lastMonth.setMonth(lastMonth.getMonth() - 1);
-                        setActiveDate(lastMonth);
-                        setActivePeriod('month');
-                    }}
-                >저번 달</button>
-            </div>
-            <div className='quote-year'>
-                <button
-                    className={`btn quote-btn ${activePeriod === 'year' ? 'quote-active-btn' : ''}`}
-                    onClick={() => {
-                        const lastYear = new Date();
-                        lastYear.setFullYear(lastYear.getFullYear() - 1);
-                        setActiveDate(lastYear);
-                        setActivePeriod('year');
-                    }}
-                >저번 년도</button>
-            </div>
-        </div>
 
-        <div className="quote-chart">
-            {isLoading ? (
-                <p className="">데이터를 가져오는 중입니다...</p>
-            ) : (
-                <Line data={chartData} options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        title: {
-                            display: true,
-                            text: `${activeKind} 부위별 시세`,
-                            font: {
-                                size: 18,
-                                weight: 'bold'
+            <div className="quote-chart">
+                {isLoading ? (
+                    <p className="">데이터를 가져오는 중입니다...</p>
+                ) : (
+                    <Line data={chartData} options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            title: {
+                                display: true,
+                                text: `${activeKind} 부위별 시세`,
+                                font: {
+                                    size: 18,
+                                    weight: 'bold'
+                                },
                             },
                         },
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                            },
                         },
-                    },
-                }} />
-            )}
+                    }} />
+                )}
+            </div>
         </div>
-    </div>
-);
+    );
 }
 
 export default Quote;

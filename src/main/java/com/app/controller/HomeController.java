@@ -2,6 +2,8 @@ package com.app.controller;
 
 import java.util.List;
 
+import javax.management.Notification;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -13,7 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.app.dto.home.AuctionItemHome;
 import com.app.dto.home.SalesItemHome;
 import com.app.dto.home.SearchResult;
+import com.app.dto.noti.NotificationDTO;
 import com.app.service.home.HomeService;
+import com.app.service.noti.NotificationService;
 
 import lombok.Data;
 
@@ -25,11 +29,15 @@ public class HomeController {
 	@Autowired
 	HomeService homeService;
 
+    @Autowired
+    NotificationService notificationService;
+	
+	
 	@GetMapping("/homeAuctionTime")
 	public List<AuctionItemHome> homeAuctionTime() {
 
 		List<AuctionItemHome> autionList = homeService.getAuctionPage();
-		System.out.println(autionList);
+		System.out.println("경매 : " + autionList);
 
 		return autionList;
 	}
@@ -57,5 +65,11 @@ public class HomeController {
 
         return ResponseEntity.ok(result);
     }
+	
+    @GetMapping("/notifications")
+    public List<NotificationDTO> getNotificationsByUserId(@RequestParam("userId") String userId) {
+        return notificationService.userNotiList(userId);
+    }
+	
 
 }

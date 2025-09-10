@@ -10,28 +10,54 @@ const BuyerCart = () => {
     const [message, setMessage] = useState('');
     const [selectedItems, setSelectedItems] = useState(new Set());
     const [selectAll, setSelectAll] = useState(false);
+    const [isIamportLoaded, setIsIamportLoaded] = useState(false);
+
+    // I'mport SDK 로드 및 초기화
+    useEffect(() => {
+        if (typeof window.IMP !== 'undefined') {
+            setIsIamportLoaded(true);
+            return;
+        }
+
+        const script = document.createElement("script");
+        script.src = "https://cdn.iamport.kr/js/iamport.payment-1.2.0.js";
+        script.async = true;
+        
+        script.onload = () => {
+            const IMP = window.IMP;
+            IMP.init("imp13778606"); // 'imp13778606'는 테스트용 가맹점 식별코드입니다.
+            setIsIamportLoaded(true);
+            console.log("아임포트 SDK is successfully loaded.");
+        };
+
+        script.onerror = () => {
+            console.error("Failed to load Iamport SDK.");
+            setMessage("아임포트 SDK 로드 실패. 잠시 후 다시 시도해 주세요.");
+        };
+
+        document.head.appendChild(script);
+
+        return () => {
+            document.head.removeChild(script);
+        };
+    }, []);
 
     // 장바구니 목록 가져오기
     const fetchCartItems = useCallback(async () => {
         try {
             setLoading(true);
             const response = await fetch(`http://localhost:8080/api/mypage/cart`, {
-                credentials: 'include' // 세션 쿠키 포함
+                credentials: 'include'
             });
             if (response.ok) {
                 const data = await response.json();
-                console.log('장바구니 데이터:', data);
-                console.log('첫 번째 아이템:', data[0]);
                 setCartItems(data);
-                // 모든 아이템 선택 해제
                 setSelectedItems(new Set());
                 setSelectAll(false);
             } else {
-                console.error('장바구니 조회 실패');
                 setMessage('장바구니를 불러오는데 실패했습니다.');
             }
         } catch (error) {
-            console.error('장바구니 조회 오류:', error);
             setMessage('장바구니 조회 중 오류가 발생했습니다.');
         } finally {
             setLoading(false);
@@ -48,143 +74,142 @@ const BuyerCart = () => {
             setSelectedItems(new Set());
             setSelectAll(false);
         } else {
-            const allItemIds = new Set(cartItems.map(item => item.saleItemId));
+            // NOTE: saleItemId 대신 cartItemId를 사용합니다.
+            const allItemIds = new Set(cartItems.map(item => item.cartItemId));
             setSelectedItems(allItemIds);
             setSelectAll(true);
         }
     };
 
     // 개별 아이템 선택/해제
-    const handleSelectItem = (saleItemId) => {
+    const handleSelectItem = (cartItemId) => {
         const newSelectedItems = new Set(selectedItems);
-        if (newSelectedItems.has(saleItemId)) {
-            newSelectedItems.delete(saleItemId);
+        if (newSelectedItems.has(cartItemId)) {
+            newSelectedItems.delete(cartItemId);
         } else {
-            newSelectedItems.add(saleItemId);
+            newSelectedItems.add(cartItemId);
         }
         setSelectedItems(newSelectedItems);
         setSelectAll(newSelectedItems.size === cartItems.length);
     };
 
     // 수량 변경
-    const handleQuantityChange = async (saleItemId, newQuantity) => {
+    const handleQuantityChange = async (cartItemId, newQuantity) => {
         if (newQuantity < 1) return;
-
         try {
-            console.log('수량 변경 요청 - saleItemId:', saleItemId, 'newQuantity:', newQuantity);
-            
-            const response = await fetch(`http://localhost:8080/api/mypage/cart/${saleItemId}/quantity`, {
+            const response = await fetch(`http://localhost:8080/api/mypage/cart/${cartItemId}/quantity`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                credentials: 'include', // 세션 쿠키 포함
+                credentials: 'include',
                 body: JSON.stringify({ quantity: newQuantity })
             });
-
-            console.log('수량 변경 응답 상태:', response.status);
-
             if (response.ok) {
                 setCartItems(prev => prev.map(item => 
-                    item.saleItemId === saleItemId 
+                    item.cartItemId === cartItemId 
                         ? { ...item, quantity: newQuantity }
                         : item
                 ));
                 setMessage('수량이 성공적으로 변경되었습니다.');
-                console.log('수량 변경 성공');
             } else {
-                const errorText = await response.text();
-                console.error('수량 변경 실패:', response.status, errorText);
                 setMessage('수량 변경에 실패했습니다.');
             }
         } catch (error) {
-            console.error('수량 변경 오류:', error);
             setMessage('수량 변경 중 오류가 발생했습니다.');
         }
     };
 
     // 장바구니에서 삭제
-    const handleRemoveItem = async (saleItemId) => {
+    const handleRemoveItem = async (cartItemId) => {
         if (!window.confirm('정말로 이 상품을 장바구니에서 삭제하시겠습니까?')) {
             return;
         }
 
         try {
-            console.log('장바구니 삭제 요청 - saleItemId:', saleItemId);
-            console.log('현재 장바구니 아이템들:', cartItems);
-            console.log('삭제할 아이템:', cartItems.find(item => item.saleItemId === saleItemId));
-            
-            const response = await fetch(`http://localhost:8080/api/mypage/cart/${saleItemId}`, {
+            const response = await fetch(`http://localhost:8080/api/mypage/cart/${cartItemId}`, {
                 method: 'DELETE',
-                credentials: 'include' // 세션 쿠키 포함
+                credentials: 'include'
             });
 
-            console.log('삭제 응답 상태:', response.status);
-
             if (response.ok) {
-                const deleteResult = await response.json();
-                console.log('삭제 결과:', deleteResult);
-                
-                if (deleteResult) {
-                    // 삭제 성공 시 서버에서 최신 장바구니 데이터 다시 조회
-                    console.log('삭제 성공, 장바구니 데이터 다시 조회');
-                    await fetchCartItems();
-                    setMessage('상품이 장바구니에서 삭제되었습니다.');
-                } else {
-                    console.log('삭제 실패 - 서버에서 false 반환');
-                    setMessage('상품 삭제에 실패했습니다.');
-                }
+                await fetchCartItems();
+                setMessage('상품이 장바구니에서 삭제되었습니다.');
             } else {
-                const errorText = await response.text();
-                console.error('삭제 실패:', response.status, errorText);
                 setMessage('상품 삭제에 실패했습니다.');
             }
         } catch (error) {
-            console.error('상품 삭제 오류:', error);
             setMessage('상품 삭제 중 오류가 발생했습니다.');
         }
     };
 
-    // 개별 상품 구매 확정
-    const handlePurchaseConfirm = async (itemId) => {
-        const item = cartItems.find(item => item.cartItemId === itemId);
-        if (!item) return;
-
-        const totalAmount = item.price * item.quantity;
-        
-        if (!window.confirm(`${item.title} 상품을 ${totalAmount.toLocaleString()}원에 구매 확정하시겠습니까?`)) {
+    // 공통 결제 핸들러 함수
+    const startPayment = async (itemsToPay, orderName, totalAmount) => {
+        if (!isIamportLoaded) {
+            setMessage("결제 모듈이 아직 로드되지 않았습니다. 잠시 후 다시 시도해 주세요.");
             return;
         }
 
-        try {
-            // TODO: 실제 구매 확정 API 호출 (추후 구현)
-            const response = await fetch(`http://localhost:8080/mypage/api/cart/${itemId}/purchase-confirm`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    itemId: itemId,
-                    totalAmount: totalAmount
-                })
-            });
+        const IMP = window.IMP;
+        const merchant_uid = `order_no_${new Date().getTime()}`;
 
-            if (response.ok) {
-                setMessage('구매가 확정되었습니다! 🎉');
-                // 구매 확정된 상품을 장바구니에서 제거
-                setCartItems(prev => prev.filter(cartItem => cartItem.cartItemId !== itemId));
-                setSelectedItems(prev => {
-                    const newSet = new Set(prev);
-                    newSet.delete(itemId);
-                    return newSet;
-                });
-            } else {
-                setMessage('구매 확정에 실패했습니다.');
+        IMP.request_pay(
+            {
+                pg: "html5_inicis.INIpayTest", // 테스트 모드용 PG 코드
+                pay_method: "card",
+                merchant_uid,
+                name: orderName,
+                amount: totalAmount,
+                buyer_email: "test@example.com",
+                buyer_name: "홍길동",
+                buyer_tel: "010-1234-5678",
+            },
+            async (rsp) => {
+                if (rsp.success) {
+                    console.log("결제 성공. imp_uid:", rsp.imp_uid);
+                    setMessage("결제가 성공적으로 완료되었습니다. 🎉");
+                    
+                    // 결제된 상품을 장바구니에서 제거
+                    // NOTE: 서버 API에 따라 수정 필요
+                    setCartItems(prev => prev.filter(item => !itemsToPay.some(paidItem => paidItem.cartItemId === item.cartItemId)));
+                    setSelectedItems(new Set());
+                    setSelectAll(false);
+                } else {
+                    console.error("결제 실패:", rsp.error_msg);
+                    setMessage(`${rsp.error_msg}`);
+                }
             }
-        } catch (error) {
-            console.error('구매 확정 오류:', error);
-            setMessage('구매 확정 중 오류가 발생했습니다.');
+        );
+    };
+
+    // 개별 상품 결제
+    const handlePurchaseConfirm = async (cartItemId) => {
+        const item = cartItems.find(item => item.cartItemId === cartItemId);
+        if (!item) return;
+
+        const totalAmount = Math.round(item.price * item.quantity);
+        const orderName = item.title;
+        
+        
+        await startPayment([item], orderName, totalAmount);
+      
+    };
+
+    // 선택된 상품들 결제
+    const handleCheckout = async () => {
+        if (selectedItems.size === 0) {
+            setMessage('결제할 상품을 선택해주세요.');
+            return;
         }
+
+        const selectedCartItems = cartItems.filter(item => selectedItems.has(item.cartItemId));
+        const totalAmount = selectedCartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const orderName = selectedCartItems.length > 1 
+            ? `${selectedCartItems[0].title} 외 ${selectedCartItems.length - 1}건` 
+            : selectedCartItems[0].title;
+
+         await startPayment(selectedCartItems, orderName, Math.round(totalAmount));
+        
     };
 
     // 선택된 상품들 삭제
@@ -232,49 +257,6 @@ const BuyerCart = () => {
         }
     };
 
-    // 선택된 상품들 결제
-    const handleCheckout = async () => {
-        if (selectedItems.size === 0) {
-            setMessage('결제할 상품을 선택해주세요.');
-            return;
-        }
-
-        const selectedCartItems = cartItems.filter(item => selectedItems.has(item.cartItemId));
-        const totalAmount = selectedCartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
-        if (!window.confirm(`선택된 ${selectedItems.size}개 상품을 ${totalAmount.toLocaleString()}원에 결제하시겠습니까?`)) {
-            return;
-        }
-
-        try {
-            // 결제 API 호출 (실제 결제 시스템 연동)
-            const response = await fetch(`http://localhost:8080/mypage/api/cart/checkout`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    itemIds: Array.from(selectedItems),
-                    totalAmount: totalAmount,
-                    paymentMethod: 'card' // 또는 'bank', 'mobile' 등
-                })
-            });
-
-            if (response.ok) {
-                setMessage('결제가 성공적으로 완료되었습니다! 🎉');
-                // 결제된 상품들을 장바구니에서 제거
-                setCartItems(prev => prev.filter(item => !selectedItems.has(item.cartItemId)));
-                setSelectedItems(new Set());
-                setSelectAll(false);
-            } else {
-                setMessage('결제 처리에 실패했습니다.');
-            }
-        } catch (error) {
-            console.error('결제 오류:', error);
-            setMessage('결제 처리 중 오류가 발생했습니다.');
-        }
-    };
-
     // 총 금액 계산
     const calculateTotal = () => {
         return cartItems
@@ -291,20 +273,16 @@ const BuyerCart = () => {
 
     return (
         <div className="buyer-cart-container">
-            {/* 헤더 */}
+            {/* ... (기존 UI 코드) ... */}
             <div className="header">
                 <h1>🛒 장바구니</h1>
                 <p>담아둔 상품들을 확인하고 결제하세요</p>
             </div>
-
-            {/* 메시지 표시 */}
             {message && (
                 <div className={`message ${message.includes('성공') ? 'success' : 'error'}`}>
                     {message}
                 </div>
             )}
-
-            {/* 장바구니 요약 */}
             <div className="cart-summary">
                 <div className="summary-stats">
                     <div className="stat-item">
@@ -312,11 +290,10 @@ const BuyerCart = () => {
                         <div className="stat-label">총 상품</div>
                     </div>
                     <div className="stat-item">
-                        <div className="stat-number">{calculateTotal().toLocaleString()}원</div>
+                        <div className="stat-number">{Math.round(calculateTotal()).toLocaleString()}원</div>
                         <div className="stat-label">총 결제 금액</div>
                     </div>
                 </div>
-
                 {cartItems.length > 0 && (
                     <div className="cart-actions">
                         <button 
@@ -344,8 +321,6 @@ const BuyerCart = () => {
                     </div>
                 )}
             </div>
-
-            {/* 장바구니 목록 */}
             <div className="cart-section">
                 <h3>📋 장바구니 상품</h3>
                 
@@ -368,12 +343,11 @@ const BuyerCart = () => {
                                 <div className="item-selection">
                                     <input
                                         type="checkbox"
-                                        checked={selectedItems.has(item.saleItemId)}
-                                        onChange={() => handleSelectItem(item.saleItemId)}
+                                        checked={selectedItems.has(item.cartItemId)}
+                                        onChange={() => handleSelectItem(item.cartItemId)}
                                         className="item-checkbox"
                                     />
                                 </div>
-
                                 <div className="item-image">
                                     {item.productImageUrl ? (
                                         <img src={item.productImageUrl} alt={item.title} />
@@ -381,12 +355,8 @@ const BuyerCart = () => {
                                         <div className="placeholder-image">🥩</div>
                                     )}
                                 </div>
-
                                 <div className="item-details">
                                     <h4>{item.title || '상품명 없음'}</h4>
-                                    <p className="item-category">
-                                        카테고리: {item.category || '일반 상품'}
-                                    </p>
                                     <p className="item-description">
                                         {item.description || '상품 설명이 없습니다.'}
                                     </p>
@@ -403,7 +373,6 @@ const BuyerCart = () => {
                                         )}
                                     </div>
                                 </div>
-
                                 <div className="item-price">
                                     <div className="price-info">
                                         <p className="unit-price">
@@ -421,13 +390,12 @@ const BuyerCart = () => {
                                         </p>
                                     </div>
                                 </div>
-
                                 <div className="item-quantity">
                                     <label>수량:</label>
                                     <div className="quantity-controls">
                                         <button 
                                             className="quantity-btn"
-                                            onClick={() => handleQuantityChange(item.saleItemId, item.quantity - 1)}
+                                            onClick={() => handleQuantityChange(item.cartItemId, item.quantity - 1)}
                                             disabled={item.quantity <= 1}
                                         >
                                             -
@@ -435,13 +403,12 @@ const BuyerCart = () => {
                                         <span className="quantity-display">{item.quantity}</span>
                                         <button 
                                             className="quantity-btn"
-                                            onClick={() => handleQuantityChange(item.saleItemId, item.quantity + 1)}
+                                            onClick={() => handleQuantityChange(item.cartItemId, item.quantity + 1)}
                                         >
                                             +
                                         </button>
                                     </div>
                                 </div>
-
                                 <div className="item-actions">
                                     <button 
                                         className="purchase-confirm-btn"
@@ -451,7 +418,7 @@ const BuyerCart = () => {
                                     </button>
                                     <button 
                                         className="remove-item-btn"
-                                        onClick={() => handleRemoveItem(item.saleItemId)}
+                                        onClick={() => handleRemoveItem(item.cartItemId)}
                                     >
                                         삭제
                                     </button>
@@ -461,15 +428,13 @@ const BuyerCart = () => {
                     </div>
                 )}
             </div>
-
-            {/* 결제 요약 */}
             {selectedCount > 0 && (
                 <div className="checkout-summary">
                     <h3>💳 결제 요약</h3>
                     <div className="checkout-details">
                         <div className="checkout-info">
                             <p><strong>선택된 상품:</strong> {selectedCount}개</p>
-                            <p><strong>총 결제 금액:</strong> {calculateTotal().toLocaleString()}원</p>
+                            <p><strong>총 결제 금액:</strong> {Math.round(calculateTotal()).toLocaleString()}원</p>
                             <p><strong>배송비:</strong> 무료</p>
                         </div>
                         <div className="checkout-actions">
@@ -483,8 +448,6 @@ const BuyerCart = () => {
                     </div>
                 </div>
             )}
-
-            {/* 장바구니 팁 */}
             <div className="cart-tips">
                 <h3>💡 장바구니 활용 팁</h3>
                 <div className="tips-content">
@@ -511,7 +474,6 @@ const BuyerCart = () => {
                     </div>
                 </div>
             </div>
-
         </div>
     );
 };

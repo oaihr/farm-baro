@@ -46,7 +46,9 @@ import BuyerWinningAuctions from './components/MyPage/BuyerWinningAuctions.js';
 
 import FaqPage from './cs/FaqPage.js';
 import InquirePage from './cs/InquirePage.js';
+import NoticePage from './cs/Notice.js';
 
+import TestKG from './sale/TestKG.js';
 function App() {
   const dispatch = useDispatch();
 
@@ -139,9 +141,11 @@ function App() {
           <Route path="/mypage/buyer/:userId/cart" element={<BuyerCart />} />
           <Route path="/mypage/buyer/:userId/winning-auctions" element={<BuyerWinningAuctions />} />
 
+          <Route path="/cs/notice" element={<NoticePage />} />
           <Route path="/cs/faq" element={<FaqPage />} />
           <Route path="/cs/inquire" element={<InquirePage />} />
 
+          <Route path="/test/test" element={<TestKG />} />
           {/* 없는 경로는 메인으로 */}
           <Route path="*" element={<Navigate to="/" replace />} />
 

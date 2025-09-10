@@ -31,11 +31,6 @@ export const fetchCurrentUser = createAsyncThunk(
   'auth/fetchCurrentUser',
   async (_, { rejectWithValue, getState }) => {
     try {
-      // 중복 호출 방지 제거 - 로그인/로그아웃 시 세션 초기화로 대체
-
-      console.log('fetchCurrentUser 호출 시작 - /api/auth/me');
-      console.log('현재 쿠키:', document.cookie);
-      console.log('localStorage 세션 ID:', localStorage.getItem('JSESSIONID'));
       
       const sessionId = localStorage.getItem('JSESSIONID');
       const url = sessionId ? `/api/auth/me?sessionId=${sessionId}` : '/api/auth/me';

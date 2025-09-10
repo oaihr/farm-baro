@@ -2,10 +2,13 @@
 package com.app.controller;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.DigestUtils;
@@ -19,8 +22,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.app.domain.User;
+import com.app.dto.auction.CurrentUser;
 import com.app.dto.auth.LoginRequest;
 import com.app.dto.auth.SignupRequest;
+import com.app.service.AuctionService;
 import com.app.service.user.UserService;
 import com.app.service.user.email.EmailService;
 
@@ -35,6 +40,8 @@ public class AuthController {
   private final EmailService emailService;   // 인증메일 발송/검증 (requestId + code 방식)
   private final UserService userService;     // 가입/비번변경 비즈니스 로직
   private final HttpSession session;
+  @Autowired
+  AuctionService auctionService;
 
   // 간단한 해시 함수 (개발용 - 실제 운영에서는 BCrypt 사용 권장)
   private String hashPassword(String rawPassword) {
@@ -195,86 +202,69 @@ public class AuthController {
   // 내 정보 확인 (세션)
   // ===========================
   @GetMapping("/me")
-  public ResponseEntity<?> me(HttpSession session, javax.servlet.http.HttpServletRequest request,
-                             @RequestParam(required = false) String sessionId) {
-    // 디버깅용 로그
-    System.out.println("=== /api/auth/me 호출 ===");
-    System.out.println("세션 ID: " + session.getId());
-    System.out.println("쿼리 파라미터 sessionId: " + sessionId);
-    System.out.println("요청 헤더 Cookie: " + request.getHeader("Cookie"));
-    System.out.println("LOGIN_ID: " + session.getAttribute("LOGIN_ID"));
-    System.out.println("LOGIN_EMAIL: " + session.getAttribute("LOGIN_EMAIL"));
-    System.out.println("LOGIN_NAME: " + session.getAttribute("LOGIN_NAME"));
-    System.out.println("LOGIN_TYPE: " + session.getAttribute("LOGIN_TYPE"));
-    
-    // 세션 ID가 쿼리 파라미터로 전달된 경우 해당 세션의 사용자 정보 조회
-    if (sessionId != null && !sessionId.isEmpty()) {
-      System.out.println("쿼리 파라미터로 받은 세션 ID로 사용자 정보 조회 시도: " + sessionId);
-      
-      try {
-        // 세션 ID를 사용하여 사용자 정보 조회
-        // 실제로는 세션 ID를 키로 사용하여 사용자 정보를 조회해야 함
-        // 임시로 세션에서 LOGIN_ID를 가져와서 사용
-        String loginId = (String) session.getAttribute("LOGIN_ID");
-        if (loginId == null || loginId.isEmpty()) {
-          System.out.println("세션에 LOGIN_ID가 없음");
-          return ResponseEntity.ok(Map.of("loggedIn", false));
-        }
-        
-        User user = userService.findById(loginId);
-        if (user != null) {
-          Map<String, Object> userInfo = Map.of(
-              "id", user.getId(),
-              "email", user.getEmail(),
-              "name", user.getUserName(),
-              "userType", user.getUserType(),
-              "tel", user.getTel() != null ? user.getTel() : "",
-              "address", user.getAddress() != null ? user.getAddress() : "",
-              "businessNumber", user.getBusinessNumber() != null ? user.getBusinessNumber() : ""
-          );
-          
-          System.out.println("세션 ID로 사용자 정보 반환: " + userInfo);
-          return ResponseEntity.ok(userInfo);
-        }
-      } catch (Exception e) {
-        System.out.println("세션 ID로 사용자 정보 조회 오류: " + e.getMessage());
-        e.printStackTrace();
-      }
-    }
-    
-    // 기존 세션 기반 로직
-    Object id = session.getAttribute("LOGIN_ID");
-    if (id == null) {
-      System.out.println("세션에 LOGIN_ID가 없음 - UNAUTHORIZED 반환");
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-    }
-    
-    try {
-      // 데이터베이스에서 실제 사용자 정보 가져오기
-      User user = userService.findById(id.toString());
-      if (user == null) {
-        System.out.println("사용자를 찾을 수 없음: " + id);
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-      }
-      
-      Map<String, Object> userInfo = Map.of(
-          "id", user.getId(),
-          "email", user.getEmail(),
-          "name", user.getUserName(),
-          "userType", user.getUserType(),
-          "tel", user.getTel() != null ? user.getTel() : "",
-          "address", user.getAddress() != null ? user.getAddress() : "",
-          "businessNumber", user.getBusinessNumber() != null ? user.getBusinessNumber() : ""
-      );
-      
-      System.out.println("사용자 정보 반환: " + userInfo);
-      return ResponseEntity.ok(userInfo);
-    } catch (Exception e) {
-      System.out.println("사용자 정보 조회 오류: " + e.getMessage());
-      e.printStackTrace();
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-    }
-  }
+  public ResponseEntity<?> me(
+	        HttpSession session, 
+	        HttpServletRequest request,
+	        @RequestParam(required = false) String sessionId) {
+	        
+	        // --- 디버깅용 로그 ---
+	        System.out.println("=== /api/auth/me 호출 ===");
+	        System.out.println("세션 ID: " + session.getId());
+	        System.out.println("요청 헤더 Cookie: " + request.getHeader("Cookie"));
+	        System.out.println("LOGIN_ID: " + session.getAttribute("LOGIN_ID"));
+
+	        // 1. 세션에서 로그인 ID를 가져옵니다.
+	        Object idObject = session.getAttribute("LOGIN_ID");
+	        String userId = null;
+
+	        if (idObject instanceof String) {
+	            userId = (String) idObject;
+	        }
+
+	        // 2. 로그인 ID가 세션에 없는 경우, 인증 실패로 처리합니다.
+	        if (userId == null || userId.isEmpty()) {
+	            System.out.println("세션에 LOGIN_ID가 없음 - UNAUTHORIZED 반환");
+	            // 세션 ID가 쿼리 파라미터로 전달된 경우, 해당 로직을 처리할 수 있습니다.
+	            // 여기서는 기존 세션 기반 인증에 집중합니다.
+	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+	        }
+	        
+	        try {
+	            // 3. userService를 통해 사용자의 일반 정보를 가져옵니다.
+	            User user = userService.findById(userId);
+
+	            // 4. auctionService를 통해 사용자의 재정 정보를 가져옵니다.
+	            CurrentUser currentUserDetails = auctionService.findByUserId(userId);
+	            
+	            // 5. 사용자를 찾을 수 없거나 재정 정보가 없는 경우, 예외 처리합니다.
+	            if (user == null || currentUserDetails == null) {
+	                System.out.println("사용자 또는 재정 정보를 찾을 수 없음: " + userId);
+	                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+	            }
+
+	            // 6. 두 서비스에서 가져온 정보를 하나의 Map에 통합합니다.
+	            Map<String, Object> userInfo = new HashMap<>();
+	            userInfo.put("id", user.getId());
+	            userInfo.put("email", user.getEmail());
+	            userInfo.put("name", user.getUserName());
+	            userInfo.put("userType", user.getUserType());
+	            userInfo.put("tel", user.getTel() != null ? user.getTel() : "");
+	            userInfo.put("address", user.getAddress() != null ? user.getAddress() : "");
+	            userInfo.put("businessNumber", user.getBusinessNumber() != null ? user.getBusinessNumber() : "");
+	            
+	            // 재정 정보 추가
+	            userInfo.put("totalBalance", currentUserDetails.getTotalBalance());
+	            userInfo.put("bidDeposit", currentUserDetails.getBidDeposit());
+
+	            System.out.println("통합 사용자 정보 반환: " + userInfo);
+	            return ResponseEntity.ok(userInfo);
+
+	        } catch (Exception e) {
+	            System.out.println("사용자 정보 조회 중 오류 발생: " + e.getMessage());
+	            e.printStackTrace();
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+	        }
+	    }
 
   // ===========================
   // 현재 사용자 ID 조회 (Redux용) - ApiController로 이동됨
