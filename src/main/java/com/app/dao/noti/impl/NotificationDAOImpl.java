@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.management.Notification;
+
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -44,6 +46,12 @@ public class NotificationDAOImpl implements NotificationDAO{
 	    params.put("currentMaxBid", currentMaxBid);
 		
 	    String result = sqlSessionTemplate.selectOne("com.app.dao.NotificationDAO.maxBidId", params);
+		return result;
+	}
+
+	@Override
+	public List<Notification> userNotiList(String userId) {
+		List<Notification> result = sqlSessionTemplate.selectList("com.app.dao.NotificationDAO.userNotiList", userId);
 		return result;
 	}
 	

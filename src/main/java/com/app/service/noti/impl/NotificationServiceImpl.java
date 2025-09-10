@@ -3,6 +3,8 @@ package com.app.service.noti.impl;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import javax.management.Notification;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -55,6 +57,11 @@ public class NotificationServiceImpl implements NotificationService{
         // 2. DAO를 호출해 데이터베이스에 저장
         notificationDAO.insertNotification(notification);
     }
+
+	@Override
+	public List<Notification> userNotiList(String userId) {
+		return notificationDAO.userNotiList(userId);
+	}
 
 
 

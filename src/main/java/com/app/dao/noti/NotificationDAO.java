@@ -2,6 +2,8 @@ package com.app.dao.noti;
 
 import java.util.List;
 
+import javax.management.Notification;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -21,4 +23,7 @@ public interface NotificationDAO {
     
     //현재 최고 입찰자 정보
     String maxBidId(Integer auctionId, double currentMaxBid);
+    
+    List<Notification> userNotiList(@Param("userId") String userId);
+    
 }

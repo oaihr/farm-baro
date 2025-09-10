@@ -1,58 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.app.dao.NotificationDAO">
+<mapper namespace="com.app.dao.noti.NotificationDAO">
 
-	<!-- 1. 새로운 알림을 데이터베이스에 저장하는 SQL -->
-	<insert id="insertNotification" parameterType="NotificationDTO">
-		INSERT INTO notifications (
-		notification_id,
-		user_id,
-		type,
-		message,
-		related_id,
-		is_read,
-		created_time
-		) VALUES (
-		notifications_seq.NEXTVAL,
-		#{userId},
-		#{type},
-		#{message},
-		#{relatedId},
-		#{isRead},
-		#{createdTime}
-		)
-	</insert>
+   
+    <insert id="insertNotification" parameterType="com.app.dto.noti.NotificationDTO">
+        INSERT INTO notifications (
+            notification_id, user_id, type, message, related_id, is_read, created_time
+        ) VALUES (
+            notifications_seq.NEXTVAL, #{userId}, #{type}, #{message}, #{relatedId}, #{isRead}, #{createdTime}
+        )
+    </insert>
 
-	<!-- 2. 특정 사용자의 알림 목록을 최신순으로 조회하는 SQL -->
-	<!-- `findByUserId` 메서드와 연결됩니다. -->
-	<select id="findByUserId" parameterType="string"
-		resultType="NotificationDTO">
-		SELECT
-		notification_id,
-		user_id,
-		type,
-		message,
-		related_id,
-		is_read,
-		created_time
-		FROM notifications
-		WHERE user_id = #{userId}
-		ORDER BY created_time DESC
-	</select>
-
-	<!-- 3. 특정 알림의 읽음 상태를 업데이트하는 SQL -->
-	<!-- `updateIsRead` 메서드와 연결됩니다. -->
-	<update id="updateIsRead" parameterType="long">
-		UPDATE notifications
-		SET is_read = 'Y'
-		WHERE notification_id = #{notificationId}
-	</update>
-
+    <select id="getNotificationsByUserId" parameterType="string" resultType="com.app.dto.noti.NotificationDTO">
+        SELECT
+            notification_id,
+            user_id,
+            type,
+            message,
+            related_id,
+            is_read,
+            created_time
+        FROM notifications
+        WHERE user_id = #{userId}
+        ORDER BY created_time DESC
+    </select>
+    
+    <update id="updateIsRead" parameterType="long">
+        UPDATE notifications
+        SET is_read = 'Y'
+        WHERE notification_id = #{notificationId}
+    </update>
 
 	<select id="maxBidId" parameterType="java.util.Map" resultType="string">
 		select user_id from bids
 		where auction_id = #{auctionId} AND bid_price = #{currentMaxBid}
+	</select>
+	
+	<!-- user별 알림 list 불러오기 -->
+	<select id="userNotiList" resultType="com.app.dto.noti.NotificationDTO" parameterType="string">
+		select * from NOTIFICATIONS
+		where user_id = #{userId}
 	</select>
 
 </mapper>

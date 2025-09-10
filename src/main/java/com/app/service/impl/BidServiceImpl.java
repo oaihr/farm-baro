@@ -103,6 +103,8 @@ public class BidServiceImpl implements BidService{
             updateMessage
         );
         
+        
+        
         // 알림 전송 후, 입찰 내역 반환
         
         List<BidMessage> bidHistory = bidDAO.getBidHistory(auctionItem.getAuctionId());

@@ -40,7 +40,7 @@ import BuyerReviews from './components/MyPage/BuyerReviews.js';
 import BuyerInquiries from './components/MyPage/BuyerInquiries.js';
 import BuyerAuctions from './components/MyPage/BuyerAuctions.js';
 import BuyerCart from './components/MyPage/BuyerCart.js';
-
+import TestKG from './testKG/TestKG.js';
 
 function App() {
 
@@ -122,7 +122,7 @@ function App() {
           <Route path="/mypage/buyer/:userId/inquiries" element={<BuyerInquiries />} />
           <Route path="/mypage/buyer/:userId/auctions" element={<BuyerAuctions />} />
           <Route path="/mypage/buyer/:userId/cart" element={<BuyerCart />} />
-
+          <Route path="/test/test" element={<TestKG />} />
           {/* 없는 경로는 메인으로 */}
           <Route path="*" element={<Navigate to="/" replace />} />
 

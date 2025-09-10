@@ -2,6 +2,8 @@ package com.app.service.noti;
 
 import java.util.List;
 
+import javax.management.Notification;
+
 import org.apache.ibatis.annotations.Param;
 
 import com.app.dto.noti.NotificationDTO;
@@ -21,5 +23,7 @@ public interface NotificationService {
     String maxBidId(Integer auctionId, double currentMaxBid);
     
     void sendNotification(String userId, String type, String message, Integer integer);
+    
+    List<Notification> userNotiList(String userId);
     
 }

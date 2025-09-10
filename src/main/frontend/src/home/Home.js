@@ -23,8 +23,8 @@ function Home() {
 
                 // 여러 요청
                 const [auctionResponse, saleResponse] = await Promise.all([
-                    axios.get('http://localhost:8080/home/homeAuctionTime'),
-                    axios.get('http://localhost:8080/home/homeSalesInfo')
+                    axios.get('/home/homeAuctionTime'),
+                    axios.get('/home/homeSalesInfo')
                 ]);
 
                 setAuctionData(auctionResponse.data);

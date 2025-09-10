@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 public class NotificationDTO {
-    Long notificationId;
+    Integer notificationId;
     String userId;
     String type;
     String message;
