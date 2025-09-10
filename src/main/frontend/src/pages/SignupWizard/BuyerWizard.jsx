@@ -32,20 +32,24 @@ export default function BuyerWizard() {
           setF((p) => ({
             ...p,
             email: data.email || "",
-            name: p.name || data.name || "",
+            // 이름/닉네임은 사용자가 직접 고르도록 둠 (원하면 아래 줄 주석 해제)
+            // id: p.id || data.userName || "",
+            name: p.name || data.name || data.userName || "",
           }));
           setEmailVerified(true);
           setExpiryAt(null);
           setLeftSec(0);
         }
       } catch {
-        // 세션 없어도 로컬 가입은 가능
+        /* 세션 없어도 로컬 가입은 가능 */
       }
     })();
   }, []);
   const snsMode = useMemo(() => !!(me?.provider && me.provider !== "LOCAL"), [me]);
 
+  // ⭐ 초기값에 id(닉네임) 추가 — uncontrolled 경고 해결
   const [f, setF] = useState({
+    id: "",
     name: "",
     email: "",
     password: "",
@@ -67,7 +71,6 @@ export default function BuyerWizard() {
   const [leftSec, setLeftSec] = useState(0);
   const [emailVerified, setEmailVerified] = useState(false);
   const [sending, setSending] = useState(false);
-  const [emailChecked, setEmailChecked] = useState(false);  // 이메일 중복 체크 완료 여부
 
   const allRequiredAgreed = useMemo(
     () => f.agreeTerms && f.agreePrivacy && f.agreeAge14,
@@ -92,9 +95,10 @@ export default function BuyerWizard() {
     return () => clearInterval(id);
   }, [expiryAt]);
 
-  // ── 유효성
+  // ── 유효성 (1단계 전용)
   const validateAllStep1 = (state = f) => {
     const base = {
+      id: vName(state.id ?? ""),       // 닉네임(아이디)
       name: vName(state.name ?? ""),
       email: vEmail(state.email ?? ""),
       birth: vBirth(state.birth ?? ""),
@@ -108,7 +112,7 @@ export default function BuyerWizard() {
     const v = name === "tel" ? formatPhone(value) : type === "checkbox" ? checked : value;
     setF((p) => {
       const next = { ...p, [name]: v };
-      if (step === 1 && ["name", "email", "password", "birth"].includes(name)) {
+      if (step === 1 && ["id", "name", "email", "password", "birth"].includes(name)) {
         setErrors(validateAllStep1(next));
       }
       return next;
@@ -118,7 +122,7 @@ export default function BuyerWizard() {
   const onBlur = (e) => {
     const { name } = e.target;
     setTouched((p) => ({ ...p, [name]: true }));
-    if (step === 1 && ["name", "email", "password", "birth"].includes(name)) {
+    if (step === 1 && ["id", "name", "email", "password", "birth"].includes(name)) {
       setErrors(validateAllStep1());
     }
   };
@@ -194,41 +198,63 @@ export default function BuyerWizard() {
 
   // ── 제출
   const submit = async () => {
-    if (!allRequiredAgreed) return alert("필수 약관에 동의해주세요.");
-    if (!emailVerified && !snsMode) return alert("이메일 인증을 완료해주세요.");
+  if (!allRequiredAgreed) {
+    alert("필수 약관에 동의해주세요.");
+    return;
+  }
+  if (!emailVerified && !snsMode) {
+    alert("이메일 인증을 완료해주세요.");
+    return;
+  }
 
-    try {
-      const url = snsMode ? "/api/auth/oauth/complete-buyer" : "/api/auth/signup/buyer";
-      const payload = {
-        name: f.name.trim(),
-        email: f.email.trim(),
-        ...(snsMode ? {} : { password: f.password }),
-        birth: f.birth,
-        tel: f.tel.replace(/\D/g, ""),
-        zip: f.zip,
-        addr1: f.addr1,
-        addr2: f.addr2,
-        agreeMarketing: f.agreeMarketing,
-      };
+  // 우편번호/기본주소/상세주소를 하나로 합쳐 DB로 전달
+  const address = [f.zip, f.addr1, f.addr2]
+    .filter(Boolean)
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .trim();
 
-      await http.post(url, payload);
-      alert("가입이 완료되었습니다. 로그인해주세요.");
-      window.location.replace("/login");
-    } catch (e) {
-      const status = e.response?.status ?? "N/A";
-      const msg =
-        e.response?.data?.message || e.response?.data?.detail || e.response?.data || e.message;
-      console.error("signup error:", e.response?.data, e);
-      alert(`가입 실패\n(status: ${status})\n${msg}`);
-    }
+  const url = snsMode
+    ? "/api/auth/oauth/complete-buyer"
+    : "/api/auth/signup/buyer";
+
+  const payload = {
+    ...(snsMode ? {} : { id: (f.id || "").trim() }), // 로컬 가입만 아이디 전송
+    name: (f.name || "").trim(),
+    email: (f.email || "").trim(),
+    ...(snsMode ? {} : { password: f.password }),
+    tel: (f.tel || "").replace(/\D/g, ""),
+    address,           // ★ 서버가 기대하는 단일 주소 필드
+    zip: f.zip || "",
+    addr1: f.addr1 || "",
+    addr2: f.addr2 || "",
+    agreeMarketing: !!f.agreeMarketing,
   };
+
+  try {
+    await http.post(url, payload);
+    alert("가입이 완료되었습니다. 로그인해주세요.");
+    window.location.replace("/login");
+  } catch (e) {
+    const status = e?.response?.status ?? "N/A";
+    const msg =
+      e?.response?.data?.message ||
+      e?.response?.data?.detail ||
+      e?.message ||
+      "요청 중 오류";
+    console.error("signup error:", e?.response?.data, e);
+    alert(`가입 실패\n(status: ${status})\n${msg}`);
+  }
+};
 
   // ── 단계 이동
   const next = () => {
     if (step === 1 && !okStep1) {
-      setTouched({ name: true, email: true, password: true, birth: true });
+      setTouched({ id: true, name: true, email: true, password: true, birth: true });
       setErrors(validateAllStep1());
-      const first = ["name", "email", "password", "birth"].find((k) => validateAllStep1()[k]);
+      const first = ["id", "name", "email", "password", "birth"].find(
+        (k) => validateAllStep1()[k]
+      );
       if (first) {
         document
           .querySelector(`[name="${first}"]`)
@@ -259,10 +285,18 @@ export default function BuyerWizard() {
         <div className="card">
           <div className="row">
             <label>닉네임</label>
-            <input name="id" placeholder="사용할 닉네임을 입력하세요" value={f.id} onChange={onChange}
-onBlur={onBlur} className={errors.id && touched.id ? "invalid" : ""} />
-{errors.id && touched.id && <p className="err">{errors.id}</p>}
+            <input
+              name="id"
+              placeholder="사용할 닉네임을 입력하세요"
+              value={f.id}
+              onChange={onChange}
+              onBlur={onBlur}
+              maxLength={20}
+              className={errors.id && touched.id ? "invalid" : ""}
+            />
+            {errors.id && touched.id && <p className="err">{errors.id}</p>}
           </div>
+
           <div className="row">
             <label>이름</label>
             <input
@@ -289,9 +323,7 @@ onBlur={onBlur} className={errors.id && touched.id ? "invalid" : ""} />
               placeholder={snsMode ? "SNS로 전달된 이메일" : "이메일을 입력하세요"}
             />
             {snsMode && <p className="hint">SNS 로그인으로 받은 이메일입니다.</p>}
-            {errors.email && touched.email && (
-              <p className="err">{errors.email}</p>
-            )}
+            {errors.email && touched.email && <p className="err">{errors.email}</p>}
           </div>
 
           {!snsMode && (
@@ -324,9 +356,16 @@ onBlur={onBlur} className={errors.id && touched.id ? "invalid" : ""} />
             />
             {errors.birth && touched.birth && <p className="err">{errors.birth}</p>}
           </div>
+
           <div className="row">
             <label>전화번호</label>
-            <input name="tel" placeholder="010-1234-5678" value={f.tel} onChange={onChange} maxLength={13} />
+            <input
+              name="tel"
+              placeholder="010-1234-5678"
+              value={f.tel}
+              onChange={onChange}
+              maxLength={13}
+            />
           </div>
         </div>
       )}
@@ -377,11 +416,7 @@ onBlur={onBlur} className={errors.id && touched.id ? "invalid" : ""} />
             </div>
           )}
 
-          {snsMode && (
-            <p className="ok" style={{ marginTop: 8 }}>
-              ✅ SNS 계정은 이메일 인증이 필요 없습니다.
-            </p>
-          )}
+          {snsMode && <p className="ok" style={{ marginTop: 8 }}>✅ SNS 계정은 이메일 인증이 필요 없습니다.</p>}
         </div>
       )}
 
@@ -397,9 +432,7 @@ onBlur={onBlur} className={errors.id && touched.id ? "invalid" : ""} />
             <label>주소</label>
             <div className="hstack">
               <input name="zip" placeholder="우편번호" value={f.zip} onChange={onChange} />
-              <button type="button" onClick={openPostcode}>
-                주소 검색
-              </button>
+              <button type="button" onClick={openPostcode}>주소 검색</button>
             </div>
             <input name="addr1" placeholder="기본 주소" value={f.addr1} onChange={onChange} />
             <input name="addr2" placeholder="상세 주소" value={f.addr2} onChange={onChange} />
@@ -424,12 +457,7 @@ onBlur={onBlur} className={errors.id && touched.id ? "invalid" : ""} />
               <span>전체 동의</span>
             </div>
             <div className="check req">
-              <input
-                type="checkbox"
-                name="agreeTerms"
-                checked={f.agreeTerms}
-                onChange={onChange}
-              />
+              <input type="checkbox" name="agreeTerms" checked={f.agreeTerms} onChange={onChange} />
               <span>서비스 이용약관 동의 (필수)</span>
             </div>
             <div className="check req">
@@ -451,12 +479,7 @@ onBlur={onBlur} className={errors.id && touched.id ? "invalid" : ""} />
               <span>마케팅 정보 수신 동의 (선택)</span>
             </div>
             <div className="check req">
-              <input
-                type="checkbox"
-                name="agreeAge14"
-                checked={f.agreeAge14}
-                onChange={onChange}
-              />
+              <input type="checkbox" name="agreeAge14" checked={f.agreeAge14} onChange={onChange} />
               <span>만 14세 이상입니다 (필수)</span>
             </div>
           </div>

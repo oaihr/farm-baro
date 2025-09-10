@@ -205,14 +205,17 @@ export default function SellerWizard() {
     setSubmitting(true);
     try {
       const payload = {
-        basic: { name, email, pass: snsMode ? undefined : pass, tel: onlyDigits(tel)  },
+        basic: { name, email, pass: snsMode ? undefined : pass, tel: onlyDigits(tel) },
         business: { brn, sellerType, repName, zip, addr1, addr2, traceNo },
-        settlement: {  accHolder, bank, accNo: onlyDigits(accNo) },
+        settlement: { accHolder, bank, accNo: onlyDigits(accNo) },
       };
+
       const fd = new FormData();
-      fd.append("payload", new Blob([JSON.stringify(payload)], { type: "application/json; charset=UTF-8" }));
+      // 문자열로 넣으면 Spring의 @RequestPart("payload") String 에 딱 들어옵니다.
+      fd.append("payload", JSON.stringify(payload));
       if (brnFile) fd.append("brnFile", brnFile);
-      await http.post("/api/sellers", fd);
+
+      await http.postForm("/api/sellers", fd);
       setSubmitted(true);
       setShowDone(true);
       setTimeout(() => navigate("/me?from=seller_signup"), 1200);
@@ -225,6 +228,7 @@ export default function SellerWizard() {
   const nextFrom2 = () => (canNext2 ? setStep(3) : setShow2Err(true));
   const submitGuard = () => (canSubmit ? submitAll() : setShow3Err(true));
   const preventEnterSubmit = (e) => { if (e.key === "Enter") e.preventDefault(); };
+
 
   return (
     <>

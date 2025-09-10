@@ -120,7 +120,7 @@ public class AuthController {
   public ResponseEntity<?> signupBuyer(@RequestBody SignupRequest req) {
     try {
       userService.registerBuyer(req);
-      return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("ok", true));
+      return ResponseEntity.ok(Map.of("ok", true));
     } catch (Exception e) {
       return ResponseEntity.badRequest().body(Map.of("ok", false, "message", e.getMessage()));
     }
