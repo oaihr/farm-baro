@@ -4,13 +4,14 @@
     display: flex;
     justify-content: center;
     margin: 20px 0;
+    gap: 20px;
 }
 
 .quote-btn {
     font-size: 20px;
     padding: 8px 30px;
     margin: 0 30px;
-    background-color: #666565;
+    background-color: #FFFFFF;
     border-radius: 10px;
     cursor: pointer;
     border: none;
@@ -18,12 +19,12 @@
 }
 
 .quote-active {
-    background-color: #edfab4;
+    background-color: #EAF6E6;
     font-weight: bold;
 }
 
 .quote-active-btn {
-    background-color: #a0a2a5;
+    background-color: #EAF6E6;
     font-weight: bold;
 }
 
@@ -46,7 +47,7 @@
 }
 
 .quote-inner:hover {
-    background-color: #f5ffd8;
+    background-color: #F9FCF7;
     transform: translateY(-5px);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
