@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.app.dto.home.AuctionItemHome;
 import com.app.dto.home.SalesItemHome;
 import com.app.dto.home.SearchResult;
+import com.app.dto.noti.NotificationDTO;
 import com.app.service.home.HomeService;
 import com.app.service.noti.NotificationService;
 
@@ -66,7 +67,7 @@ public class HomeController {
     }
 	
     @GetMapping("/notifications")
-    public List<Notification> getNotificationsByUserId(@RequestParam("userId") String userId) {
+    public List<NotificationDTO> getNotificationsByUserId(@RequestParam("userId") String userId) {
         return notificationService.userNotiList(userId);
     }
 	
