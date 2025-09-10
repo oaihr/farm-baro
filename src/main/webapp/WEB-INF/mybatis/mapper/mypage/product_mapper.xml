@@ -19,30 +19,43 @@
         <result property="sellerId" column="SELLER_ID"/>
         <result property="createdTime" column="CREATED_TIME"/>
         <result property="sellerName" column="SELLER_NAME"/>
+        <result property="imageUrl" column="IMAGE_URL"/>
     </resultMap>
 
     <!-- 판매자별 상품 목록 조회 -->
     <select id="getProductsBySeller" resultMap="ProductResultMap">
-        SELECT s.*, u.USER_NAME as SELLER_NAME
+        SELECT s.*, u.USER_NAME as SELLER_NAME,
+               pi.IMAGE_URL as IMAGE_URL
         FROM sales s
         LEFT JOIN users u ON s.SELLER_ID = u.ID
+        LEFT JOIN product_images pi ON s.SALE_ITEM_ID = pi.PRODUCT_ID 
+            AND pi.PRODUCT_TYPE = 'sale' 
+            AND pi.IS_THUMBNAIL = 'y'
         WHERE s.SELLER_ID = #{sellerId}
         ORDER BY s.CREATED_TIME DESC
     </select>
 
     <!-- 상품 상세 조회 -->
     <select id="getProductById" resultMap="ProductResultMap">
-        SELECT s.*, u.USER_NAME as SELLER_NAME
+        SELECT s.*, u.USER_NAME as SELLER_NAME,
+               pi.IMAGE_URL as IMAGE_URL
         FROM sales s
         LEFT JOIN users u ON s.SELLER_ID = u.ID
+        LEFT JOIN product_images pi ON s.SALE_ITEM_ID = pi.PRODUCT_ID 
+            AND pi.PRODUCT_TYPE = 'sale' 
+            AND pi.IS_THUMBNAIL = 'y'
         WHERE s.SALE_ITEM_ID = #{saleItemId}
     </select>
 
     <!-- 상품 검색 -->
     <select id="searchProducts" resultMap="ProductResultMap">
-        SELECT s.*, u.USER_NAME as SELLER_NAME
+        SELECT s.*, u.USER_NAME as SELLER_NAME,
+               pi.IMAGE_URL as IMAGE_URL
         FROM sales s
         LEFT JOIN users u ON s.SELLER_ID = u.ID
+        LEFT JOIN product_images pi ON s.SALE_ITEM_ID = pi.PRODUCT_ID 
+            AND pi.PRODUCT_TYPE = 'sale' 
+            AND pi.IS_THUMBNAIL = 'y'
         WHERE 1=1
         <if test="sellerId != null and sellerId != ''">
             AND s.SELLER_ID = #{sellerId}
@@ -67,11 +80,14 @@
 
     <!-- 상품 등록 -->
     <insert id="insertProduct" parameterType="com.app.dto.ProductDto">
+        <selectKey keyProperty="saleItemId" resultType="long" order="BEFORE">
+            SELECT SALE_ITEM_SEQ.NEXTVAL FROM DUAL
+        </selectKey>
         INSERT INTO sales (
             SALE_ITEM_ID, QTY, SALE_STATUS, JUDGE_KIND_NAME, CUT_NAME,
             TITLE, DESCRIPTION, DETAIL_DESCRIPTION, WEIGHT, PRICE, GRADE, TRACEABILITY_NUM, SELLER_ID, CREATED_TIME
         ) VALUES (
-            SALE_ITEM_SEQ.NEXTVAL, #{qty}, #{saleStatus}, #{judgeKindName}, #{cutName},
+            #{saleItemId}, #{qty}, #{saleStatus}, #{judgeKindName}, #{cutName},
             #{title}, #{description}, #{detailDescription}, #{weight}, #{price}, #{grade}, #{traceabilityNum}, #{sellerId}, SYSTIMESTAMP
         )
     </insert>
@@ -82,8 +98,11 @@
             IMAGE_ID, PRODUCT_ID, PRODUCT_TYPE, IMAGE_URL, 
             IS_THUMBNAIL, ORDER_INDEX, CREATED_TIME
         ) VALUES (
-            image_seq.NEXTVAL, #{productId}, 'SALE', #{imageUrl},
-            #{isThumbnail}, #{orderIndex}, SYSTIMESTAMP
+            SEQ_IMAGE_ID.NEXTVAL, #{productId}, 'sale', #{imageUrl},
+            <choose>
+                <when test="isThumbnail == true">'y'</when>
+                <otherwise>'n'</otherwise>
+            </choose>, #{orderIndex}, SYSTIMESTAMP
         )
     </insert>
 
@@ -106,13 +125,19 @@
 
     <!-- 상품 삭제 -->
     <delete id="deleteProduct">
-        DELETE FROM sales WHERE SALE_ITEM_ID = #{saleItemId}
+        DELETE FROM sales WHERE SALE_ITEM_ID = #{productId}
     </delete>
 
     <!-- 상품 이미지 삭제 -->
     <delete id="deleteProductImages">
         DELETE FROM product_images 
-        WHERE PRODUCT_ID = #{productId} AND PRODUCT_TYPE = 'SALE'
+        WHERE PRODUCT_ID = #{productId} AND PRODUCT_TYPE = 'sale'
+    </delete>
+
+    <!-- 장바구니 아이템 삭제 -->
+    <delete id="deleteCartItems">
+        DELETE FROM cart_items 
+        WHERE SALE_ITEM_ID = #{productId}
     </delete>
 
     <!-- 리뷰 이미지 등록 -->

@@ -25,5 +25,6 @@ public class ProductDto {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime createdTime; // created_time
     private String sellerName;      // 판매자 이름 (JOIN용)
+    private String imageUrl;        // 대표 이미지 URL (썸네일)
     private List<String> imageUrls; // 상품 이미지들
 }

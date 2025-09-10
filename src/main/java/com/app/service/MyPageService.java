@@ -343,8 +343,28 @@ public class MyPageService {
     // 구매자별 낙찰상품 납부 대기 리스트 조회
     public List<BidDto> getWinningAuctionsForPayment(String winnerId) {
         try {
-            return bidMapper.getWinningAuctionsForPayment(winnerId);
+            System.out.println("=== MyPageService.getWinningAuctionsForPayment 호출 ===");
+            System.out.println("winnerId: " + winnerId);
+            
+            // 디버깅: WINNER_ID가 있는 모든 경매 조회
+            System.out.println("실행할 SQL: SELECT * FROM AUCTIONS WHERE WINNER_ID = '" + winnerId + "'");
+            List<BidDto> allAuctions = bidMapper.getAllAuctionsWithWinner(winnerId);
+            System.out.println("WINNER_ID가 있는 모든 경매 수: " + allAuctions.size());
+            for (BidDto auction : allAuctions) {
+                System.out.println("경매 ID: " + auction.getAuctionId() + 
+                                 ", 상태: " + auction.getBidStatus() + 
+                                 ", 가격: " + auction.getBidPrice());
+            }
+            
+            System.out.println("실행할 SQL: SELECT * FROM AUCTIONS WHERE WINNER_ID = '" + winnerId + "' AND AUCTION_STATUS = 'OFF'");
+            
+            List<BidDto> result = bidMapper.getWinningAuctionsForPayment(winnerId);
+            System.out.println("AUCTION_STATUS='OFF' 조건을 만족하는 낙찰상품 수: " + result.size());
+            System.out.println("매퍼 결과: " + result);
+            
+            return result;
         } catch (Exception e) {
+            System.out.println("=== MyPageService.getWinningAuctionsForPayment 오류 ===");
             e.printStackTrace();
             return new ArrayList<>();
         }
@@ -412,7 +432,30 @@ public class MyPageService {
 
     // 상품 삭제
     public boolean deleteProduct(Long productId) {
-        return productMapper.deleteProduct(productId) > 0;
+        try {
+            System.out.println("=== 상품 삭제 시작: " + productId + " ===");
+            
+            // 1. 먼저 장바구니 아이템들 삭제
+            int cartDeleteResult = productMapper.deleteCartItems(productId);
+            System.out.println("장바구니 아이템 삭제 결과: " + cartDeleteResult + "개 삭제됨");
+            
+            // 2. 관련 이미지들 삭제
+            boolean imageDeleteResult = deleteProductImages(productId);
+            System.out.println("이미지 삭제 결과: " + imageDeleteResult);
+            
+            // 3. 상품 삭제
+            int result = productMapper.deleteProduct(productId);
+            System.out.println("상품 삭제 결과: " + result + "개 행 삭제됨");
+            
+            boolean success = result > 0;
+            System.out.println("=== 상품 삭제 완료: " + success + " ===");
+            
+            return success;
+        } catch (Exception e) {
+            System.out.println("=== 상품 삭제 중 오류 발생 ===");
+            e.printStackTrace();
+            return false;
+        }
     }
     
     // 기본 주문 통계 (임시)
@@ -778,9 +821,20 @@ public class MyPageService {
     // 상품 이미지 등록
     public boolean insertProductImage(Long productId, String imageUrl, int orderIndex, boolean isThumbnail) {
         try {
+            System.out.println("=== 이미지 저장 시작 ===");
+            System.out.println("productId: " + productId);
+            System.out.println("imageUrl: " + imageUrl);
+            System.out.println("orderIndex: " + orderIndex);
+            System.out.println("isThumbnail: " + isThumbnail);
+            
             int result = productMapper.insertProductImage(productId, imageUrl, orderIndex, isThumbnail);
-            return result > 0;
+            System.out.println("MyBatis insertProductImage 결과: " + result);
+            
+            boolean success = result > 0;
+            System.out.println("=== 이미지 저장 완료: " + success + " ===");
+            return success;
         } catch (Exception e) {
+            System.out.println("=== 이미지 저장 중 오류 발생 ===");
             e.printStackTrace();
             return false;
         }

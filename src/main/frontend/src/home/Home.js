@@ -169,8 +169,8 @@ function Home() {
                                         )}
                                         <h3>{item.title}</h3>
                                         <hr className='hr'></hr>
-                                        <p>시작가: {item.initialPrice.toLocaleString()}원{item.unit}</p>
-                                        <p className="home-price-now">현재가: {item.currentBidPrice.toLocaleString()}원{item.unit}</p>
+                                        <p>시작가: {item.initialPrice ? item.initialPrice.toLocaleString() : '0'}원{item.unit || ''}</p>
+                                        <p className="home-price-now">현재가: {item.currentBidPrice ? item.currentBidPrice.toLocaleString() : '0'}원{item.unit || ''}</p>
                                         <RemainingTimeDisplay endDate={item.endDate} />
                                         <button className='home-quote-btn btn'>입찰하기</button>
                                     </div>

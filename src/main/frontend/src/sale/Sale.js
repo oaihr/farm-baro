@@ -56,16 +56,16 @@ function Sale(){
                     <Link to={`/sale/${item.saleItemId}`} key={item.saleItemId}>
                         <div className='sale-item' key={item.saleItemId}>
                             {item.images && item.images.length > 0 && (
-                                <img src={item.images[0].imageUrl} alt={item.title} />
+                                <img src={item.images[0].imageUrl} alt={item.title || '상품 이미지'} />
                             )}
                             <div className='sale-item-info'>
-                                <div>{item.userName}</div>
-                                <h3>{item.title}</h3>
+                                <div>{item.userName || '판매자 정보 없음'}</div>
+                                <h3>{item.title || '상품명 없음'}</h3>
                                 <div className='sale-item-wt-grade'>
-                                    <p>{item.weight}</p>
-                                    <p>{item.grade} 등급</p>
+                                    <p>{item.weight || '무게 정보 없음'}</p>
+                                    <p>{item.grade ? `${item.grade} 등급` : '등급 정보 없음'}</p>
                                 </div>
-                                <div className='sale-item-price'>{item.price.toLocaleString('ko-KR')}원</div>
+                                <div className='sale-item-price'>{item.price ? item.price.toLocaleString('ko-KR') : '0'}원</div>
                             </div>
                         </div>
                     </Link>   

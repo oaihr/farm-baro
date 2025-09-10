@@ -24,6 +24,9 @@ const MyPageRedirect = () => {
 
     const redirectToUserMyPage = async () => {
         try {
+            console.log('=== MyPageRedirect 디버깅 ===');
+            console.log('Redux userId:', userId);
+            
             // Redux에서 이미 userId를 가지고 있으므로 직접 사용
             if (userId) {
                 // 사용자 타입을 확인하기 위해 추가 API 호출
@@ -31,14 +34,20 @@ const MyPageRedirect = () => {
                 const userInfo = response.data;
                 const userType = userInfo.userType;
                 
+                console.log('API 응답 userInfo:', userInfo);
+                console.log('userType:', userType);
+                
                 if (userType) {
                     // 사용자 타입에 따라 적절한 마이페이지로 리다이렉트
                     if (userType === 'BUYER') {
+                        console.log('BUYER로 리다이렉트:', `/mypage/buyer/${userId}`);
                         navigate(`/mypage/buyer/${userId}`, { replace: true });
                     } else if (userType === 'SELLER') {
+                        console.log('SELLER로 리다이렉트:', `/mypage/seller/${userId}`);
                         navigate(`/mypage/seller/${userId}`, { replace: true });
                     } else {
                         // 기본적으로 buyer로 처리
+                        console.log('기본 BUYER로 리다이렉트:', `/mypage/buyer/${userId}`);
                         navigate(`/mypage/buyer/${userId}`, { replace: true });
                     }
                     return;

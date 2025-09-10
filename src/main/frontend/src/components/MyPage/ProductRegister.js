@@ -35,6 +35,7 @@ const ProductRegister = () => {
     const tabs = [
         { id: 'register', label: '상품 등록', icon: '📦' },
         { id: 'manage', label: '상품 관리', icon: '📋' },
+        { id: 'edit', label: '상품 수정', icon: '✏️' },
         { id: 'detail', label: '상품 상세', icon: '🔍' },
         { id: 'analytics', label: '판매 분석', icon: '📊' }
     ];
@@ -143,7 +144,7 @@ const ProductRegister = () => {
     const fetchProducts = async () => {
         try {
             setLoading(true);
-            const response = await fetch(`http://localhost:8080/mypage/api/mypage/seller/${userId}/products`);
+            const response = await fetch(`http://localhost:8080/api/mypage/seller/${userId}/products`);
             if (response.ok) {
                 const data = await response.json();
                 setProducts(data);
@@ -206,7 +207,7 @@ const ProductRegister = () => {
             setLoading(true);
             const imageUrls = newImageUrls.split(',').map(url => url.trim()).filter(url => url);
             
-            const response = await fetch(`http://localhost:8080/mypage/api/products/${viewingProduct.saleItemId}/form`, {
+            const response = await fetch(`http://localhost:8080/api/mypage/products/${viewingProduct.saleItemId}/form`, {
                 method: 'PUT',
                 body: (() => {
                     const formData = new FormData();
@@ -258,7 +259,7 @@ const ProductRegister = () => {
     const handleUpdateProduct = async (product) => {
         try {
             setLoading(true);
-            const response = await fetch(`http://localhost:8080/mypage/api/products/${product.saleItemId}`, {
+            const response = await fetch(`http://localhost:8080/api/mypage/products/${product.saleItemId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -289,6 +290,88 @@ const ProductRegister = () => {
         } catch (error) {
             console.error('상품 업데이트 오류:', error);
             setMessage('상품 정보 업데이트 중 오류가 발생했습니다.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // 상품 수정 (Form 방식)
+    const handleUpdateProductForm = async (e) => {
+        e.preventDefault();
+        try {
+            setLoading(true);
+            setMessage('');
+
+            // 폼 데이터 검증
+            if (!formData.title || !formData.meatKind || !formData.meatPart || !formData.qty || !formData.weight || !formData.price || !formData.grade) {
+                setMessage('필수 항목을 모두 입력해주세요.');
+                setLoading(false);
+                return;
+            }
+
+            // 가격 검증
+            if (isNaN(formData.price) || parseFloat(formData.price) <= 0) {
+                setMessage('가격은 0보다 큰 숫자로 입력해주세요.');
+                setLoading(false);
+                return;
+            }
+
+            // 무게 형식 검증 (숫자 + 단위)
+            const weightPattern = /^\d+(\.\d+)?(kg|g|lb)$/i;
+            if (!weightPattern.test(formData.weight)) {
+                setMessage('무게는 "1kg", "500g", "2lb" 형식으로 입력해주세요.');
+                setLoading(false);
+                return;
+            }
+
+            const formDataToSend = new FormData();
+            formDataToSend.append('title', formData.title);
+            // judgeKindName과 cutName 자동 생성
+            const judgeKindName = getJudgeKindName();
+            const cutName = getCutName();
+            formDataToSend.append('judgeKindName', judgeKindName);
+            formDataToSend.append('cutName', cutName);
+            formDataToSend.append('qty', formData.qty);
+            formDataToSend.append('weight', formData.weight);
+            formDataToSend.append('price', formData.price);
+            formDataToSend.append('saleStatus', formData.saleStatus);
+            formDataToSend.append('description', formData.description);
+            formDataToSend.append('detailDescription', formData.detailDescription);
+            formDataToSend.append('grade', formData.grade);
+            formDataToSend.append('traceabilityNum', formData.traceabilityNum);
+
+            const response = await fetch(`http://localhost:8080/api/mypage/products/${editingProduct.saleItemId}/form`, {
+                method: 'PUT',
+                body: formDataToSend
+            });
+
+            if (response.ok) {
+                setMessage('상품이 성공적으로 수정되었습니다! 🎉');
+                setEditingProduct(null);
+                setFormData({
+                    title: '',
+                    meatKind: '',
+                    meatPart: '',
+                    qty: '',
+                    weight: '',
+                    price: '',
+                    saleStatus: 'draft',
+                    imageUrls: [],
+                    description: '',
+                    detailDescription: '',
+                    grade: '',
+                    traceabilityNum: ''
+                });
+                fetchProducts(); // 상품 목록 새로고침
+                setActiveTab('manage');
+            } else {
+                const errorText = await response.text();
+                console.error('상품 수정 응답 오류:', response.status, errorText);
+                setMessage(`상품 수정에 실패했습니다. (${response.status})`);
+            }
+        } catch (error) {
+            console.error('상품 수정 오류:', error);
+            setMessage('상품 수정 중 오류가 발생했습니다.');
         } finally {
             setLoading(false);
         }
@@ -368,7 +451,7 @@ const ProductRegister = () => {
                 console.log(`${key}: ${value}`);
             }
 
-            const response = await fetch('http://localhost:8080/mypage/api/products', {
+            const response = await fetch('http://localhost:8080/api/mypage/products', {
                 method: 'POST',
                 body: formDataToSend
             });
@@ -434,7 +517,7 @@ const ProductRegister = () => {
                 });
             }
 
-                         const response = await fetch(`http://localhost:8080/mypage/api/products/${editingProduct.saleItemId}/form`, {
+                         const response = await fetch(`http://localhost:8080/api/mypage/products/${editingProduct.saleItemId}/form`, {
                 method: 'PUT',
                 body: formDataToSend
             });
@@ -471,25 +554,42 @@ const ProductRegister = () => {
 
     // 상품 삭제
     const handleDelete = async (productId) => {
-        if (!window.confirm('정말로 이 상품을 삭제하시겠습니까?')) {
+        // 더 상세한 확인 다이얼로그
+        const product = products.find(p => p.saleItemId === productId);
+        const productName = product ? product.title : '이 상품';
+        
+        const confirmMessage = `정말로 "${productName}"을(를) 삭제하시겠습니까?\n\n⚠️ 주의: 이 작업은 되돌릴 수 없습니다.\n상품과 관련된 모든 데이터가 영구적으로 삭제됩니다.`;
+        
+        if (!window.confirm(confirmMessage)) {
             return;
         }
 
         try {
             setLoading(true);
-            const response = await fetch(`http://localhost:8080/mypage/api/products/${productId}`, {
+            setMessage('상품을 삭제하는 중입니다...');
+            
+            console.log(`상품 삭제 요청: ${productId}`);
+            const response = await fetch(`http://localhost:8080/api/mypage/products/${productId}`, {
                 method: 'DELETE'
             });
 
             if (response.ok) {
-                setMessage('상품이 성공적으로 삭제되었습니다.');
-                fetchProducts();
+                setMessage(`✅ "${productName}"이(가) 성공적으로 삭제되었습니다.`);
+                // 상품 목록 새로고침
+                await fetchProducts();
+                
+                // 3초 후 메시지 자동 제거
+                setTimeout(() => {
+                    setMessage('');
+                }, 3000);
             } else {
-                setMessage('상품 삭제에 실패했습니다.');
+                const errorText = await response.text();
+                console.error('상품 삭제 응답 오류:', response.status, errorText);
+                setMessage(`❌ 상품 삭제에 실패했습니다. (${response.status})`);
             }
         } catch (error) {
             console.error('상품 삭제 오류:', error);
-            setMessage('상품 삭제 중 오류가 발생했습니다.');
+            setMessage('❌ 상품 삭제 중 오류가 발생했습니다.');
         } finally {
             setLoading(false);
         }
@@ -528,6 +628,7 @@ const ProductRegister = () => {
             grade: product.grade || '',
             traceabilityNum: product.traceabilityNum || ''
         });
+        setActiveTab('edit');
     };
 
     // 수정 모드 취소
@@ -560,7 +661,7 @@ const ProductRegister = () => {
             const urls = value.split(',').map(url => url.trim()).filter(url => url.length > 0);
             setFormData(prev => ({
                 ...prev,
-                [name]: urls
+                imageUrls: urls
             }));
         } else {
             setFormData(prev => ({
@@ -781,7 +882,6 @@ const ProductRegister = () => {
                                 placeholder="이미지 URL을 쉼표로 구분하여 입력하세요&#10;예: https://example.com/image1.jpg, https://example.com/image2.jpg"
                                 rows="3"
                                 className="url-input"
-                                required
                             />
                             <small className="url-help">이미지 URL을 쉼표로 구분하여 입력하세요. 첫 번째 이미지가 대표 이미지로 사용됩니다.</small>
                             {formData.imageUrls && formData.imageUrls.length > 0 && (
@@ -901,6 +1001,230 @@ const ProductRegister = () => {
                 </div>
             </div>
 
+            {/* 상품 수정 탭 */}
+            {activeTab === 'edit' && editingProduct && (
+                <div className="product-edit-section">
+                    <div className="edit-header">
+                        <button 
+                            className="back-btn"
+                            onClick={() => {
+                                setActiveTab('manage');
+                                setEditingProduct(null);
+                            }}
+                        >
+                            ← 목록으로 돌아가기
+                        </button>
+                        <h3>✏️ 상품 수정</h3>
+                        <div className="edit-product-info">
+                            <span className="product-title">{editingProduct.title}</span>
+                            <span className="product-id">ID: {editingProduct.saleItemId}</span>
+                        </div>
+                    </div>
+
+                    <div className="edit-form-container">
+                        <form onSubmit={handleUpdateProductForm} className="product-form">
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>상품명 *</label>
+                                    <input
+                                        type="text"
+                                        name="title"
+                                        value={formData.title}
+                                        onChange={handleInputChange}
+                                        placeholder="상품명을 입력하세요"
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>고기 종류 *</label>
+                                    <select
+                                        name="meatKind"
+                                        value={formData.meatKind}
+                                        onChange={handleInputChange}
+                                        required
+                                    >
+                                        <option value="">선택하세요</option>
+                                        <option value="소">소</option>
+                                        <option value="돼지">돼지</option>
+                                        <option value="닭">닭</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>부위 *</label>
+                                    <select
+                                        name="meatPart"
+                                        value={formData.meatPart}
+                                        onChange={handleInputChange}
+                                        required
+                                    >
+                                        <option value="">선택하세요</option>
+                                        {formData.meatKind === '소' && (
+                                            <>
+                                                <option value="등심">등심</option>
+                                                <option value="안심">안심</option>
+                                                <option value="갈비">갈비</option>
+                                                <option value="목심">목심</option>
+                                                <option value="우둔">우둔</option>
+                                                <option value="설도">설도</option>
+                                            </>
+                                        )}
+                                        {formData.meatKind === '돼지' && (
+                                            <>
+                                                <option value="삼겹살">삼겹살</option>
+                                                <option value="목살">목살</option>
+                                                <option value="갈비">갈비</option>
+                                                <option value="앞다리">앞다리</option>
+                                                <option value="뒷다리">뒷다리</option>
+                                                <option value="등심">등심</option>
+                                            </>
+                                        )}
+                                        {formData.meatKind === '닭' && (
+                                            <>
+                                                <option value="가슴살">가슴살</option>
+                                                <option value="다리">다리</option>
+                                                <option value="날개">날개</option>
+                                                <option value="목">목</option>
+                                                <option value="뼈">뼈</option>
+                                            </>
+                                        )}
+                                    </select>
+                                </div>
+                                <div className="form-group">
+                                    <label>재고 수량 *</label>
+                                    <input
+                                        type="number"
+                                        name="qty"
+                                        value={formData.qty}
+                                        onChange={handleInputChange}
+                                        placeholder="재고 수량"
+                                        min="0"
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>무게 *</label>
+                                    <input
+                                        type="text"
+                                        name="weight"
+                                        value={formData.weight}
+                                        onChange={handleInputChange}
+                                        placeholder="예: 1kg, 500g"
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>kg당 가격 *</label>
+                                    <input
+                                        type="number"
+                                        name="price"
+                                        value={formData.price}
+                                        onChange={handleInputChange}
+                                        placeholder="kg당 가격"
+                                        min="0"
+                                        step="100"
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>등급 *</label>
+                                    <select
+                                        name="grade"
+                                        value={formData.grade}
+                                        onChange={handleInputChange}
+                                        required
+                                    >
+                                        <option value="">선택하세요</option>
+                                        <option value="1++">1++</option>
+                                        <option value="1+">1+</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                    </select>
+                                </div>
+                                <div className="form-group">
+                                    <label>판매 상태</label>
+                                    <select
+                                        name="saleStatus"
+                                        value={formData.saleStatus}
+                                        onChange={handleInputChange}
+                                    >
+                                        <option value="draft">보류중</option>
+                                        <option value="on">판매중</option>
+                                        <option value="off">품절</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="form-group">
+                                <label>요약 설명</label>
+                                <textarea
+                                    name="description"
+                                    value={formData.description}
+                                    onChange={handleInputChange}
+                                    placeholder="상품에 대한 간단한 설명을 입력하세요"
+                                    rows="3"
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label>상세 설명</label>
+                                <Editor
+                                    apiKey="ryw90ac70zjvmpwkezw0kv9oef882x9f291lx2gpzcbh5ywk"
+                                    value={formData.detailDescription}
+                                    onEditorChange={(content) => setFormData(prev => ({
+                                        ...prev,
+                                        detailDescription: content
+                                    }))}
+                                    init={{
+                                        height: 300,
+                                        menubar: false,
+                                        plugins: [
+                                            'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                                            'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                                            'insertdatetime', 'media', 'table', 'help', 'wordcount'
+                                        ],
+                                        toolbar: 'undo redo | blocks | ' +
+                                            'bold italic forecolor | alignleft aligncenter ' +
+                                            'alignright alignjustify | bullist numlist outdent indent | ' +
+                                            'removeformat | help',
+                                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+                                    }}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label>가축 이력번호</label>
+                                <input
+                                    type="text"
+                                    name="traceabilityNum"
+                                    value={formData.traceabilityNum}
+                                    onChange={handleInputChange}
+                                    placeholder="가축 이력번호 (선택사항)"
+                                />
+                            </div>
+
+                            <div className="form-actions">
+                                <button type="button" className="cancel-btn" onClick={cancelEdit}>
+                                    취소
+                                </button>
+                                <button type="submit" className="submit-btn" disabled={loading}>
+                                    {loading ? '수정 중...' : '상품 수정'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
             {/* 상품 관리 탭 */}
             {activeTab === 'manage' && (
                 <div className="products-section">
@@ -941,19 +1265,7 @@ const ProductRegister = () => {
                                         )}
                                     </div>
                                     
-                                    {/* 바로구매 버튼 */}
-                                    <div className="buy-button-section">
-                                        <button 
-                                            className="buy-now-btn"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                // 바로구매 로직 (추후 구현)
-                                                alert('바로구매 기능은 추후 구현 예정입니다.');
-                                            }}
-                                        >
-                                            🛒 바로구매
-                                        </button>
-                                    </div>
+                                
                                     
                                     {/* 상품 정보 영역 */}
                                     <div className="product-info-section">
@@ -1019,11 +1331,21 @@ const ProductRegister = () => {
                                             ✏️ 수정
                                         </button>
                                         <button 
+                                            className="view-btn"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                viewProductDetail(product);
+                                            }}
+                                        >
+                                            상세보기
+                                        </button>
+                                        <button 
                                             className="delete-btn"
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 handleDelete(product.saleItemId);
                                             }}
+                                            title="상품을 영구적으로 삭제합니다"
                                         >
                                             🗑️ 삭제
                                         </button>

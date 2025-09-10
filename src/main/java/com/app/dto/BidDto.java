@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.Data;
 
 @Data
@@ -25,4 +26,5 @@ public class BidDto {
 	private LocalDateTime auctionEndDate; // auctions.end_date
     private BigDecimal currentHighestBid; // 현재 최고 입찰가
     private Boolean isWinner;       // 낙찰 여부
+    private String auctionStatus;   // auctions.auction_status
 }

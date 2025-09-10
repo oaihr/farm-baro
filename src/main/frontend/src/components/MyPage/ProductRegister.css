@@ -663,7 +663,7 @@
 .product-image-section {
     position: relative;
     width: 100%;
-    height: 200px;
+    height: 250px;
     overflow: hidden;
 }
 
@@ -672,6 +672,7 @@
     height: 100%;
     object-fit: cover;
     transition: transform 0.3s ease;
+    display: block;
 }
 
 .product-card:hover .product-image {
@@ -686,6 +687,7 @@
     align-items: center;
     justify-content: center;
     flex-direction: column;
+    min-height: 250px;
 }
 
 .no-image-text {
@@ -1092,7 +1094,7 @@
     border-top: 1px solid #f0f0f0;
 }
 
-.edit-btn, .delete-btn {
+.edit-btn, .delete-btn, .view-btn {
     flex: 1;
     padding: 10px 16px;
     border: none;
@@ -1118,11 +1120,40 @@
 .delete-btn {
     background: linear-gradient(135deg, #e74c3c, #c0392b);
     color: white;
+    position: relative;
+    overflow: hidden;
 }
 
 .delete-btn:hover {
     background: linear-gradient(135deg, #c0392b, #a93226);
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
+.delete-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(231, 76, 60, 0.4);
+}
+
+.view-btn:hover {
+    background: linear-gradient(135deg, #c0c1c2, #7d7d7e);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
+.delete-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.delete-btn:hover::before {
+    left: 100%;
 }
 
 /* 폼 액션 버튼 */
@@ -1377,7 +1408,7 @@
 
 .main-image {
     width: 100%;
-    height: 300px;
+    height: 400px;
     border-radius: 12px;
     overflow: hidden;
     border: 2px solid #e2e8f0;
@@ -1403,6 +1434,35 @@
 .main-image .no-image span {
     font-size: 3rem;
     margin-bottom: 10px;
+}
+
+/* 반응형 이미지 크기 조정 */
+@media (max-width: 768px) {
+    .product-image-section {
+        height: 200px;
+    }
+    
+    .placeholder-image {
+        min-height: 200px;
+    }
+    
+    .main-image {
+        height: 300px;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-image-section {
+        height: 180px;
+    }
+    
+    .placeholder-image {
+        min-height: 180px;
+    }
+    
+    .main-image {
+        height: 250px;
+    }
 }
 
 .image-actions {
@@ -1534,5 +1594,188 @@
     
     .detail-actions {
         flex-direction: column;
+    }
+}
+
+/* 상품 수정 탭 스타일 */
+.product-edit-section {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.edit-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.edit-header h3 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0;
+}
+
+.edit-product-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+}
+
+.edit-product-info .product-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #4a5568;
+}
+
+.edit-product-info .product-id {
+    font-size: 0.9rem;
+    color: #718096;
+    background: #f7fafc;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.edit-form-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.edit-form-container .product-form {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.edit-form-container .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.edit-form-container .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.edit-form-container .form-group label {
+    font-weight: 600;
+    color: #2d3748;
+    font-size: 0.95rem;
+}
+
+.edit-form-container .form-group input,
+.edit-form-container .form-group select,
+.edit-form-container .form-group textarea {
+    padding: 12px 15px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    background: white;
+}
+
+.edit-form-container .form-group input:focus,
+.edit-form-container .form-group select:focus,
+.edit-form-container .form-group textarea:focus {
+    outline: none;
+    border-color: #38761D;
+    box-shadow: 0 0 0 3px rgba(56, 118, 29, 0.1);
+}
+
+.edit-form-container .form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.edit-form-container .form-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 30px;
+    padding-top: 25px;
+    border-top: 2px solid #e2e8f0;
+}
+
+.edit-form-container .cancel-btn {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.edit-form-container .cancel-btn:hover {
+    background: #5a6268;
+}
+
+.edit-form-container .submit-btn {
+    background: #38761D;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.edit-form-container .submit-btn:hover:not(:disabled) {
+    background: #2d5a16;
+}
+
+.edit-form-container .submit-btn:disabled {
+    background: #a0aec0;
+    cursor: not-allowed;
+}
+
+/* TinyMCE 에디터 스타일 개선 */
+.edit-form-container .tox-tinymce {
+    border: 2px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+    overflow: hidden;
+}
+
+.edit-form-container .tox-tinymce:focus-within {
+    border-color: #38761D !important;
+    box-shadow: 0 0 0 3px rgba(56, 118, 29, 0.1) !important;
+}
+
+/* 반응형 디자인 - 편집 탭 */
+@media (max-width: 768px) {
+    .edit-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .edit-product-info {
+        align-items: flex-start;
+    }
+    
+    .edit-form-container .form-row {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .edit-form-container .form-actions {
+        flex-direction: column;
+    }
+    
+    .edit-form-container .cancel-btn,
+    .edit-form-container .submit-btn {
+        width: 100%;
     }
 }
