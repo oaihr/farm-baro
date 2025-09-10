@@ -29,6 +29,7 @@ function App() {
 
         {/* 로그인 */}
         <Route path="/forgot" element={<ForgotPassword />} />
+        <Route path="/oauth/role" element={<RoleSelect />} />
 
         {/* 회원가입(역할선택 → 폼) */}
         <Route path="/signup">
@@ -38,8 +39,6 @@ function App() {
           <Route path="seller" element={<SellerWizard />} />
         </Route>
 
-        {/* 관리자승인 */}
-         <Route path="/admin/sellers" element={<SellerApprovals/>} />
 
         {/* 없는 경로는 메인으로 */}
         <Route path="*" element={<Navigate to="/" replace />} />

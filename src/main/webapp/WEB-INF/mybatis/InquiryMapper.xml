@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.app.mapper.InquiryMapper">
+
+    <resultMap id="InquiryResultMap" type="com.app.dto.InquiryDto">
+        <id property="qnaId" column="QNA_ID"/>
+        <result property="productId" column="PRODUCT_ID"/>
+        <result property="productType" column="PRODUCT_TYPE"/>
+        <result property="questionUserId" column="QUESTION_USER_ID"/>
+        <result property="questionContent" column="QUESTION_CONTENT"/>
+        <result property="replyContent" column="REPLY_CONTENT"/>
+        <result property="replyId" column="REPLY_ID"/>
+        <result property="isAnswered" column="IS_ANSWERED"/>
+        <result property="createdTime" column="CREATED_TIME"/>
+        <result property="updatedTime" column="UPDATED_TIME"/>
+        <result property="productTitle" column="PRODUCT_TITLE"/>
+        <result property="questionerName" column="QUESTIONER_NAME"/>
+        <result property="replierName" column="REPLIER_NAME"/>
+    </resultMap>
+
+    <!-- 구매자별 문의 목록 조회 -->
+    <select id="getInquiriesByBuyer" resultMap="InquiryResultMap">
+        SELECT q.QNA_ID, q.PRODUCT_ID, q.PRODUCT_TYPE, q.QUESTION_USER_ID, 
+               q.QUESTION_CONTENT, q.REPLY_CONTENT, q.REPLY_ID, q.IS_ANSWERED,
+               q.CREATED_TIME, q.UPDATED_TIME,
+               CASE 
+                   WHEN q.PRODUCT_TYPE = 'SALE' THEN s.TITLE
+                   WHEN q.PRODUCT_TYPE = 'AUCTION' THEN a.TITLE
+                   ELSE '상품명 없음'
+               END as PRODUCT_TITLE,
+               u.USER_NAME as QUESTIONER_NAME,
+               replier.USER_NAME as REPLIER_NAME
+        FROM qna q
+        LEFT JOIN users u ON q.QUESTION_USER_ID = u.ID
+        LEFT JOIN users replier ON q.REPLY_ID = replier.ID
+        LEFT JOIN sales s ON q.PRODUCT_ID = s.SALE_ITEM_ID AND q.PRODUCT_TYPE = 'SALE'
+        LEFT JOIN auctions a ON q.PRODUCT_ID = a.AUCTION_ID AND q.PRODUCT_TYPE = 'AUCTION'
+        WHERE q.QUESTION_USER_ID = #{buyerId}
+        ORDER BY q.CREATED_TIME DESC
+    </select>
+
+    <!-- 상품별 문의 목록 조회 -->
+    <select id="getInquiriesByProduct" resultMap="InquiryResultMap">
+        SELECT q.QNA_ID, q.PRODUCT_ID, q.PRODUCT_TYPE, q.QUESTION_USER_ID, 
+               q.QUESTION_CONTENT, q.REPLY_CONTENT, q.REPLY_ID, q.IS_ANSWERED,
+               q.CREATED_TIME, q.UPDATED_TIME,
+               CASE 
+                   WHEN q.PRODUCT_TYPE = 'SALE' THEN s.TITLE
+                   WHEN q.PRODUCT_TYPE = 'AUCTION' THEN a.TITLE
+                   ELSE '상품명 없음'
+               END as PRODUCT_TITLE,
+               u.USER_NAME as QUESTIONER_NAME,
+               replier.USER_NAME as REPLIER_NAME
+        FROM qna q
+        LEFT JOIN users u ON q.QUESTION_USER_ID = u.ID
+        LEFT JOIN users replier ON q.REPLY_ID = replier.ID
+        LEFT JOIN sales s ON q.PRODUCT_ID = s.SALE_ITEM_ID AND q.PRODUCT_TYPE = 'SALE'
+        LEFT JOIN auctions a ON q.PRODUCT_ID = a.AUCTION_ID AND q.PRODUCT_TYPE = 'AUCTION'
+        WHERE q.PRODUCT_ID = #{productId} AND q.PRODUCT_TYPE = #{productType}
+        ORDER BY q.CREATED_TIME DESC
+    </select>
+
+    <!-- 문의 상세 조회 -->
+    <select id="getInquiryById" resultMap="InquiryResultMap">
+        SELECT q.QNA_ID, q.PRODUCT_ID, q.PRODUCT_TYPE, q.QUESTION_USER_ID, 
+               q.QUESTION_CONTENT, q.REPLY_CONTENT, q.REPLY_ID, q.IS_ANSWERED,
+               q.CREATED_TIME, q.UPDATED_TIME,
+               CASE 
+                   WHEN q.PRODUCT_TYPE = 'SALE' THEN s.TITLE
+                   WHEN q.PRODUCT_TYPE = 'AUCTION' THEN a.TITLE
+                   ELSE '상품명 없음'
+               END as PRODUCT_TITLE,
+               u.USER_NAME as QUESTIONER_NAME,
+               replier.USER_NAME as REPLIER_NAME
+        FROM qna q
+        LEFT JOIN users u ON q.QUESTION_USER_ID = u.ID
+        LEFT JOIN users replier ON q.REPLY_ID = replier.ID
+        LEFT JOIN sales s ON q.PRODUCT_ID = s.SALE_ITEM_ID AND q.PRODUCT_TYPE = 'SALE'
+        LEFT JOIN auctions a ON q.PRODUCT_ID = a.AUCTION_ID AND q.PRODUCT_TYPE = 'AUCTION'
+        WHERE q.QNA_ID = #{qnaId}
+    </select>
+
+    <!-- 문의 작성 -->
+    <insert id="insertInquiry" parameterType="com.app.dto.InquiryDto">
+        INSERT INTO qna (QNA_ID, PRODUCT_ID, PRODUCT_TYPE, QUESTION_USER_ID, 
+                        QUESTION_CONTENT, IS_ANSWERED, CREATED_TIME, UPDATED_TIME)
+        VALUES (qna_seq.NEXTVAL, #{productId}, #{productType}, #{questionUserId}, 
+                #{questionContent}, 'N', SYSTIMESTAMP, SYSTIMESTAMP)
+    </insert>
+
+    <!-- 문의 답변 작성 -->
+    <update id="updateSellerReply">
+        UPDATE qna 
+        SET REPLY_CONTENT = #{sellerReply},
+            REPLY_ID = #{replyId},
+            IS_ANSWERED = 'Y',
+            UPDATED_TIME = SYSTIMESTAMP
+        WHERE QNA_ID = #{qnaId}
+    </update>
+
+    <!-- 문의 삭제 -->
+    <delete id="deleteInquiry">
+        DELETE FROM qna WHERE QNA_ID = #{qnaId}
+    </delete>
+
+</mapper>

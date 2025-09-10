@@ -16,6 +16,29 @@ public interface UserMapper {
 	  User findById(String id);
 	  
 	  int insertBuyer(java.util.Map<String,Object> p);
-
+	  
+	// 비번 변경
 	  int updatePasswordByEmail(Map<String, Object> p);
+	  
+	// SNS용
+	  User findByProvider(@Param("provider") String provider, @Param("providerId") String providerId);
+	  int linkProviderByEmail(@Param("email") String email,
+	                          @Param("provider") String provider,
+	                          @Param("providerId") String providerId);
+	  int insertSnsUser(Map<String, Object> p);
+
+	// provider 존재 여부
+	  int existsByProvider(@Param("provider") String provider,
+			  			   @Param("providerId") String providerId);
+	  
+	// 역할 저장	  
+	  void updateRole(Map<String,Object> p);
+	  
+	// interface SNS  유저 소비자,판매자 선택
+	  int updateRole(@Param("id") String id, @Param("role") String role);
+
+	  
+	  
+	  
+	  
 	}

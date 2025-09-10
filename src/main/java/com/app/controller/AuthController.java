@@ -17,6 +17,8 @@ import com.app.service.user.UserService;
 import com.app.service.user.email.EmailService;
 
 import javax.servlet.http.HttpSession;
+
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -211,20 +213,56 @@ public class AuthController {
     session.invalidate();
     return ResponseEntity.noContent().build();
   }
+	//===========================
+	//내 정보 확인 (세션)
+	//===========================
+	@GetMapping("/me")
+	public ResponseEntity<?> me(HttpSession session) {
+	   Object idObj = session.getAttribute("LOGIN_ID");
+	   if (idObj == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+	
+	   String id       = String.valueOf(idObj);
+	   String email    = (String) session.getAttribute("LOGIN_EMAIL");
+	   String name     = (String) session.getAttribute("LOGIN_NAME");
+	   String userType = (String) session.getAttribute("LOGIN_USER_TYPE"); // 첫 SNS 가입 직후엔 null일 수 있음
+	   String provider = (String) session.getAttribute("LOGIN_PROVIDER");   // 로컬이면 null일 수 있음
+	
+	   // 세션에 누락된 값만 DB로 보완
+	   if (email == null || name == null || userType == null || provider == null) {
+	       User u = userMapper.findById(id);
+	       if (u != null) {
+	           if (email == null)    { email = u.getEmail();       session.setAttribute("LOGIN_EMAIL", email); }
+	           if (name == null)     { name = u.getUserName();     session.setAttribute("LOGIN_NAME", name); }
+	           if (userType == null) { userType = u.getUserType(); session.setAttribute("LOGIN_USER_TYPE", userType); }
+	           if (provider == null) { provider = u.getProvider(); session.setAttribute("LOGIN_PROVIDER", provider); }
+	       }
+	   }
+	
+	   Map<String, Object> res = new java.util.LinkedHashMap<>();
+	   res.put("id", id);
+	   res.put("email", email);
+	   res.put("name", name);
+	   res.put("userType", userType);   // 프런트 분기 기준
+	   res.put("provider", provider);
+	   res.put("role", userType);       // (호환용) 기존 코드가 role을 참조하면 유지
+	
+	   return ResponseEntity.ok(res);
+	}
+	
+	
+	@PostMapping("/me/user-type")
+	public ResponseEntity<?> setUserType(@RequestBody Map<String,String> b, HttpSession s) {
+	  Object idObj = s.getAttribute("LOGIN_ID");
+	  if (idObj == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+	  String role = b.get("userType");
+	  if (!List.of("BUYER","SELLER").contains(role)) {
+	    return ResponseEntity.badRequest().body(Map.of("ok", false, "message", "invalid role"));
+	  }
+	  userMapper.updateRole(idObj.toString(), role); // 매퍼: updateRole(id, role)
+	  s.setAttribute("LOGIN_USER_TYPE", role);
+	  return ResponseEntity.noContent().build();
+	}
 
-  // ===========================
-  // 내 정보 확인 (세션)
-  // ===========================
-  @GetMapping("/me")
-  public ResponseEntity<?> me(HttpSession session) {
-    Object id = session.getAttribute("LOGIN_ID");
-    if (id == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-    return ResponseEntity.ok(
-        Map.of(
-            "id", id,
-            "email", session.getAttribute("LOGIN_EMAIL"),
-            "name", session.getAttribute("LOGIN_NAME")
-        )
-    );
-  }
+	
+
 }

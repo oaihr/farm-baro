@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.app.mapper.OrderMapper">
+
+    <resultMap id="OrderResultMap" type="com.app.dto.OrderDto">
+        <id property="saleOrderId" column="SALE_ORDER_ID"/>
+        <result property="userId" column="USER_ID"/>
+        <result property="orderStatus" column="ORDER_STATUS"/>
+        <result property="orderDate" column="ORDER_DATE"/>
+        <result property="saleItemId" column="SALE_ITEM_ID"/>
+        <result property="orderQuantity" column="ORDER_QUANTITY"/>
+        <result property="totalPrice" column="TOTAL_PRICE"/>
+        <result property="productTitle" column="PRODUCT_TITLE"/>
+        <result property="buyerName" column="BUYER_NAME"/>
+        <result property="sellerName" column="SELLER_NAME"/>
+    </resultMap>
+
+    <!-- 구매자별 주문 목록 조회 -->
+    <select id="getOrdersByBuyer" resultMap="OrderResultMap">
+        SELECT os.SALE_ORDER_ID, os.USER_ID, os.ORDER_STATUS, os.ORDER_DATE,
+               osi.SALE_ITEM_ID, osi.ORDER_QUANTITY, osi.TOTAL_PRICE,
+               s.TITLE as PRODUCT_TITLE,
+               u.USER_NAME as BUYER_NAME,
+               seller.USER_NAME as SELLER_NAME
+        FROM order_sales os
+        LEFT JOIN order_sales_items osi ON os.SALE_ORDER_ID = osi.SALE_ORDER_ID
+        LEFT JOIN sales s ON osi.SALE_ITEM_ID = s.SALE_ITEM_ID
+        LEFT JOIN users u ON os.USER_ID = u.ID
+        LEFT JOIN users seller ON s.SELLER_ID = seller.ID
+        WHERE os.USER_ID = #{buyerId}
+        ORDER BY os.ORDER_DATE DESC
+    </select>
+
+    <!-- 판매자별 주문 목록 조회 -->
+    <select id="getOrdersBySeller" resultMap="OrderResultMap">
+        SELECT os.SALE_ORDER_ID, os.USER_ID, os.ORDER_STATUS, os.ORDER_DATE,
+               osi.SALE_ITEM_ID, osi.ORDER_QUANTITY, osi.TOTAL_PRICE,
+               s.TITLE as PRODUCT_TITLE,
+               u.USER_NAME as BUYER_NAME,
+               seller.USER_NAME as SELLER_NAME
+        FROM order_sales os
+        LEFT JOIN order_sales_items osi ON os.SALE_ORDER_ID = osi.SALE_ORDER_ID
+        LEFT JOIN sales s ON osi.SALE_ITEM_ID = s.SALE_ITEM_ID
+        LEFT JOIN users u ON os.USER_ID = u.ID
+        LEFT JOIN users seller ON s.SELLER_ID = seller.ID
+        WHERE s.SELLER_ID = #{sellerId}
+        ORDER BY os.ORDER_DATE DESC
+    </select>
+
+    <!-- 구매자 주문 검색 -->
+    <select id="searchBuyerOrders" resultMap="OrderResultMap">
+        SELECT os.SALE_ORDER_ID, os.USER_ID, os.ORDER_STATUS, os.ORDER_DATE,
+               osi.SALE_ITEM_ID, osi.ORDER_QUANTITY, osi.TOTAL_PRICE,
+               s.TITLE as PRODUCT_TITLE,
+               u.USER_NAME as BUYER_NAME,
+               seller.USER_NAME as SELLER_NAME
+        FROM order_sales os
+        LEFT JOIN order_sales_items osi ON os.SALE_ORDER_ID = osi.SALE_ORDER_ID
+        LEFT JOIN sales s ON osi.SALE_ITEM_ID = s.SALE_ITEM_ID
+        LEFT JOIN users u ON os.USER_ID = u.ID
+        LEFT JOIN users seller ON s.SELLER_ID = seller.ID
+        WHERE os.USER_ID = #{buyerId}
+        <if test="orderStatus != null and orderStatus != ''">
+            AND os.ORDER_STATUS = #{orderStatus}
+        </if>
+        ORDER BY os.ORDER_DATE DESC
+    </select>
+
+    <!-- 판매자 주문 검색 -->
+    <select id="searchSellerOrders" resultMap="OrderResultMap">
+        SELECT os.SALE_ORDER_ID, os.USER_ID, os.ORDER_STATUS, os.ORDER_DATE,
+               osi.SALE_ITEM_ID, osi.ORDER_QUANTITY, osi.TOTAL_PRICE,
+               s.TITLE as PRODUCT_TITLE,
+               u.USER_NAME as BUYER_NAME,
+               seller.USER_NAME as SELLER_NAME
+        FROM order_sales os
+        LEFT JOIN order_sales_items osi ON os.SALE_ORDER_ID = osi.SALE_ORDER_ID
+        LEFT JOIN sales s ON osi.SALE_ITEM_ID = s.SALE_ITEM_ID
+        LEFT JOIN users u ON os.USER_ID = u.ID
+        LEFT JOIN users seller ON s.SELLER_ID = seller.ID
+        WHERE s.SELLER_ID = #{sellerId}
+        <if test="orderStatus != null and orderStatus != ''">
+            AND os.ORDER_STATUS = #{orderStatus}
+        </if>
+        <if test="buyerName != null and buyerName != ''">
+            AND u.USER_NAME LIKE '%' || #{buyerName} || '%'
+        </if>
+        <if test="buyerPhone != null and buyerPhone != ''">
+            AND u.TEL LIKE '%' || #{buyerPhone} || '%'
+        </if>
+        ORDER BY os.ORDER_DATE DESC
+    </select>
+
+    <!-- 주문 확정 -->
+    <update id="confirmOrder">
+        UPDATE order_sales 
+        SET ORDER_STATUS = 'COMPLETED'
+        WHERE SALE_ORDER_ID = #{saleOrderId}
+    </update>
+
+    <!-- 배송 현황 업데이트 -->
+    <update id="updateDeliveryStatus">
+        UPDATE order_sales 
+        SET ORDER_STATUS = #{orderStatus}
+        WHERE SALE_ORDER_ID = #{saleOrderId}
+    </update>
+
+</mapper>

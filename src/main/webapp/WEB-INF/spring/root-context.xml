@@ -46,11 +46,11 @@
 	</context:component-scan>
 		
 	
-	<!-- 비밀번호 해시용 -->
+	<!-- 비밀번호 평문 허용. /해시용x -->
 	<bean id="passwordEncoder"
-	      class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder">
-	  <constructor-arg value="10"/>
-	</bean>
+      class="org.springframework.security.crypto.password.NoOpPasswordEncoder"
+      factory-method="getInstance"/>
+	
 	
 	
 	 <!-- 서비스/DAO/@Component 들을 스캔 (컨트롤러는 servlet-context가 스캔하므로 여기선 제외) -->
