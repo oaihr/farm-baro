@@ -6,6 +6,7 @@ const BuyerMainPage = () => {
     const { userId } = useParams();
     const navigate = useNavigate();
     const [userInfo, setUserInfo] = useState(null);
+    const [cartItems, setCartItems] = useState([]);
     const [stats, setStats] = useState({
         orders: 0,
         completedOrders: 0,
@@ -36,6 +37,24 @@ const BuyerMainPage = () => {
             console.error('사용자 정보 조회 오류:', error);
         }
     };
+
+    // 장바구니 아이템 가져오기
+    const fetchCartItems = useCallback(async () => {
+        try {
+            const response = await fetch(`http://localhost:8080/api/mypage/cart`, {
+                credentials: 'include'
+            });
+            if (response.ok) {
+                const data = await response.json();
+                console.log('마이페이지 장바구니 데이터:', data);
+                setCartItems(data || []);
+            } else {
+                console.error('장바구니 조회 실패');
+            }
+        } catch (error) {
+            console.error('장바구니 조회 오류:', error);
+        }
+    }, []);
 
     // 통계 정보 가져오기
     const fetchStats = useCallback(async () => {
@@ -83,9 +102,10 @@ const BuyerMainPage = () => {
 
     useEffect(() => {
         fetchUserInfo();
+        fetchCartItems();
         fetchStats();
         setLoading(false);
-    }, [fetchStats]);
+    }, [fetchCartItems, fetchStats]);
 
     // 빠른 액션 카드들
     const quickActions = [
@@ -141,32 +161,7 @@ const BuyerMainPage = () => {
                 <p>안녕하세요, {userInfo?.name || '사용자'}님! 오늘도 좋은 하루 되세요.</p>
             </div>
 
-            {/* 탭 메뉴 */}
-            <div className="tab-container">
-                <div className="tabs">
-                    <button 
-                        className={`tab ${activeTab === 'overview' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('overview')}
-                    >
-                        <span className="tab-icon">📊</span>
-                        개요
-                    </button>
-                    <button 
-                        className={`tab ${activeTab === 'orders' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('orders')}
-                    >
-                        <span className="tab-icon">📦</span>
-                        주문
-                    </button>
-                    <button 
-                        className={`tab ${activeTab === 'reviews' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('reviews')}
-                    >
-                        <span className="tab-icon">⭐</span>
-                        리뷰
-                    </button>
-                </div>
-            </div>
+            
 
             {/* 빠른 액션 */}
             <div className="quick-actions">
@@ -215,9 +210,8 @@ const BuyerMainPage = () => {
                         <div className="stat-label">작성한 리뷰</div>
                     </div>
                     <div className="stat-card">
-                        <div className="stat-number">{stats.cartItems || 0}</div>
+                        <div className="stat-number">{cartItems.length}</div>
                         <div className="stat-label">장바구니 상품</div>
-                        <div className="stat-detail">총 {(stats.cartTotalAmount || 0).toLocaleString()}원</div>
                     </div>
                 </div>
             </div>
