@@ -79,7 +79,7 @@
         FROM AUCTIONS a
         LEFT JOIN users u ON a.WINNER_ID = u.ID
         WHERE a.WINNER_ID = #{winnerId}
-        AND a.AUCTION_STATUS = 'OFF'
+        AND a.AUCTION_STATUS = 'off'
         ORDER BY a.END_DATE DESC
     </select>
 

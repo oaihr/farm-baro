@@ -6,13 +6,13 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Logger name="java.sql" level="DEBUG" additivity="false">
+        <Logger name="java.sql" level="INFO" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
-        <Logger name="org.apache.ibatis" level="DEBUG" additivity="false">
+        <Logger name="org.apache.ibatis" level="INFO" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
-        <Logger name="com.app.dao" level="DEBUG" additivity="false">
+        <Logger name="com.app.dao" level="INFO" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
         <Root level="INFO">
