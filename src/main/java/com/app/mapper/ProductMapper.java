@@ -1,9 +1,11 @@
 package com.app.mapper;
 
-import com.app.dto.ProductDto;
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import java.util.List;
+
+import com.app.dto.ProductDto;
 
 @Mapper
 public interface ProductMapper {
@@ -39,6 +41,9 @@ public interface ProductMapper {
     
     // 상품 이미지 삭제
     int deleteProductImages(@Param("productId") Long productId);
+    
+    // 장바구니 아이템 삭제
+    int deleteCartItems(@Param("productId") Long productId);
     
     // 리뷰 이미지 등록
     int insertReviewImage(@Param("reviewId") Long reviewId, 

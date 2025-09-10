@@ -523,7 +523,7 @@ public class MyPageController {
     }
 
     // 상품 등록 API
-    @PostMapping("/api/products")
+    @PostMapping("/products")
     @ResponseBody
     public ResponseEntity<Boolean> registerProduct(
             @RequestParam("title") String title,
@@ -534,6 +534,7 @@ public class MyPageController {
             @RequestParam("description") String description,
             @RequestParam("detailDescription") String detailDescription,
             @RequestParam("weight") String weight,
+            @RequestParam("price") Double price,
             @RequestParam("grade") String grade,
             @RequestParam("traceabilityNum") String traceabilityNum,
             @RequestParam("sellerId") String sellerId,
@@ -549,6 +550,7 @@ public class MyPageController {
         System.out.println("description: " + description);
         System.out.println("detailDescription: " + detailDescription);
         System.out.println("weight: " + weight);
+        System.out.println("price: " + price);
         System.out.println("grade: " + grade);
         System.out.println("traceabilityNum: " + traceabilityNum);
         System.out.println("sellerId: " + sellerId);
@@ -563,6 +565,7 @@ public class MyPageController {
             product.setDescription(description);
             product.setDetailDescription(detailDescription);
             product.setWeight(weight);
+            product.setPrice(price);
             product.setGrade(grade);
             product.setTraceabilityNum(traceabilityNum);
             product.setSellerId(sellerId);
@@ -574,15 +577,24 @@ public class MyPageController {
             // 이미지 URL들이 있으면 처리
             if (result && imageUrls != null && imageUrls.length > 0) {
                 Long productId = product.getSaleItemId();
-                for (int i = 0; i < imageUrls.length; i++) {
-                    String imageUrl = imageUrls[i];
-                    if (imageUrl != null && !imageUrl.trim().isEmpty()) {
-                        boolean isThumbnail = (i == 0); // 첫 번째 이미지를 대표 이미지로 설정
-                        // 프론트엔드에서 전송한 순서 정보 사용, 없으면 기본값 사용
-                        int orderIndex = (imageOrderIndexes != null && i < imageOrderIndexes.length && imageOrderIndexes[i] != null) 
-                            ? imageOrderIndexes[i].intValue() : (i + 1);
-                        myPageService.insertProductImage(productId, imageUrl.trim(), orderIndex, isThumbnail);
+                System.out.println("=== 생성된 상품 ID: " + productId + " ===");
+                
+                if (productId != null) {
+                    for (int i = 0; i < imageUrls.length; i++) {
+                        String imageUrl = imageUrls[i];
+                        if (imageUrl != null && !imageUrl.trim().isEmpty()) {
+                            // ORDER_INDEX가 1이면 IS_THUMBNAIL을 'Y'로 설정
+                            int orderIndex = (imageOrderIndexes != null && i < imageOrderIndexes.length && imageOrderIndexes[i] != null) 
+                                ? imageOrderIndexes[i].intValue() : (i + 1);
+                            boolean isThumbnail = (orderIndex == 1); // ORDER_INDEX가 1이면 썸네일
+                            
+                            System.out.println("이미지 저장 시도: " + imageUrl + ", PRODUCT_ID: " + productId + ", ORDER_INDEX: " + orderIndex + ", IS_THUMBNAIL: " + isThumbnail);
+                            boolean imageResult = myPageService.insertProductImage(productId, imageUrl.trim(), orderIndex, isThumbnail);
+                            System.out.println("이미지 저장 결과: " + imageResult);
+                        }
                     }
+                } else {
+                    System.out.println("❌ 상품 ID가 null입니다. 이미지 저장을 건너뜁니다.");
                 }
             }
             System.out.println("=== 상품 등록 결과: " + result + " ===");
@@ -601,7 +613,7 @@ public class MyPageController {
     }
 
     // 상품 수정 API (JSON 방식)
-    @PutMapping(value = "/api/products/{productId}", consumes = "application/json")
+    @PutMapping(value = "/products/{productId}", consumes = "application/json")
     @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"})
     @ResponseBody
     public ResponseEntity<Boolean> updateProductJson(
@@ -618,7 +630,7 @@ public class MyPageController {
     }
 
     // 상품 수정 API (Form 방식)
-    @PutMapping("/api/products/{productId}/form")
+    @PutMapping("/products/{productId}/form")
     @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"})
     @ResponseBody
     public ResponseEntity<Boolean> updateProductForm(
@@ -655,16 +667,20 @@ public class MyPageController {
             if (imageUrls != null && imageUrls.length > 0) {
                 // 기존 이미지 삭제
                 myPageService.deleteProductImages(productId);
+                System.out.println("=== 기존 이미지 삭제 완료 ===");
 
                 // 새로운 이미지 URL들 저장
                 for (int i = 0; i < imageUrls.length; i++) {
                     String imageUrl = imageUrls[i];
                     if (imageUrl != null && !imageUrl.trim().isEmpty()) {
-                        boolean isThumbnail = (i == 0); // 첫 번째 이미지를 대표 이미지로 설정
-                        // 프론트엔드에서 전송한 순서 정보 사용, 없으면 기본값 사용
+                        // ORDER_INDEX가 1이면 IS_THUMBNAIL을 'Y'로 설정
                         int orderIndex = (imageOrderIndexes != null && i < imageOrderIndexes.length && imageOrderIndexes[i] != null) 
                             ? imageOrderIndexes[i].intValue() : (i + 1);
-                        myPageService.insertProductImage(productId, imageUrl.trim(), orderIndex, isThumbnail);
+                        boolean isThumbnail = (orderIndex == 1); // ORDER_INDEX가 1이면 썸네일
+                        
+                        System.out.println("이미지 저장: " + imageUrl + ", ORDER_INDEX: " + orderIndex + ", IS_THUMBNAIL: " + isThumbnail);
+                        boolean imageResult = myPageService.insertProductImage(productId, imageUrl.trim(), orderIndex, isThumbnail);
+                        System.out.println("이미지 저장 결과: " + imageResult);
                     }
                 }
             }
@@ -678,7 +694,7 @@ public class MyPageController {
     }
 
     // 상품 삭제 API
-    @DeleteMapping("/api/products/{productId}")  // /mypage/api/products/{productId}에서 변경
+    @DeleteMapping("/products/{productId}")
     @ResponseBody
     public ResponseEntity<Boolean> deleteProduct(@PathVariable Long productId) {
         try {
@@ -703,7 +719,7 @@ public class MyPageController {
     }
 
     // 판매자 주문 목록 조회 API
-    @GetMapping("/api/sellers/{sellerId}/orders")
+    @GetMapping("/sellers/{sellerId}/orders")
     @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"})
     @ResponseBody
     public ResponseEntity<List<OrderDto>> getSellerOrders(@PathVariable String sellerId,
@@ -729,7 +745,7 @@ public class MyPageController {
     }
 
     // 판매자 최근 주문 조회 API (대시보드용 - 최근 5개)
-    @GetMapping("/api/sellers/{sellerId}/recent-orders")
+    @GetMapping("/sellers/{sellerId}/recent-orders")
     @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"})
     @ResponseBody
     public ResponseEntity<List<OrderDto>> getSellerRecentOrders(@PathVariable String sellerId) {
@@ -826,18 +842,6 @@ public class MyPageController {
         }
     }
 
-    // 판매자 주문 내역 조회
-    @GetMapping("/api/sellers/{userId}/orders")
-    @ResponseBody
-    public ResponseEntity<List<OrderDto>> getSellerOrders(@PathVariable String userId) {
-        try {
-            List<OrderDto> orders = myPageService.getSellerOrdersWithExceptionHandling(userId);
-            return ResponseEntity.ok(orders);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().build();
-        }
-    }
 
     // 주문 확정 (구매자)
     @PutMapping("/api/orders/{orderId}/confirm")

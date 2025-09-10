@@ -167,11 +167,11 @@ function Home() {
 
                                 return (
                                     <div key={index} className="home-auction-card">
-                                        <img src={item.images[0].imageUrl} alt={item.title} />
-                                        <h3>{item.title}</h3>
+                                        <img src={imageUrl} alt={item.title || '경매 상품'} />
+                                        <h3>{item.title || '상품명 없음'}</h3>
                                         <hr className='hr'></hr>
-                                        <p>시작가: {item.initialPrice.toLocaleString()}원{item.unit}</p>
-                                        <p className="home-price-now">현재가: {item.currentBidPrice.toLocaleString()}원{item.unit}</p>
+                                        <p>시작가: {item.initialPrice ? item.initialPrice.toLocaleString() : '0'}원{item.unit || ''}</p>
+                                        <p className="home-price-now">현재가: {item.currentBidPrice ? item.currentBidPrice.toLocaleString() : '0'}원{item.unit || ''}</p>
                                         <RemainingTimeDisplay endDate={item.endDate} />
                                         <button className='home-quote-btn btn'>입찰하기</button>
                                     </div>
@@ -187,16 +187,22 @@ function Home() {
                         {isLoading ? (
                             <p>데이터를 불러오는 중입니다...</p>
                         ) : (
-                            saleData.map((item, index) => (
-                                <div key={index} className="home-sale-card">
-                                    <img src={`http://localhost:8080${item.images[0].imageUrl}`} alt={item.title} />
-                                    <h3>{item.title}</h3>
-                                    <hr className='hr'></hr>
-                                    <h5>등급 : {item.grade}</h5>
-                                    <p className="home-price-now">{item.price.toLocaleString()}원/kg</p>
-                                    <button className='home-quote-btn btn'>장바구니 담기</button>
-                                </div>
-                            ))
+                            saleData.map((item, index) => {
+                                const saleImageUrl = item.images && item.images.length > 0 && item.images[0]
+                                    ? `http://localhost:8080${item.images[0].imageUrl}`
+                                    : 'https://via.placeholder.com/150?text=No+Image';
+                                
+                                return (
+                                    <div key={index} className="home-sale-card">
+                                        <img src={saleImageUrl} alt={item.title || '판매 상품'} />
+                                        <h3>{item.title || '상품명 없음'}</h3>
+                                        <hr className='hr'></hr>
+                                        <h5>등급 : {item.grade || '등급 정보 없음'}</h5>
+                                        <p className="home-price-now">{item.price ? item.price.toLocaleString() : '0'}원/kg</p>
+                                        <button className='home-quote-btn btn'>장바구니 담기</button>
+                                    </div>
+                                );
+                            })
                         )}
                     </div>
                 </div>

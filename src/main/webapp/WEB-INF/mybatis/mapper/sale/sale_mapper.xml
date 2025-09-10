@@ -44,7 +44,7 @@
 			WHERE 
 				S.judge_kind_name = #{kind} AND
 				S.cut_name = #{part} AND
-				S.sale_status = 'ON'
+				S.sale_status = 'on'
 		)
 		WHERE rnum BETWEEN #{pageable.offset} + 1 AND #{pageable.offset} + #{pageable.size}
 		ORDER BY SALE_ITEM_ID ASC
@@ -56,7 +56,7 @@
         FROM SALES
         WHERE judge_kind_name = #{kind}
             AND CUT_NAME = #{part}
-            AND SALE_STATUS = 'ON'
+            AND SALE_STATUS = 'on'
     </select>
     
     <resultMap type="saleItem" id="SaleItemDetailResultMap">
@@ -97,7 +97,7 @@
 			I.image_url,
 			I.order_index
 		FROM SALES S
-		INNER JOIN PRODUCT_IMAGES I
+		LEFT JOIN PRODUCT_IMAGES I
 		ON S.sale_item_id = I.product_id
 		WHERE 
 			S.sale_item_id = #{saleId}

@@ -148,7 +148,7 @@ function Header() {
                             <ul className="home-submenu">
                                 <li><Link to="/sale/beef/sirloin">등심</Link></li>
                                 <li><Link to="/sale/beef/tenderloin">안심</Link></li>
-                                <li><Link to="/sale/beef/ribs">갈비</Link></li>
+                                <li><Link to="/sale/beef/rib">갈비</Link></li>
                                 <li><Link to="/sale/beef/etc">기타</Link></li>
                             </ul>
                         </li>
@@ -156,8 +156,8 @@ function Header() {
                         <li className="home-menu-span span">돼지
                             <ul className="home-submenu">
                                 <li><Link to="/sale/pork/belly">삼겹살</Link></li>
-                                <li><Link to="/sale/pork/loin">목살</Link></li>
-                                <li><Link to="/sale/pork/ribs">갈비</Link></li>
+                                <li><Link to="/sale/pork/neck">목살</Link></li>
+                                <li><Link to="/sale/pork/rib">갈비</Link></li>
                                 <li><Link to="/sale/pork/etc">기타</Link></li>
                             </ul>
                         </li>
@@ -165,7 +165,7 @@ function Header() {
                         <li className="home-menu-span span">닭
                             <ul className="home-submenu">
                                 <li><Link to="/sale/chicken/breast">가슴살</Link></li>
-                                <li><Link to="/sale/chicken/drumstick">다리</Link></li>
+                                <li><Link to="/sale/chicken/leg">다리</Link></li>
                                 <li><Link to="/sale/chicken/etc">기타</Link></li>
                             </ul>
                         </li>

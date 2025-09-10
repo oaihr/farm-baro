@@ -432,7 +432,30 @@ public class MyPageService {
 
     // 상품 삭제
     public boolean deleteProduct(Long productId) {
-        return productMapper.deleteProduct(productId) > 0;
+        try {
+            System.out.println("=== 상품 삭제 시작: " + productId + " ===");
+            
+            // 1. 먼저 장바구니 아이템들 삭제
+            int cartDeleteResult = productMapper.deleteCartItems(productId);
+            System.out.println("장바구니 아이템 삭제 결과: " + cartDeleteResult + "개 삭제됨");
+            
+            // 2. 관련 이미지들 삭제
+            boolean imageDeleteResult = deleteProductImages(productId);
+            System.out.println("이미지 삭제 결과: " + imageDeleteResult);
+            
+            // 3. 상품 삭제
+            int result = productMapper.deleteProduct(productId);
+            System.out.println("상품 삭제 결과: " + result + "개 행 삭제됨");
+            
+            boolean success = result > 0;
+            System.out.println("=== 상품 삭제 완료: " + success + " ===");
+            
+            return success;
+        } catch (Exception e) {
+            System.out.println("=== 상품 삭제 중 오류 발생 ===");
+            e.printStackTrace();
+            return false;
+        }
     }
     
     // 기본 주문 통계 (임시)
@@ -798,9 +821,20 @@ public class MyPageService {
     // 상품 이미지 등록
     public boolean insertProductImage(Long productId, String imageUrl, int orderIndex, boolean isThumbnail) {
         try {
+            System.out.println("=== 이미지 저장 시작 ===");
+            System.out.println("productId: " + productId);
+            System.out.println("imageUrl: " + imageUrl);
+            System.out.println("orderIndex: " + orderIndex);
+            System.out.println("isThumbnail: " + isThumbnail);
+            
             int result = productMapper.insertProductImage(productId, imageUrl, orderIndex, isThumbnail);
-            return result > 0;
+            System.out.println("MyBatis insertProductImage 결과: " + result);
+            
+            boolean success = result > 0;
+            System.out.println("=== 이미지 저장 완료: " + success + " ===");
+            return success;
         } catch (Exception e) {
+            System.out.println("=== 이미지 저장 중 오류 발생 ===");
             e.printStackTrace();
             return false;
         }
