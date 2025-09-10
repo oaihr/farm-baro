@@ -214,7 +214,7 @@ public class AuthController {
       try {
         // 세션 ID를 사용하여 사용자 정보 조회 (임시로 seller001 사용)
         // 실제로는 세션 ID를 키로 사용하여 사용자 정보를 조회해야 함
-        User user = userService.findById("seller001");
+        User user = userService.findById(sessionId);
         if (user != null) {
           Map<String, Object> userInfo = Map.of(
               "id", user.getId(),
