@@ -12,7 +12,7 @@ import './Header.css';
 import logoutLogo from '../images/log-out.png';
 import loginLogo from '../images/log-in.png';
 import mypageLogo from '../images/user2.png';
-import notiBell from '../images/noti.png';
+import notiBell from '../images/bell_12936793.png';
 
 function Header() {
 

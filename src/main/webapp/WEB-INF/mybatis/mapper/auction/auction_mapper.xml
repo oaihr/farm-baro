@@ -48,7 +48,7 @@
 			INNER JOIN USERS U ON A.seller_id = U.id
 			
 			<where>
-            	A.auction_status = 'ON'
+            	A.auction_status = 'on'
             
             <if test="kind != null and kind != ''">
                 AND A.judge_kind_name = #{kind}
@@ -63,7 +63,7 @@
         SELECT COUNT(*)
         FROM AUCTIONS
         <where> 
-        	AUCTION_STATUS = 'ON'
+        	AUCTION_STATUS = 'on'
         	<if test="kind != null and kind != ''">
                 AND judge_kind_name = #{kind}
             </if>
@@ -134,7 +134,7 @@
 		SELECT
 			AUCTION_ID			
 		FROM AUCTIONS
-		WHERE END_DATE &lt;= #{currentTime} AND AUCTION_STATUS = 'ON'
+		WHERE END_DATE &lt;= #{currentTime} AND AUCTION_STATUS = 'on'
 	</select>
 	
 	<update id="updateAuctionStatusAndWinner">
