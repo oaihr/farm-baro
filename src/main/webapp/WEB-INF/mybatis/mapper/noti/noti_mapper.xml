@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.app.dao.noti.NotificationDAO">
+
+   
+    <insert id="insertNotification" parameterType="com.app.dto.noti.NotificationDTO">
+        INSERT INTO notifications (
+            notification_id, user_id, type, message, related_id, is_read, created_time
+        ) VALUES (
+            notifications_seq.NEXTVAL, #{userId}, #{type}, #{message}, #{relatedId}, #{isRead}, #{createdTime}
+        )
+    </insert>
+
+    <select id="getNotificationsByUserId" parameterType="string" resultType="com.app.dto.noti.NotificationDTO">
+        SELECT
+            notification_id,
+            user_id,
+            type,
+            message,
+            related_id,
+            is_read,
+            created_time
+        FROM notifications
+        WHERE user_id = #{userId}
+        ORDER BY created_time DESC
+    </select>
+    
+    <update id="updateIsRead" parameterType="long">
+        UPDATE notifications
+        SET is_read = 'Y'
+        WHERE notification_id = #{notificationId}
+    </update>
+
+	<select id="maxBidId" parameterType="java.util.Map" resultType="string">
+		select user_id from bids
+		where auction_id = #{auctionId} AND bid_price = #{currentMaxBid}
+	</select>
+	
+	<!-- user별 알림 list 불러오기 -->
+	<select id="userNotiList" resultType="com.app.dto.noti.NotificationDTO" parameterType="string">
+		select * from NOTIFICATIONS
+		where user_id = #{userId}
+	</select>
+
+</mapper>

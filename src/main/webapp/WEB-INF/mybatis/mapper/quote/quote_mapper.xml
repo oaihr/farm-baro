@@ -100,7 +100,7 @@
     
     <select id="dayList" resultType="Quote" parameterType="String">
     	select * from CONSUMER_PRICE_DAILY
-		where stand_ymd = #{standYmd}
+		where stand_ymd = #{standYmd} AND stand_ymd NOT LIKE '평년'
     </select>
 
 
@@ -113,8 +113,28 @@
     </select>
     
     <select id="dayListM" resultType="QuoteM" parameterType="String">
-    	select * from CONSUMER_PRICE_MONTH
-		where stand_ym = #{standYm}
+		SELECT
+		    MIN(ID) AS ID,
+		    MIN(stand_ym) AS stand_ym,
+		    GRADE_NAME,
+		    JUDGE_KIND_NAME,
+		    JUDGE_KIND,
+		    ITEM_NAME,
+		    ITEM_CODE,
+		    UNIT,
+		    NET_SALE_PRICE,
+		    MIN(CREATED_TIME) AS CREATED_TIME
+		FROM
+		    CONSUMER_PRICE_MONTH
+		where stand_ym = #{standYm} AND stand_ym NOT LIKE '평년'    
+		GROUP BY
+		    GRADE_NAME,
+		    NET_SALE_PRICE,
+		    JUDGE_KIND_NAME,
+		    JUDGE_KIND,
+		    ITEM_NAME,
+		    ITEM_CODE,
+		    UNIT
     </select>
     
     <update id="standYmNullUpdate" parameterType="QuoteM">
@@ -133,8 +153,32 @@
     </select>
     
     <select id="dayListY" resultType="QuoteY" parameterType="String">
-    	select * from CONSUMER_PRICE_YEAR
-		where year = #{year}
+		SELECT
+		    MIN(ID) AS ID,
+		    MIN(YEAR) AS YEAR,
+		    GRADE_NAME,
+		    JUDGE_KIND_NAME,
+		    JUDGE_KIND,
+		    ITEM_NAME,
+		    ITEM_CODE,
+		    UNIT,
+		    NET_SALE_PRICE,
+		    MAX_PRICE,
+		    MIN_PRICE,
+		    MIN(CREATED_TIME) AS CREATED_TIME
+		FROM
+		    CONSUMER_PRICE_YEAR
+		where year=#{year} AND year NOT LIKE '평년'    
+		GROUP BY
+		    GRADE_NAME,
+		    NET_SALE_PRICE,
+		    MAX_PRICE,
+		    MIN_PRICE,
+		    JUDGE_KIND_NAME,
+		    JUDGE_KIND,
+		    ITEM_NAME,
+		    ITEM_CODE,
+		    UNIT
     </select>
     
 </mapper>

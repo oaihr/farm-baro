@@ -11,6 +11,10 @@
     padding: 8px 30px;
     margin: 0 30px;
     background-color: #666565;
+    border-radius: 10px;
+    cursor: pointer;
+    border: none;
+    font-weight: bold;
 }
 
 .quote-active {

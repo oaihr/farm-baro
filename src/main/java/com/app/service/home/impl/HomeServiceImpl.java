@@ -18,8 +18,8 @@ public class HomeServiceImpl implements HomeService{
 
 	@Override
 	public List<AuctionItemHome> getAuctionPage() {
-		List<AuctionItemHome> homeList = homeDAO.getAuctionPage();
-		return homeList;
+		List<AuctionItemHome> auctionList = homeDAO.getAuctionPage();
+		return auctionList;
 	}
 
 	@Override

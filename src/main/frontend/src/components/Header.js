@@ -6,10 +6,18 @@ import { fetchCurrentUser, logout, clearAuth } from '../store/store';
 import { http } from '../api/http';
 
 import logo from '../images/farmbaro_logo.png';
+import NotificationList from '../noti/NotificationList';
+
 import './Header.css';
-//import logoutLogo from '../images/logout.png'
+import logoutLogo from '../images/log-out.png';
+import loginLogo from '../images/log-in.png';
+import mypageLogo from '../images/user2.png';
+import notiBell from '../images/bell_12936793.png';
 
 function Header() {
+
+    //noti
+    const [isNotiOpen, setIsNotiOpen] = useState(false);
 
     // searchKeyword
     const [ searchKeyword, setSearchKeyword ] = useState('');

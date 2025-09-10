@@ -1,38 +1,38 @@
 /* src/pages/SignupWizard/BuyerWizard.css */
 :root{
-  --green:#38761D; --sub:#6B7280; --border:#E5E7EB; --radius:12px;
-  --brand-600:#38761D;
-  --brand-700:#2f5e18;
+--green:#38761D; --sub:#6B7280; --border:#E5E7EB; --radius:12px;
+--brand-600:#38761D;
+--brand-700:#2f5e18;
 
 }
 /* 전체 톤: 다크 배경 위에서 텍스트 가독성 ↑ */
 .wiz-wrap {
-  max-width: 840px;
-  margin: 40px auto 120px;
-  padding: 0 20px;
-  color: #163f16; /* 기본 텍스트 컬러 밝게 */
-  font-weight: 500;
+max-width: 840px;
+margin: 40px auto 120px;
+padding: 0 20px;
+color: #163f16; /* 기본 텍스트 컬러 밝게 */
+font-weight: 500;
 }
 .wiz-head .brand{font-weight:700;color:var(--green);margin-bottom:8px}
 .wiz-head .title{font-weight:600;font-size:22px;margin-bottom:8px}
 /* 진행바 */
 .wiz-head .bar{
-  height:6px; background:#e6efea; border-radius:99px; overflow:hidden;
+height:6px; background:#e6efea; border-radius:99px; overflow:hidden;
 }
 .wiz-head .bar i{
-  display:block; height:100%;
-  background: var(--brand-600);
-  transition:width .3s ease;
+display:block; height:100%;
+background: var(--brand-600);
+transition:width .3s ease;
 }
 
 .wiz-head .step{color:var(--sub);font-size:13px;margin-top:6px}
 /* 카드(입력 박스 영역) */
 .card{
-  background: var(--panel);
-  border:1px solid var(--panel-border);
-  border-radius:16px;
-  box-shadow: var(--shadow);
-  padding:24px;
+background: var(--panel);
+border:1px solid var(--panel-border);
+border-radius:16px;
+box-shadow: var(--shadow);
+padding:24px;
 }
 
 .row{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
@@ -40,30 +40,30 @@
 
 /* 입력 */
 .row input{
-  width:100%; height:44px; border-radius:10px;
-  background: var(--input-bg);
-  border:1px solid var(--input-border);
-  padding:0 14px;
-  color:var(--text);
+width:100%; height:44px; border-radius:10px;
+background: var(--input-bg);
+border:1px solid var(--input-border);
+padding:0 14px;
+color:var(--text);
 }
 .row input:focus{
-  outline:none;
-  border-color: var(--input-focus);
-  box-shadow:0 0 0 3px color-mix(in srgb, var(--brand-600) 20%, transparent);
+outline:none;
+border-color: var(--input-focus);
+box-shadow:0 0 0 3px color-mix(in srgb, var(--brand-600) 20%, transparent);
 }
 
 .row select {
-  width: 100%;
-  box-sizing: border-box;
-  font-size: 15px;
-  line-height: 1.15;
-  padding: 12px 14px;
-  color: #0f1d14;             /* 필드 안 글씨는 진하게 */
-  background: #ffffff;        /* 흰 바탕 */
-  border: 1px solid #cfe0d4;  /* 은은한 테두리 */
-  border-radius: 12px;
-  outline: none;
-  transition: border-color .15s, box-shadow .15s;
+width: 100%;
+box-sizing: border-box;
+font-size: 15px;
+line-height: 1.15;
+padding: 12px 14px;
+color: #0f1d14; /* 필드 안 글씨는 진하게 */
+background: #ffffff; /* 흰 바탕 */
+border: 1px solid #cfe0d4; /* 은은한 테두리 */
+border-radius: 12px;
+outline: none;
+transition: border-color .15s, box-shadow .15s;
 }
 .hstack{display:flex;gap:8px}
 .hstack > input{flex:1}
@@ -78,38 +78,38 @@ button.ghost{background:#fff;color:#111827;border:1px solid var(--border)}
 .row .err{ color: var(--danger); font-size:12px; margin-top:6px; }
 /* 유효성 오류 */
 .row .invalid, .row input.invalid{
-  border-color: var(--danger);
-  background: var(--danger-bg);
+border-color: var(--danger);
+background: var(--danger-bg);
 }
 
 /* 버튼 */
 actions button{
-  min-width:120px; height:44px; border-radius:10px; outline:1px solid #ddd;
-  background: var(--brand-600, var(--green)); color:#fff; border:none; padding:0 16px;
+min-width:120px; height:44px; border-radius:10px; outline:1px solid #ddd;
+background: var(--brand-600, var(--green)); color:#fff; border:none; padding:0 16px;
 }
 .actions button:hover{ background: var(--brand-700, #2f5e18); }
 .actions .ghost{
-  background:#fff; color:var(--brand-600);
-  border:1px solid var(--panel-border);
+background:#fff; color:var(--brand-600);
+border:1px solid var(--panel-border);
 }
 button[aria-disabled="true"]{ opacity:.6; }
 
-.actions button:disabled { opacity: .5; cursor: not-allowed;   pointer-events:none;  /* 클릭만 막기 */ }
+.actions button:disabled { opacity: .5; cursor: not-allowed; pointer-events:none; /* 클릭만 막기 */ }
 
 
 
 
 .modal-backdrop {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,.45);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 1000;
+position: fixed; inset: 0;
+background: rgba(0,0,0,.45);
+display: flex; align-items: center; justify-content: center;
+z-index: 1000;
 }
 .modal-card {
-  width: 480px; max-width: 92%;
-  background: #fff; border-radius: 14px;
-  padding: 24px; text-align: center;
-  box-shadow: 0 20px 60px rgba(0,0,0,.2);
+width: 480px; max-width: 92%;
+background: #fff; border-radius: 14px;
+padding: 24px; text-align: center;
+box-shadow: 0 20px 60px rgba(0,0,0,.2);
 }
 .modal-icon { font-size: 40px; margin-bottom: 8px; }
 .mt8 { margin-top: 8px; } .mt16 { margin-top: 16px; } .ml8 { margin-left: 8px; }
