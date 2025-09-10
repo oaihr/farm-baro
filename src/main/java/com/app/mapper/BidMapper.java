@@ -40,6 +40,9 @@ public interface BidMapper {
     // 구매자별 낙찰 상품 조회
     List<BidDto> getWinningBids(@Param("bidderId") String bidderId);
     
+    // 디버깅용: WINNER_ID가 있는 모든 경매 조회
+    List<BidDto> getAllAuctionsWithWinner(@Param("winnerId") String winnerId);
+    
     // 구매자별 낙찰상품 납부 대기 리스트 조회 (AUCTIONS 테이블의 WINNER_ID 기준)
     List<BidDto> getWinningAuctionsForPayment(@Param("winnerId") String winnerId);
 }

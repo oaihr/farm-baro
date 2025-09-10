@@ -343,8 +343,28 @@ public class MyPageService {
     // 구매자별 낙찰상품 납부 대기 리스트 조회
     public List<BidDto> getWinningAuctionsForPayment(String winnerId) {
         try {
-            return bidMapper.getWinningAuctionsForPayment(winnerId);
+            System.out.println("=== MyPageService.getWinningAuctionsForPayment 호출 ===");
+            System.out.println("winnerId: " + winnerId);
+            
+            // 디버깅: WINNER_ID가 있는 모든 경매 조회
+            System.out.println("실행할 SQL: SELECT * FROM AUCTIONS WHERE WINNER_ID = '" + winnerId + "'");
+            List<BidDto> allAuctions = bidMapper.getAllAuctionsWithWinner(winnerId);
+            System.out.println("WINNER_ID가 있는 모든 경매 수: " + allAuctions.size());
+            for (BidDto auction : allAuctions) {
+                System.out.println("경매 ID: " + auction.getAuctionId() + 
+                                 ", 상태: " + auction.getBidStatus() + 
+                                 ", 가격: " + auction.getBidPrice());
+            }
+            
+            System.out.println("실행할 SQL: SELECT * FROM AUCTIONS WHERE WINNER_ID = '" + winnerId + "' AND AUCTION_STATUS = 'OFF'");
+            
+            List<BidDto> result = bidMapper.getWinningAuctionsForPayment(winnerId);
+            System.out.println("AUCTION_STATUS='OFF' 조건을 만족하는 낙찰상품 수: " + result.size());
+            System.out.println("매퍼 결과: " + result);
+            
+            return result;
         } catch (Exception e) {
+            System.out.println("=== MyPageService.getWinningAuctionsForPayment 오류 ===");
             e.printStackTrace();
             return new ArrayList<>();
         }

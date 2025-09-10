@@ -985,9 +985,16 @@ public class MyPageController {
     @ResponseBody
     public ResponseEntity<List<BidDto>> getWinningAuctionsForPaymentMyPage(@PathVariable String userId) {
         try {
+            System.out.println("=== 낙찰상품 조회 요청 ===");
+            System.out.println("userId: " + userId);
+            
             List<BidDto> winningAuctions = myPageService.getWinningAuctionsForPayment(userId);
+            System.out.println("조회된 낙찰상품 수: " + winningAuctions.size());
+            System.out.println("낙찰상품 목록: " + winningAuctions);
+            
             return ResponseEntity.ok(winningAuctions);
         } catch (Exception e) {
+            System.out.println("=== 낙찰상품 조회 오류: " + e.getMessage() + " ===");
             e.printStackTrace();
             return ResponseEntity.badRequest().build();
         }

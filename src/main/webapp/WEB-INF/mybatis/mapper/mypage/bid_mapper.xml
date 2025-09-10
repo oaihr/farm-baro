@@ -16,6 +16,7 @@
         <result property="auctionEndDate" column="AUCTION_END_DATE"/>
         <result property="currentHighestBid" column="CURRENT_HIGHEST_BID"/>
         <result property="isWinner" column="IS_WINNER"/>
+        <result property="auctionStatus" column="AUCTION_STATUS"/>
     </resultMap>
 
     <!-- 입찰자별 입찰 목록 조회 -->
@@ -78,8 +79,28 @@
         FROM AUCTIONS a
         LEFT JOIN users u ON a.WINNER_ID = u.ID
         WHERE a.WINNER_ID = #{winnerId}
-        AND a.AUCTION_STATUS = 'ENDED'
-        AND a.CURRENT_BID_PRICE IS NOT NULL
+        AND a.AUCTION_STATUS = 'OFF'
+        ORDER BY a.END_DATE DESC
+    </select>
+
+    <!-- 디버깅용: WINNER_ID가 있는 모든 경매 조회 -->
+    <select id="getAllAuctionsWithWinner" resultMap="BidResultMap">
+        SELECT 
+            a.AUCTION_ID,
+            a.WINNER_ID as USER_ID,
+            a.CURRENT_BID_PRICE as BID_PRICE,
+            a.AUCTION_STATUS,
+            'WON' as BID_STATUS,
+            a.END_DATE as BID_TIME,
+            a.END_DATE as CREATED_TIME,
+            a.TITLE as AUCTION_TITLE,
+            a.END_DATE as AUCTION_END_DATE,
+            u.USER_NAME as BIDDER_NAME,
+            a.CURRENT_BID_PRICE as CURRENT_HIGHEST_BID,
+            1 as IS_WINNER
+        FROM AUCTIONS a
+        LEFT JOIN users u ON a.WINNER_ID = u.ID
+        WHERE a.WINNER_ID = #{winnerId}
         ORDER BY a.END_DATE DESC
     </select>
 

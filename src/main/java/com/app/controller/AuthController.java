@@ -212,9 +212,16 @@ public class AuthController {
       System.out.println("쿼리 파라미터로 받은 세션 ID로 사용자 정보 조회 시도: " + sessionId);
       
       try {
-        // 세션 ID를 사용하여 사용자 정보 조회 (임시로 seller001 사용)
+        // 세션 ID를 사용하여 사용자 정보 조회
         // 실제로는 세션 ID를 키로 사용하여 사용자 정보를 조회해야 함
-        User user = userService.findById("seller001");
+        // 임시로 세션에서 LOGIN_ID를 가져와서 사용
+        String loginId = (String) session.getAttribute("LOGIN_ID");
+        if (loginId == null || loginId.isEmpty()) {
+          System.out.println("세션에 LOGIN_ID가 없음");
+          return ResponseEntity.ok(Map.of("loggedIn", false));
+        }
+        
+        User user = userService.findById(loginId);
         if (user != null) {
           Map<String, Object> userInfo = Map.of(
               "id", user.getId(),

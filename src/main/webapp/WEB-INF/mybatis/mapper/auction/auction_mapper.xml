@@ -137,7 +137,7 @@
 		SELECT
 			AUCTION_ID			
 		FROM AUCTIONS
-		WHERE END_DATE &lt;= #{currentTime} AND AUCTION_STATUS = 'on'
+		WHERE END_DATE &lt;= #{currentTime} AND AUCTION_STATUS = 'off'
 	</select>
 	
 	<update id="updateAuctionStatusAndWinner">
