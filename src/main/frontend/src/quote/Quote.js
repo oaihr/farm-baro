@@ -205,7 +205,7 @@ function Quote() {
         <div className='quote-day'>
             <div className='quote-yesterday'>
                 <button
-                    className={`btn quote-btn ${activePeriod === 'day' ? 'quote-active-btn' : ''}`}
+                    className={`quote-btn ${activePeriod === 'day' ? 'quote-active-btn' : ''}`}
                     onClick={() => {
                         const yesterday = new Date();
                         yesterday.setDate(yesterday.getDate() - 1);
@@ -216,7 +216,7 @@ function Quote() {
             </div>
             <div className='quote-month'>
                 <button
-                    className={`btn quote-btn ${activePeriod === 'month' ? 'quote-active-btn' : ''}`}
+                    className={`quote-btn ${activePeriod === 'month' ? 'quote-active-btn' : ''}`}
                     onClick={() => {
                         const lastMonth = new Date();
                         lastMonth.setMonth(lastMonth.getMonth() - 1);
@@ -227,7 +227,7 @@ function Quote() {
             </div>
             <div className='quote-year'>
                 <button
-                    className={`btn quote-btn ${activePeriod === 'year' ? 'quote-active-btn' : ''}`}
+                    className={`quote-btn ${activePeriod === 'year' ? 'quote-active-btn' : ''}`}
                     onClick={() => {
                         const lastYear = new Date();
                         lastYear.setFullYear(lastYear.getFullYear() - 1);
