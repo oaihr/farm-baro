@@ -24,6 +24,6 @@ public interface NotificationService {
     
     void sendNotification(String userId, String type, String message, Integer integer);
     
-    List<Notification> userNotiList(String userId);
+    List<NotificationDTO> userNotiList(String userId);
     
 }

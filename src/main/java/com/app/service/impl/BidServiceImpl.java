@@ -90,18 +90,18 @@ public class BidServiceImpl implements BidService{
      // --- 💡 웹소켓을 통한 실시간 알림 전송 ---
         // 모든 경매 참여자에게 최신 입찰 정보를 실시간으로 업데이트
         // 이 메시지는 프론트엔드에서 입찰 현황을 갱신하는 데 사용됩니다.
-        WebSocketMessage updateMessage = new WebSocketMessage(
-            "auction_update", 
-            "새로운 입찰이 발생했습니다.",
-            auctionItem.getAuctionId(),
-            bidMessage.getBidPrice()
-        );
-        
-        // 💡 messagingTemplate을 사용해 '/topic/auction/{id}' 채널로 메시지 전송
-        messagingTemplate.convertAndSend(
-            "/topic/auction/" + auctionItem.getAuctionId(),
-            updateMessage
-        );
+//        WebSocketMessage updateMessage = new WebSocketMessage(
+//            "auction_update", 
+//            "새로운 입찰이 발생했습니다.",
+//            auctionItem.getAuctionId(),
+//            bidMessage.getBidPrice()
+//        );
+//        
+//        // 💡 messagingTemplate을 사용해 '/topic/auction/{id}' 채널로 메시지 전송
+//        messagingTemplate.convertAndSend(
+//            "/topic/auction/" + auctionItem.getAuctionId(),
+//            updateMessage
+//        );
         
         
         

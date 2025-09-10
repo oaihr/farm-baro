@@ -1,9 +1,10 @@
 package com.app.service.noti.impl;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import javax.management.Notification;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,7 @@ public class NotificationServiceImpl implements NotificationService{
 
 	@Override
 	public List<NotificationDTO> findByUserId(String userId) {
-		List<NotificationDTO> result = notificationDAO.findByUserId(userId);
+		List<NotificationDTO> result = notificationDAO.getNotificationsByUserId(userId);
 		return result;
 	}
 
@@ -39,7 +40,12 @@ public class NotificationServiceImpl implements NotificationService{
 
 	@Override
 	public String maxBidId(Integer auctionId, double currentMaxBid) {
-		String result = notificationDAO.maxBidId(auctionId, currentMaxBid);
+		
+		Map<String, Object> params = new HashMap<>();
+        params.put("auctionId", auctionId);
+        params.put("currentMaxBid", currentMaxBid);
+        
+		String result = notificationDAO.maxBidId(params);
 		return result;
 	}
 
@@ -59,11 +65,9 @@ public class NotificationServiceImpl implements NotificationService{
     }
 
 	@Override
-	public List<Notification> userNotiList(String userId) {
+	public List<NotificationDTO> userNotiList(String userId) {
 		return notificationDAO.userNotiList(userId);
 	}
-
-
 
 
     

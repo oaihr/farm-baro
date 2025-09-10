@@ -8,7 +8,7 @@
         INSERT INTO notifications (
             notification_id, user_id, type, message, related_id, is_read, created_time
         ) VALUES (
-            notifications_seq.NEXTVAL, #{userId}, #{type}, #{message}, #{relatedId}, #{isRead}, #{createdTime}
+            SEQ_NOTIFICATION_ID.NEXTVAL, #{userId}, #{type}, #{message}, #{relatedId}, #{isRead}, #{createdTime}
         )
     </insert>
 
