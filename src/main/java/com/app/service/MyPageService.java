@@ -356,10 +356,10 @@ public class MyPageService {
                                  ", 가격: " + auction.getBidPrice());
             }
             
-            System.out.println("실행할 SQL: SELECT * FROM AUCTIONS WHERE WINNER_ID = '" + winnerId + "' AND AUCTION_STATUS = 'OFF'");
+            System.out.println("실행할 SQL: SELECT * FROM AUCTIONS WHERE WINNER_ID = '" + winnerId + "' AND AUCTION_STATUS = 'off'");
             
             List<BidDto> result = bidMapper.getWinningAuctionsForPayment(winnerId);
-            System.out.println("AUCTION_STATUS='OFF' 조건을 만족하는 낙찰상품 수: " + result.size());
+            System.out.println("AUCTION_STATUS='off' 조건을 만족하는 낙찰상품 수: " + result.size());
             System.out.println("매퍼 결과: " + result);
             
             return result;
