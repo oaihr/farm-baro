@@ -188,7 +188,7 @@ function Quote() {
                             <div className="">
                                 <span className='quote-img'>{meat.icon}</span>
                                 <h3>{meat.kind}</h3>
-                                <p>{prices[meat.kind]} 원</p>
+                                <p>{prices[meat.kind]} 원/100g</p>
                             </div>
                             <div>
                                 {/* 사용하지 않는 빈 <p> 태그 삭제 */}

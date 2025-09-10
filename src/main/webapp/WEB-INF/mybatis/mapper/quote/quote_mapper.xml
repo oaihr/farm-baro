@@ -100,7 +100,7 @@
     
     <select id="dayList" resultType="Quote" parameterType="String">
     	select * from CONSUMER_PRICE_DAILY
-		where stand_ymd = #{standYmd}
+		where stand_ymd = #{standYmd} AND stand_ymd NOT LIKE '평년'
     </select>
 
 
@@ -134,7 +134,7 @@
     
     <select id="dayListY" resultType="QuoteY" parameterType="String">
     	select * from CONSUMER_PRICE_YEAR
-		where year = #{year}
+		where year = #{year} AND year NOT LIKE '평년'
     </select>
     
 </mapper>
