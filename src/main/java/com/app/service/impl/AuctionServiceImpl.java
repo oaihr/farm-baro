@@ -78,7 +78,7 @@ public class AuctionServiceImpl implements AuctionService{
             // 경매 상태 DB에 업데이트
             AuctionItem auctionItem = new AuctionItem();
             auctionItem.setAuctionId(auctionId);
-            auctionItem.setAuctionStatus("OFF");
+            auctionItem.setAuctionStatus("off");
             auctionItem.setWinnerId(topBidderId);
             auctionDAO.updateAuctionStatusAndWinner(auctionItem);
             

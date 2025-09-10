@@ -8,6 +8,39 @@ const BuyerWinningAuctions = () => {
     const [winningAuctions, setWinningAuctions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState('');
+    const [isIamportLoaded, setIsIamportLoaded] = useState(false);
+
+    // Iamport SDK를 동적으로 로드하는 useEffect
+    useEffect(() => {
+        // 이미 SDK가 로드되었는지 확인
+        if (typeof window.IMP !== 'undefined') {
+            setIsIamportLoaded(true);
+            return;
+        }
+
+        const script = document.createElement("script");
+        script.src = "https://cdn.iamport.kr/js/iamport.payment-1.2.0.js";
+        script.async = true;
+        
+        script.onload = () => {
+            const IMP = window.IMP;
+            // TODO: 'imp13778606'을 본인의 '가맹점 식별코드'로 변경
+            IMP.init("imp13778606"); 
+            setIsIamportLoaded(true);
+            console.log("Iamport SDK is successfully loaded.");
+        };
+
+        script.onerror = () => {
+            console.error("Failed to load Iamport SDK.");
+            setMessage("결제 모듈을 불러오는 데 실패했습니다. 잠시 후 다시 시도해 주세요.");
+        };
+
+        document.head.appendChild(script);
+
+        return () => {
+            document.head.removeChild(script);
+        };
+    }, []);
 
     // 낙찰상품 목록 가져오기
     const fetchWinningAuctions = useCallback(async () => {
@@ -19,7 +52,7 @@ const BuyerWinningAuctions = () => {
                 setWinningAuctions(data);
             } else {
                 console.error('낙찰상품 조회 실패');
-                setMessage('낙찰상품을 불러오는데 실패했습니다.');
+                setMessage('낙찰상품이 없습니다.');
             }
         } catch (error) {
             console.error('낙찰상품 조회 오류:', error);
@@ -33,36 +66,64 @@ const BuyerWinningAuctions = () => {
         fetchWinningAuctions();
     }, [fetchWinningAuctions]);
 
-    // 낙찰상품 구매 확정
-    const handlePurchaseConfirm = async (auctionId, bidPrice) => {
-        if (!window.confirm(`낙찰상품을 ${bidPrice.toLocaleString()}원에 구매 확정하시겠습니까?`)) {
+    // 낙찰상품 구매 확정 및 결제 처리
+    const handlePurchaseConfirm = async (auctionId, bidPrice, auctionTitle) => {
+        if (!isIamportLoaded) {
+            setMessage('결제 모듈이 아직 로드되지 않았습니다. 잠시 후 다시 시도해 주세요.');
             return;
         }
 
-        try {
-            // TODO: 실제 구매 확정 API 호출 (추후 구현)
-            const response = await fetch(`http://localhost:8080/mypage/api/auctions/${auctionId}/purchase-confirm`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    auctionId: auctionId,
-                    bidPrice: bidPrice
-                })
-            });
+        const IMP = window.IMP;
+        
+        // 결제 요청 데이터
+        const paymentData = {
+            pg: "html5_inicis.INIpayTest", // 테스트 모드용 PG 코드
+            pay_method: "card",
+            merchant_uid: `order_${new Date().getTime()}_${auctionId}`,
+            name: auctionTitle,
+            amount: bidPrice,
+            buyer_email: "test@example.com", // TODO: 실제 사용자 정보로 변경
+            buyer_name: "구매자",
+            buyer_tel: "010-1234-5678",
+        };
 
-            if (response.ok) {
-                setMessage('낙찰상품 구매가 확정되었습니다! 🎉');
-                // 구매 확정된 상품을 목록에서 제거
-                setWinningAuctions(prev => prev.filter(auction => auction.auctionId !== auctionId));
+        // 결제창 호출
+        IMP.request_pay(paymentData, async (rsp) => {
+            if (rsp.success) {
+                // 결제 성공 시
+                console.log("결제 성공. imp_uid:", rsp.imp_uid);
+                
+                // 백엔드에 구매 확정 요청
+                try {
+                    const confirmResponse = await fetch(`http://localhost:8080/mypage/api/auctions/${auctionId}/purchase-confirm`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            auctionId: auctionId,
+                            bidPrice: bidPrice
+                        })
+                    });
+
+                    if (confirmResponse.ok) {
+                        setMessage('낙찰상품 구매가 확정되었습니다! 🎉');
+                        // 구매 확정된 상품을 목록에서 제거
+                        setWinningAuctions(prev => prev.filter(auction => auction.auctionId !== auctionId));
+                    } else {
+                        console.error('백엔드 구매 확정 실패');
+                        setMessage('구매 확정에 실패했습니다.');
+                    }
+                } catch (error) {
+                    console.error('백엔드 통신 오류:', error);
+                    setMessage('구매 확정 중 오류가 발생했습니다.');
+                }
             } else {
-                setMessage('구매 확정에 실패했습니다.');
+                // 결제 실패 또는 취소 시
+                console.error("결제 실패:", rsp.error_msg);
+                setMessage(`결제에 실패했습니다: ${rsp.error_msg}`);
             }
-        } catch (error) {
-            console.error('구매 확정 오류:', error);
-            setMessage('구매 확정 중 오류가 발생했습니다.');
-        }
+        });
     };
 
     // 총 납부 금액 계산
@@ -164,9 +225,10 @@ const BuyerWinningAuctions = () => {
                                 <div className="auction-actions">
                                     <button 
                                         className="purchase-confirm-btn"
-                                        onClick={() => handlePurchaseConfirm(auction.auctionId, auction.bidPrice)}
+                                        onClick={() => handlePurchaseConfirm(auction.auctionId, auction.bidPrice, auction.auctionTitle)}
+                                        disabled={!isIamportLoaded} // SDK가 로드되지 않으면 버튼 비활성화
                                     >
-                                        구매 확정
+                                        결제하기
                                     </button>
                                 </div>
                             </div>

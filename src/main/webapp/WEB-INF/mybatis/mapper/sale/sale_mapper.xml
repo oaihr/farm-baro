@@ -97,7 +97,7 @@
 			I.image_url,
 			I.order_index
 		FROM SALES S
-		INNER JOIN PRODUCT_IMAGES I
+		LEFT JOIN PRODUCT_IMAGES I
 		ON S.sale_item_id = I.product_id
 		WHERE 
 			S.sale_item_id = #{saleId}
