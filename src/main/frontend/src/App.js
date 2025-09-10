@@ -1,10 +1,10 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import './App.css';
 import Home from './home/Home';
 import HomeSearch from './home/HomeSearch.js';
 import Quote from './quote/Quote.js';
-import { Provider } from 'react-redux';
-import { store } from './store/store';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Sale from './sale/Sale';
@@ -21,6 +21,7 @@ import MyPage from "./pages/MyPage";
 import MyPageRedirect from "./components/MyPage/MyPageRedirect.js";
 import BuyerWizard from "./pages/SignupWizard/BuyerWizard";
 import SellerWizard from "./pages/SignupWizard/SellerWizard";
+import { fetchCurrentUser } from './store/store';
 
 // 마이페이지 컴포넌트들
 import EditInfo from './components/MyPage/EditInfo.js';
@@ -41,18 +42,27 @@ import BuyerReviews from './components/MyPage/BuyerReviews.js';
 import BuyerInquiries from './components/MyPage/BuyerInquiries.js';
 import BuyerAuctions from './components/MyPage/BuyerAuctions.js';
 import BuyerCart from './components/MyPage/BuyerCart.js';
+import BuyerWinningAuctions from './components/MyPage/BuyerWinningAuctions.js';
 
 import FaqPage from './cs/FaqPage.js';
 import InquirePage from './cs/InquirePage.js';
 import NoticePage from './cs/Notice.js';
 
 function App() {
+  const dispatch = useDispatch();
+
+  // 앱 초기 로딩 시 사용자 정보 확인
+  useEffect(() => {
+    console.log('App 초기 로딩 - 사용자 정보 확인 시작');
+    // 앱 시작 시 Redux 상태 초기화 후 사용자 정보 확인
+    dispatch({ type: 'auth/clearAuth' });
+    dispatch(fetchCurrentUser());
+  }, [dispatch]);
 
   return (
-    <Provider store={store}>
-      <Router>
-        <Header />
-        <Routes>
+    <Router>
+      <Header />
+      <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/home/search" element={<HomeSearch />} />
           <Route path="/quote" element={<Quote />} />
@@ -128,6 +138,7 @@ function App() {
           <Route path="/mypage/buyer/:userId/inquiries" element={<BuyerInquiries />} />
           <Route path="/mypage/buyer/:userId/auctions" element={<BuyerAuctions />} />
           <Route path="/mypage/buyer/:userId/cart" element={<BuyerCart />} />
+          <Route path="/mypage/buyer/:userId/winning-auctions" element={<BuyerWinningAuctions />} />
 
           <Route path="/cs/notice" element={<NoticePage />} />
           <Route path="/cs/faq" element={<FaqPage />} />
@@ -139,7 +150,6 @@ function App() {
         </Routes>
         <Footer />
       </Router>
-    </Provider>
   );
 }
 

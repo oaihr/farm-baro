@@ -1,26 +1,26 @@
 // src/pages/Login/Login.jsx
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { http } from "../../api/http";
-import "../../styles/auth.css"; // 공통 스타일
 import { useDispatch } from "react-redux";
 import { fetchCurrentUser } from "../../store/store";
+import { http } from "../../api/http";
+import "../../styles/auth.css"; // 공통 스타일
 
 export default function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { state } = useLocation(); // 회원가입 완료 후 이메일 프리필용
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [keep, setKeep] = useState(false);
-  const [msg, setMsg] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [ email, setEmail ] = useState("");
+  const [ password, setPassword ] = useState("");
+  const [ keep, setKeep ] = useState(false);
+  const [ msg, setMsg ] = useState("");
+  const [ loading, setLoading ] = useState(false);
 
   // 가입 직후 전달된 이메일 표시
   useEffect(() => {
     if (state?.email) setEmail(state.email);
-  }, [state]);
+  }, [ state ]);
 
    const onSubmit = async (e) => {
     e.preventDefault();
@@ -29,17 +29,54 @@ export default function Login() {
     setLoading(true);
 
     try {
+      // 서버 요구 스키마: { email, password } (백엔드에서 email 필드로 받지만 ID/이메일 모두 처리)
       const res = await http.post(
         "/api/auth/login",
-        { email: email.trim(), password, keep },
-        { withCredentials: true }
+        { email: email.trim(), password, keep }, // 이메일로 로그인
+        { withCredentials: true }              // ★ 세션 쿠키 받기
       );
 
       if (res.status >= 200 && res.status < 300) {
-        // ✅ 로그인 성공 후 Redux에 로그인 상태 반영
-        await dispatch(fetchCurrentUser());
-
-        const from = state?.from?.pathname || "/me";
+        console.log("로그인 성공! 응답:", res);
+        console.log("응답 데이터:", res.data);
+        console.log("응답 헤더:", res.headers);
+        console.log("로그인 후 쿠키:", document.cookie);
+        
+        // 백엔드에서 받은 세션 ID를 localStorage에 저장
+        if (res.data && res.data.sessionId) {
+          console.log("세션 ID 받음:", res.data.sessionId);
+          
+          // localStorage에 세션 ID 저장
+          localStorage.setItem('JSESSIONID', res.data.sessionId);
+          console.log("세션 ID를 localStorage에 저장 완료");
+          
+          // 쿠키도 시도해보기
+          document.cookie = `JSESSIONID=${res.data.sessionId}; path=/; SameSite=Lax`;
+          console.log("쿠키 설정 시도:", document.cookie);
+        }
+        
+        // 로그인 성공 후 Redux 상태 완전 초기화
+        dispatch({ type: 'auth/clearAuth' });
+        
+        // 쿠키 설정 후 서버에서 실제 사용자 정보 가져오기
+        setTimeout(() => {
+          console.log("쿠키 설정 후 쿠키 상태:", document.cookie);
+          console.log("fetchCurrentUser 호출 시작...");
+          
+          dispatch(fetchCurrentUser()).then((result) => {
+            console.log("fetchCurrentUser 결과:", result);
+            if (result.payload) {
+              console.log("사용자 정보 로드 성공:", result.payload);
+            } else {
+              console.log("사용자 정보 로드 실패");
+            }
+          }).catch((error) => {
+            console.error("fetchCurrentUser 에러:", error);
+          });
+        }, 100);
+        
+        // 로그인 성공 후 원래 요청했던 페이지로 이동
+        const from = state?.from?.pathname || "/";
         navigate(from, { replace: true });
       } else {
         setMsg("로그인에 실패했습니다. 잠시 후 다시 시도해 주세요.");
@@ -70,7 +107,7 @@ export default function Login() {
         </header>
 
         <form className="auth-form" onSubmit={onSubmit} noValidate>
-          <div className="form-row">
+          <div className="login-input">
             <label className="sr-only" htmlFor="email">이메일</label>
             <input
               id="email"
@@ -84,7 +121,7 @@ export default function Login() {
             />
           </div>
 
-          <div className="form-row">
+          <div className="password-input">
             <label className="sr-only" htmlFor="password">비밀번호</label>
             <input
               id="password"

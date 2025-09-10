@@ -1,13 +1,19 @@
 package com.app.config;
 
+import java.io.IOException;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -18,8 +24,8 @@ public class SimpleCorsFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) res;
         HttpServletRequest request = (HttpServletRequest) req;
         
-        // 모든 origin 허용
-        response.setHeader("Access-Control-Allow-Origin", "*");
+        // 특정 origin 허용 (credentials와 함께 사용하기 위해)
+        response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
         // 모든 헤더 허용
         response.setHeader("Access-Control-Allow-Headers", "*");
         // 모든 HTTP 메서드 허용

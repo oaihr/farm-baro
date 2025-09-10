@@ -33,6 +33,7 @@
 	<!-- <property name="roomDAO" ref="roomDAO"></property> -->
 	<!-- </bean> -->
 
+	<!-- 데이터베이스 연결 -->
 	<bean class="org.apache.commons.dbcp2.BasicDataSource" id="data_source">
 		<property name="driverClassName" value="oracle.jdbc.OracleDriver" />
 		<property name="url" value="jdbc:oracle:thin:@192.168.0.8:1521:orcl" />
@@ -40,6 +41,7 @@
 		<property name="password" value="tiger" />
 	</bean>
 
+	<!-- MyBatis 설정 -->
 	<bean class="org.mybatis.spring.SqlSessionFactoryBean" id="sqlSessionFactory">
 		<property name="dataSource" ref="data_source"></property>
 		<property name="mapperLocations" value="/WEB-INF/mybatis/mapper/**/*_mapper.xml"></property>
@@ -56,7 +58,6 @@
 		<constructor-arg name="sqlSessionFactory" ref="sqlSessionFactory" />
 	</bean>
 
-	<!-- MyBatis 매퍼 스캔 설정 -->
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
 		<property name="basePackage" value="com.app.mapper" />
 		<property name="annotationClass" value="org.apache.ibatis.annotations.Mapper" />

@@ -65,17 +65,33 @@ const Cart = () => {
         }
     };
 
-    const handleRemoveItem = async (cartId) => {
+    const handleRemoveItem = async (saleItemId) => {
+        if (!window.confirm('정말로 이 상품을 장바구니에서 삭제하시겠습니까?')) {
+            return;
+        }
+
         try {
-            const response = await fetch(`/api/mypage/cart/${cartId}`, {
-                method: 'DELETE'
+            console.log('장바구니 삭제 요청 - saleItemId:', saleItemId);
+            
+            const response = await fetch(`http://localhost:8080/mypage/api/cart/${saleItemId}`, {
+                method: 'DELETE',
+                credentials: 'include' // 세션 쿠키 포함
             });
+
+            console.log('삭제 응답 상태:', response.status);
+
             if (response.ok) {
-                setSelectedItems(prev => prev.filter(id => id !== cartId));
+                setSelectedItems(prev => prev.filter(id => id !== saleItemId));
                 fetchCartItems();
+                console.log('장바구니에서 상품 삭제 성공');
+            } else {
+                const errorText = await response.text();
+                console.error('삭제 실패:', response.status, errorText);
+                alert('상품 삭제에 실패했습니다.');
             }
         } catch (error) {
             console.error('Error removing item:', error);
+            alert('상품 삭제 중 오류가 발생했습니다.');
         }
     };
 
@@ -207,7 +223,7 @@ const Cart = () => {
                                 <div className="item-actions">
                                     <button 
                                         className="btn btn-danger btn-sm"
-                                        onClick={() => handleRemoveItem(item.cartId)}
+                                        onClick={() => handleRemoveItem(item.saleItemId)}
                                     >
                                         삭제
                                     </button>

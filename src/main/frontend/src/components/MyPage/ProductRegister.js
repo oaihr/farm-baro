@@ -17,19 +17,25 @@ const ProductRegister = () => {
         meatPart: '',        // 부위 (등심, 삼겹살, 가슴살 등)
         qty: '',            // sales.QTY (재고 수량)
         weight: '',          // sales.WEIGHT (1개당 무게 + 단위, 예: "1kg")
+        price: '',           // sales.PRICE (kg당 가격)
         saleStatus: 'draft', // sales.SALE_STATUS (보류중)
         description: '',     // sales.DESCRIPTION (요약 설명)
         detailDescription: '', // sales.DETAIL_DESCRIPTION (상세 설명)
-        grade: '',           // sales.GRADE (고기 등급: A, B, C 등)
+        grade: '',           // sales.GRADE (고기 등급: 1++, 1+, 1, 2, 3 등)
         traceabilityNum: '', // sales.TRACEABILITY_NUM (가축 이력번호)
-        imageFiles: []       // product_images 테이블용
+        imageUrls: []        // product_images 테이블용 (이미지 URL 배열)
     });
 
     const [editingProduct, setEditingProduct] = useState(null);
+    const [viewingProduct, setViewingProduct] = useState(null);
+    const [imageUrlsText, setImageUrlsText] = useState(''); // 이미지 URL 텍스트 상태
+    const [showImageInput, setShowImageInput] = useState(false); // 이미지 입력 표시 상태
+    const [newImageUrls, setNewImageUrls] = useState(''); // 새로운 이미지 URL 텍스트
 
     const tabs = [
         { id: 'register', label: '상품 등록', icon: '📦' },
         { id: 'manage', label: '상품 관리', icon: '📋' },
+        { id: 'detail', label: '상품 상세', icon: '🔍' },
         { id: 'analytics', label: '판매 분석', icon: '📊' }
     ];
 
@@ -151,6 +157,143 @@ const ProductRegister = () => {
         }
     };
 
+    // 상품 상세 보기 함수
+    const viewProductDetail = (product) => {
+        // judgeKindName에서 고기 종류와 부위 분리
+        let meatKind = '';
+        let cutName = product.cutName || '';
+        
+        if (product.judgeKindName) {
+            const parts = product.judgeKindName.split(' ');
+            if (parts.length >= 2) {
+                meatKind = parts[0];
+                cutName = parts.slice(1).join(' ');
+            } else {
+                meatKind = product.judgeKindName;
+            }
+        }
+        
+        setViewingProduct({
+            ...product,
+            meatKind: meatKind,
+            cutName: cutName
+        });
+        setActiveTab('detail');
+    };
+
+    // 이미지 변경 함수
+    const handleImageChange = () => {
+        setShowImageInput(true);
+        // 현재 이미지 URL들을 텍스트로 설정
+        if (viewingProduct && viewingProduct.imageUrls && viewingProduct.imageUrls.length > 0) {
+            setNewImageUrls(viewingProduct.imageUrls.join(', '));
+        } else {
+            setNewImageUrls('');
+        }
+    };
+
+    // 이미지 변경 취소
+    const handleImageChangeCancel = () => {
+        setShowImageInput(false);
+        setNewImageUrls('');
+    };
+
+    // 이미지 변경 저장
+    const handleImageChangeSave = async () => {
+        if (!viewingProduct) return;
+        
+        try {
+            setLoading(true);
+            const imageUrls = newImageUrls.split(',').map(url => url.trim()).filter(url => url);
+            
+            const response = await fetch(`http://localhost:8080/mypage/api/products/${viewingProduct.saleItemId}/form`, {
+                method: 'PUT',
+                body: (() => {
+                    const formData = new FormData();
+                    formData.append('title', viewingProduct.title);
+                    formData.append('judgeKindName', viewingProduct.judgeKindName);
+                    formData.append('cutName', viewingProduct.cutName);
+                    formData.append('qty', viewingProduct.qty);
+                    formData.append('weight', viewingProduct.weight);
+                    formData.append('price', viewingProduct.price);
+                    formData.append('description', viewingProduct.description);
+                    formData.append('detailDescription', viewingProduct.detailDescription);
+                    formData.append('grade', viewingProduct.grade);
+                    formData.append('traceabilityNum', viewingProduct.traceabilityNum);
+                    formData.append('saleStatus', viewingProduct.saleStatus);
+                    
+                    // 새로운 이미지 URL들 추가 (순서 정보 포함)
+                    imageUrls.forEach((url, index) => {
+                        formData.append('imageUrls', url);
+                        formData.append('imageOrderIndexes', index + 1); // ORDER_INDEX는 1부터 시작
+                    });
+                    
+                    return formData;
+                })()
+            });
+
+            if (response.ok) {
+                setMessage('이미지가 성공적으로 변경되었습니다.');
+                setShowImageInput(false);
+                setNewImageUrls('');
+                // 상품 목록 새로고침
+                await fetchProducts();
+                // 현재 보고 있는 상품 정보도 업데이트
+                const updatedProduct = products.find(p => p.saleItemId === viewingProduct.saleItemId);
+                if (updatedProduct) {
+                    setViewingProduct(updatedProduct);
+                }
+            } else {
+                setMessage('이미지 변경에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('이미지 변경 오류:', error);
+            setMessage('이미지 변경 중 오류가 발생했습니다.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // 상품 업데이트 함수
+    const handleUpdateProduct = async (product) => {
+        try {
+            setLoading(true);
+            const response = await fetch(`http://localhost:8080/mypage/api/products/${product.saleItemId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    title: product.title,
+                    judgeKindName: product.judgeKindName,
+                    cutName: product.cutName,
+                    qty: product.qty,
+                    weight: product.weight,
+                    price: product.price,
+                    description: product.description,
+                    detailDescription: product.detailDescription,
+                    grade: product.grade,
+                    traceabilityNum: product.traceabilityNum,
+                    saleStatus: product.saleStatus
+                })
+            });
+
+            if (response.ok) {
+                setMessage('상품 정보가 성공적으로 업데이트되었습니다.');
+                // 상품 목록 새로고침
+                await fetchProducts();
+                setActiveTab('manage');
+            } else {
+                setMessage('상품 정보 업데이트에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('상품 업데이트 오류:', error);
+            setMessage('상품 정보 업데이트 중 오류가 발생했습니다.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     // 상품 등록
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -159,8 +302,15 @@ const ProductRegister = () => {
             setMessage('');
 
             // 폼 데이터 검증
-            if (!formData.title || !formData.meatKind || !formData.meatPart || !formData.qty || !formData.weight || !formData.grade) {
+            if (!formData.title || !formData.meatKind || !formData.meatPart || !formData.qty || !formData.weight || !formData.price || !formData.grade) {
                 setMessage('필수 항목을 모두 입력해주세요.');
+                setLoading(false);
+                return;
+            }
+
+            // 가격 검증
+            if (isNaN(formData.price) || parseFloat(formData.price) <= 0) {
+                setMessage('가격은 0보다 큰 숫자로 입력해주세요.');
                 setLoading(false);
                 return;
             }
@@ -182,6 +332,7 @@ const ProductRegister = () => {
             formDataToSend.append('cutName', cutName);
             formDataToSend.append('qty', formData.qty);
             formDataToSend.append('weight', formData.weight);
+            formDataToSend.append('price', formData.price);
             formDataToSend.append('saleStatus', formData.saleStatus);
             formDataToSend.append('description', formData.description);
             formDataToSend.append('detailDescription', formData.detailDescription);
@@ -189,9 +340,10 @@ const ProductRegister = () => {
             formDataToSend.append('traceabilityNum', formData.traceabilityNum);
             formDataToSend.append('sellerId', userId);
             
-            if (formData.imageFiles && formData.imageFiles.length > 0) {
-                formData.imageFiles.forEach((file, index) => {
-                    formDataToSend.append(`imageFiles`, file);
+            if (formData.imageUrls && formData.imageUrls.length > 0) {
+                formData.imageUrls.forEach((url, index) => {
+                    formDataToSend.append(`imageUrls`, url);
+                    formDataToSend.append(`imageOrderIndexes`, index + 1); // ORDER_INDEX는 1부터 시작
                 });
             }
 
@@ -223,14 +375,16 @@ const ProductRegister = () => {
 
             if (response.ok) {
                 setMessage('상품이 성공적으로 등록되었습니다! 🎉');
+                setImageUrlsText('');
                 setFormData({
                     title: '',
                     meatKind: '',
                     meatPart: '',
                     qty: '',
                     weight: '',
+                    price: '',
                     saleStatus: 'draft',
-                    imageFiles: [],
+                    imageUrls: [],
                     description: '',
                     detailDescription: '',
                     grade: '',
@@ -266,19 +420,21 @@ const ProductRegister = () => {
             formDataToSend.append('cutName', cutName);
             formDataToSend.append('qty', formData.qty);
             formDataToSend.append('weight', formData.weight);
+            formDataToSend.append('price', formData.price);
             formDataToSend.append('saleStatus', formData.saleStatus);
             formDataToSend.append('description', formData.description);
             formDataToSend.append('detailDescription', formData.detailDescription);
             formDataToSend.append('grade', formData.grade);
             formDataToSend.append('traceabilityNum', formData.traceabilityNum);
             
-            if (formData.imageFiles && formData.imageFiles.length > 0) {
-                formData.imageFiles.forEach((file, index) => {
-                    formDataToSend.append(`imageFiles`, file);
+            if (formData.imageUrls && formData.imageUrls.length > 0) {
+                formData.imageUrls.forEach((url, index) => {
+                    formDataToSend.append(`imageUrls`, url);
+                    formDataToSend.append(`imageOrderIndexes`, index + 1); // ORDER_INDEX는 1부터 시작
                 });
             }
 
-                         const response = await fetch(`http://localhost:8080/mypage/api/products/${editingProduct.saleItemId}`, {
+                         const response = await fetch(`http://localhost:8080/mypage/api/products/${editingProduct.saleItemId}/form`, {
                 method: 'PUT',
                 body: formDataToSend
             });
@@ -286,14 +442,16 @@ const ProductRegister = () => {
             if (response.ok) {
                 setMessage('상품이 성공적으로 수정되었습니다! ✨');
                 setEditingProduct(null);
+                setImageUrlsText('');
                 setFormData({
                     title: '',
                     meatKind: '',
                     meatPart: '',
                     qty: '',
                     weight: '',
+                    price: '',
                     saleStatus: 'draft',
-                    imageFiles: [],
+                    imageUrls: [],
                     description: '',
                     detailDescription: '',
                     grade: '',
@@ -360,10 +518,11 @@ const ProductRegister = () => {
             title: product.title || '',
             meatKind: meatKind,
             meatPart: meatPart,
-            qty: product.qty || '',
+            qty: product.qty ? String(product.qty) : '',
             weight: product.weight || '',
+            price: product.price ? String(product.price) : '',
             saleStatus: saleStatus,
-            imageFiles: [],
+            imageUrls: [],
             description: product.description || '',
             detailDescription: product.detailDescription || '',
             grade: product.grade || '',
@@ -374,14 +533,16 @@ const ProductRegister = () => {
     // 수정 모드 취소
     const cancelEdit = () => {
         setEditingProduct(null);
+        setImageUrlsText('');
         setFormData({
             title: '',
             meatKind: '',
             meatPart: '',
             qty: '',
             weight: '',
+            price: '',
             saleStatus: 'draft',
-            imageFiles: [],
+            imageUrls: [],
             description: '',
             detailDescription: '',
             grade: '',
@@ -392,12 +553,14 @@ const ProductRegister = () => {
     // 입력 필드 변경 처리
     const handleInputChange = (e) => {
         const { name, value, files } = e.target;
-        if (name === 'imageFiles') {
-            // 여러 파일 선택 가능
-            const selectedFiles = Array.from(files);
+        if (name === 'imageUrls') {
+            // 텍스트 상태 업데이트
+            setImageUrlsText(value);
+            // 이미지 URL들을 쉼표로 구분하여 배열로 변환
+            const urls = value.split(',').map(url => url.trim()).filter(url => url.length > 0);
             setFormData(prev => ({
                 ...prev,
-                [name]: selectedFiles
+                [name]: urls
             }));
         } else {
             setFormData(prev => ({
@@ -533,6 +696,20 @@ const ProductRegister = () => {
                         </div>
 
                         <div className="form-group">
+                            <label>kg당 가격 *</label>
+                            <input
+                                type="number"
+                                name="price"
+                                value={formData.price}
+                                onChange={handleInputChange}
+                                placeholder="kg당 가격을 입력하세요"
+                                min="0"
+                                step="100"
+                                required
+                            />
+                        </div>
+
+                        <div className="form-group">
                             <label>1개당 무게 *</label>
                             <input
                                 type="text"
@@ -596,23 +773,26 @@ const ProductRegister = () => {
 
 
                         <div className="form-group">
-                            <label>상품 이미지 (여러 장 선택 가능)</label>
-                            <input
-                                type="file"
-                                name="imageFiles"
+                            <label>상품 이미지 URL (여러 개 입력 가능)</label>
+                            <textarea
+                                name="imageUrls"
+                                value={imageUrlsText}
                                 onChange={handleInputChange}
-                                accept="image/*"
-                                multiple
-                                className="file-input"
+                                placeholder="이미지 URL을 쉼표로 구분하여 입력하세요&#10;예: https://example.com/image1.jpg, https://example.com/image2.jpg"
+                                rows="3"
+                                className="url-input"
+                                required
                             />
-                            <small className="file-help">JPG, PNG, GIF 파일을 선택하세요 (최대 20MB, 여러 장 선택 가능)</small>
-                            {formData.imageFiles && formData.imageFiles.length > 0 && (
-                                <div className="selected-files">
-                                    <p>선택된 파일: {formData.imageFiles.length}개</p>
+                            <small className="url-help">이미지 URL을 쉼표로 구분하여 입력하세요. 첫 번째 이미지가 대표 이미지로 사용됩니다.</small>
+                            {formData.imageUrls && formData.imageUrls.length > 0 && (
+                                <div className="selected-urls">
+                                    <p>입력된 이미지 URL: {formData.imageUrls.length}개</p>
                                     <ul>
-                                        {formData.imageFiles.map((file, index) => (
+                                        {formData.imageUrls.map((url, index) => (
                                             <li key={index}>
-                                                {file.name} ({(file.size / 1024 / 1024).toFixed(2)}MB)
+                                                <a href={url} target="_blank" rel="noopener noreferrer">
+                                                    이미지 {index + 1} (새 탭에서 보기)
+                                                </a>
                                             </li>
                                         ))}
                                     </ul>
@@ -626,7 +806,7 @@ const ProductRegister = () => {
                                 name="description"
                                 value={formData.description}
                                 onChange={handleInputChange}
-                                placeholder="상품의 핵심 특징을 간단히 설명하세요 (예: 한우 등심, A등급, 신선도 보장)"
+                                placeholder="상품의 핵심 특징을 간단히 설명하세요 (예: 한우 등심, 1++등급, 신선도 보장)"
                                 rows="3"
                             />
                         </div>
@@ -738,71 +918,394 @@ const ProductRegister = () => {
                     ) : (
                         <div className="products-grid">
                             {products.map((product, index) => (
-                                <div key={index} className="product-card">
-                                    <div className="product-image">
+                                <div key={index} className="product-card" onClick={() => viewProductDetail(product)}>
+                                    {/* 상품 이미지 영역 */}
+                                    <div className="product-image-section">
                                         {product.imageUrl ? (
-                                            <img src={product.imageUrl} alt={product.productName} />
+                                            <img src={product.imageUrl} alt={product.title} className="product-image" />
                                         ) : (
-                                            <div className="placeholder-image">📦</div>
+                                            <div className="placeholder-image">
+                                                <span className="no-image-text">이미지 없음</span>
+                                            </div>
+                                        )}
+                                        
+                                        {/* 상태 배지 - 이미지가 있을 때만 표시 */}
+                                        {product.imageUrl && (
+                                            <div className="status-badge-overlay">
+                                                <span className={`status-badge ${product.saleStatus?.toLowerCase()}`}>
+                                                    {product.saleStatus === 'on' ? '판매중' : 
+                                                     product.saleStatus === 'draft' ? '보류중' : 
+                                                     product.saleStatus === 'off' ? '품절' : '미정'}
+                                                </span>
+                                            </div>
                                         )}
                                     </div>
                                     
-                                                                                                                   <div className="product-info">
-                                          <h4>{product.title}</h4>
-                                                                                     <p><strong>종류:</strong> {product.judgeKindName}</p>
-                                           <p><strong>부위:</strong> {product.cutName}</p>
-                                           <p><strong>재고:</strong> {product.qty}개</p>
-                                           {product.weight && (
-                                               <p><strong>1개당 무게:</strong> {product.weight}</p>
-                                           )}
-                                                                                       {product.grade && (
-                                                <p><strong>등급:</strong> 
-                                                    <span className="grade-badge">
-                                                        {product.grade === '1++' ? '1++등급 (최고급)' :
-                                                         product.grade === '1+' ? '1+등급 (고급)' :
-                                                         product.grade === '1' ? '1등급 (상급)' :
-                                                         product.grade === '2' ? '2등급 (중급)' :
-                                                         product.grade === '3' ? '3등급 (일반)' :
-                                                         product.grade === '등외' ? '등외등급 (일반)' :
-                                                         `${product.grade}등급`}
-                                                    </span>
-                                                </p>
-                                            )}
-                                           {product.traceabilityNum && (
-                                               <p><strong>이력번호:</strong> {product.traceabilityNum}</p>
-                                           )}
-                                                                                     <p><strong>상태:</strong> 
+                                    {/* 바로구매 버튼 */}
+                                    <div className="buy-button-section">
+                                        <button 
+                                            className="buy-now-btn"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                // 바로구매 로직 (추후 구현)
+                                                alert('바로구매 기능은 추후 구현 예정입니다.');
+                                            }}
+                                        >
+                                            🛒 바로구매
+                                        </button>
+                                    </div>
+                                    
+                                    {/* 상품 정보 영역 */}
+                                    <div className="product-info-section">
+                                        {/* 판매자명과 상태 배지 */}
+                                        <div className="seller-status-row">
+                                            <div className="seller-name">{product.sellerName || '판매자'}</div>
+                                            <div className="status-badge-inline">
                                                 <span className={`status-badge ${product.saleStatus?.toLowerCase()}`}>
                                                     {product.saleStatus === 'on' ? '판매중' : 
-                                                     product.saleStatus === 'draft' ? '보류중' : '미정'}
+                                                     product.saleStatus === 'draft' ? '보류중' : 
+                                                     product.saleStatus === 'off' ? '품절' : '미정'}
                                                 </span>
-                                            </p>
-                                                                                  {product.description && (
-                                            <p><strong>요약:</strong> {product.description.substring(0, 50)}...</p>
-                                        )}
-                                        {product.detailDescription && (
-                                            <p><strong>상세:</strong> {product.detailDescription.substring(0, 50)}...</p>
-                                        )}
-                                      </div>
+                                            </div>
+                                        </div>
+                                        
+                                        {/* 카테고리 태그 */}
+                                        <div className="category-tags">
+                                            <span className="tag">{product.judgeKindName}</span>
+                                            <span className="tag">{product.cutName}</span>
+                                            {product.weight && <span className="tag">{product.weight}</span>}
+                                        </div>
+                                        
+                                        {/* 상품 제목 */}
+                                        <div className="product-title">{product.title}</div>
+                                        
+                                        {/* 가격 정보 */}
+                                        <div className="price-section">
+                                            <span className="price">
+                                                {product.price ? product.price.toLocaleString() : '가격 미정'}
+                                            </span>
+                                            <span className="price-unit">(kg당)</span>
+                                        </div>
+                                        
+                                        {/* 배송 정보 */}
+                                        <div className="delivery-info">
+                                            <span className="delivery-badge">신선배송</span>
+                                        </div>
+                                        
+                                        {/* 재고 및 등급 정보 */}
+                                        <div className="stock-grade-info">
+                                            <div className="stock-info">
+                                                <span className="stock-label">재고</span>
+                                                <span className="stock-count">{product.qty}개</span>
+                                            </div>
+                                            {product.grade && (
+                                                <div className="grade-info">
+                                                    <span className="grade-label">등급</span>
+                                                    <span className="grade-badge">{product.grade}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
                                     
-                                    <div className="product-actions">
+                                    {/* 관리 버튼들 */}
+                                    <div className="admin-actions">
                                         <button 
                                             className="edit-btn"
-                                            onClick={() => startEdit(product)}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                startEdit(product);
+                                            }}
                                         >
-                                            수정
+                                            ✏️ 수정
                                         </button>
-                                                                                 <button 
-                                             className="delete-btn"
-                                             onClick={() => handleDelete(product.saleItemId)}
-                                         >
-                                            삭제
+                                        <button 
+                                            className="delete-btn"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDelete(product.saleItemId);
+                                            }}
+                                        >
+                                            🗑️ 삭제
                                         </button>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     )}
+                </div>
+            )}
+
+            {/* 상품 상세 탭 */}
+            {activeTab === 'detail' && viewingProduct && (
+                <div className="product-detail-section">
+                    <div className="detail-header">
+                        <button 
+                            className="back-btn"
+                            onClick={() => setActiveTab('manage')}
+                        >
+                            ← 목록으로 돌아가기
+                        </button>
+                        <h3>🔍 상품 상세 정보</h3>
+                    </div>
+                    
+                    <div className="detail-content">
+                        <div className="detail-main">
+                            <div className="detail-image-section">
+                                <div className="main-image">
+                                    {viewingProduct.imageUrl ? (
+                                        <img src={viewingProduct.imageUrl} alt={viewingProduct.title} />
+                                    ) : (
+                                        <div className="no-image">
+                                            <span>📦</span>
+                                            <p>이미지 없음</p>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="image-actions">
+                                    <button 
+                                        className="btn-primary"
+                                        onClick={handleImageChange}
+                                    >
+                                        📸 이미지 변경
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            {/* 이미지 변경 입력 UI */}
+                            {showImageInput && (
+                                <div className="image-change-section">
+                                    <h4>이미지 변경</h4>
+                                    <div className="form-group">
+                                        <label>새로운 이미지 URL</label>
+                                        <textarea
+                                            value={newImageUrls}
+                                            onChange={(e) => setNewImageUrls(e.target.value)}
+                                            placeholder="이미지 URL을 쉼표로 구분하여 입력하세요&#10;예: https://example.com/image1.jpg, https://example.com/image2.jpg"
+                                            rows="3"
+                                            className="url-input"
+                                        />
+                                        <small className="input-help">
+                                            여러 이미지를 쉼표(,)로 구분하여 입력하세요. 첫 번째 이미지가 대표 이미지로 설정됩니다.
+                                        </small>
+                                    </div>
+                                    <div className="image-change-actions">
+                                        <button 
+                                            className="btn-save"
+                                            onClick={handleImageChangeSave}
+                                            disabled={loading}
+                                        >
+                                            💾 이미지 저장
+                                        </button>
+                                        <button 
+                                            className="btn-cancel"
+                                            onClick={handleImageChangeCancel}
+                                        >
+                                            ❌ 취소
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                            
+                            <div className="detail-info-section">
+                                <div className="info-group">
+                                    <h4>기본 정보</h4>
+                                    <div className="info-grid">
+                                        <div className="info-item">
+                                            <label>상품명</label>
+                                            <input 
+                                                type="text" 
+                                                value={viewingProduct.title || ''} 
+                                                onChange={(e) => setViewingProduct({
+                                                    ...viewingProduct, 
+                                                    title: e.target.value
+                                                })}
+                                            />
+                                        </div>
+                                        <div className="info-item form-group">
+                                            <label>고기 종류</label>
+                                            <select 
+                                                name="meatKind"
+                                                value={viewingProduct.meatKind || ''} 
+                                                onChange={(e) => {
+                                                    const meatKind = e.target.value;
+                                                    setViewingProduct({
+                                                        ...viewingProduct, 
+                                                        meatKind: meatKind,
+                                                        cutName: '', // 부위 초기화
+                                                        judgeKindName: meatKind ? `${meatKind} ${viewingProduct.cutName || ''}`.trim() : ''
+                                                    });
+                                                }}
+                                            >
+                                                <option value="">고기 종류 선택</option>
+                                                {Object.keys(meatOptions).map(kind => (
+                                                    <option key={kind} value={kind}>{kind}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className="info-item form-group">
+                                            <label>부위</label>
+                                            <select 
+                                                name="meatPart"
+                                                value={viewingProduct.cutName || ''} 
+                                                onChange={(e) => {
+                                                    const cutName = e.target.value;
+                                                    setViewingProduct({
+                                                        ...viewingProduct, 
+                                                        cutName: cutName,
+                                                        judgeKindName: viewingProduct.meatKind ? `${viewingProduct.meatKind} ${cutName}`.trim() : cutName
+                                                    });
+                                                }}
+                                                disabled={!viewingProduct.meatKind}
+                                            >
+                                                <option value="">부위 선택</option>
+                                                {viewingProduct.meatKind && meatOptions[viewingProduct.meatKind]?.map(cut => (
+                                                    <option key={cut} value={cut}>{cut}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className="info-item">
+                                            <label>재고 (개)</label>
+                                            <input 
+                                                type="number" 
+                                                value={viewingProduct.qty || ''} 
+                                                onChange={(e) => setViewingProduct({
+                                                    ...viewingProduct, 
+                                                    qty: parseInt(e.target.value) || 0
+                                                })}
+                                            />
+                                        </div>
+                                        <div className="info-item">
+                                            <label>무게</label>
+                                            <input 
+                                                type="text" 
+                                                value={viewingProduct.weight || ''} 
+                                                onChange={(e) => setViewingProduct({
+                                                    ...viewingProduct, 
+                                                    weight: e.target.value
+                                                })}
+                                            />
+                                        </div>
+                                        <div className="info-item">
+                                            <label>가격 (원/kg)</label>
+                                            <input 
+                                                type="number" 
+                                                value={viewingProduct.price || ''} 
+                                                onChange={(e) => setViewingProduct({
+                                                    ...viewingProduct, 
+                                                    price: parseInt(e.target.value) || 0
+                                                })}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div className="info-group">
+                                    <h4>상세 정보</h4>
+                                    <div className="info-grid">
+                                        <div className="info-item full-width">
+                                            <label>요약 설명</label>
+                                            <textarea 
+                                                value={viewingProduct.description || ''} 
+                                                onChange={(e) => setViewingProduct({
+                                                    ...viewingProduct, 
+                                                    description: e.target.value
+                                                })}
+                                                rows="3"
+                                            />
+                                        </div>
+                                        <div className="info-item full-width">
+                                            <label>상세 설명</label>
+                                            <Editor
+                                                apiKey="ryw90ac70zjvmpwkezw0kv9oef882x9f291lx2gpzcbh5ywk"
+                                                value={viewingProduct.detailDescription || ''}
+                                                onEditorChange={(content) => setViewingProduct({
+                                                    ...viewingProduct, 
+                                                    detailDescription: content
+                                                })}
+                                                init={{
+                                                    height: 300,
+                                                    menubar: false,
+                                                    plugins: [
+                                                        'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                                                        'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                                                        'insertdatetime', 'media', 'table', 'help', 'wordcount'
+                                                    ],
+                                                    toolbar: 'undo redo | blocks | ' +
+                                                        'bold italic forecolor | alignleft aligncenter ' +
+                                                        'alignright alignjustify | bullist numlist outdent indent | ' +
+                                                        'removeformat | help',
+                                                    content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 14px }'
+                                                }}
+                                            />
+                                        </div>
+                                        <div className="info-item form-group">
+                                            <label>등급</label>
+                                            <select
+                                                name="grade"
+                                                value={viewingProduct.grade || ''}
+                                                onChange={(e) => setViewingProduct({
+                                                    ...viewingProduct, 
+                                                    grade: e.target.value
+                                                })}
+                                            >
+                                                <option value="">등급을 선택하세요</option>
+                                                {viewingProduct.meatKind === '소' && (
+                                                    <>
+                                                        <option value="1++">1++</option>
+                                                        <option value="1+">1+</option>
+                                                        <option value="1">1</option>
+                                                        <option value="2">2</option>
+                                                        <option value="3">3</option>
+                                                    </>
+                                                )}
+                                                {viewingProduct.meatKind === '돼지' && (
+                                                    <>
+                                                        <option value="1+">1+등급 (고급)</option>
+                                                        <option value="1">1등급 (상급)</option>
+                                                        <option value="2">2등급 (중급)</option>
+                                                        <option value="등외">등외등급 (일반)</option>
+                                                    </>
+                                                )}
+                                                {viewingProduct.meatKind === '닭' && (
+                                                    <>
+                                                        <option value="1+">1+등급 (고급)</option>
+                                                        <option value="1">1등급 (상급)</option>
+                                                        <option value="2">2등급 (중급)</option>
+                                                    </>
+                                                )}
+                                            </select>
+                                        </div>
+                                        <div className="info-item">
+                                            <label>이력번호</label>
+                                            <input 
+                                                type="text" 
+                                                value={viewingProduct.traceabilityNum || ''} 
+                                                onChange={(e) => setViewingProduct({
+                                                    ...viewingProduct, 
+                                                    traceabilityNum: e.target.value
+                                                })}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div className="detail-actions">
+                            <button 
+                                className="btn-save"
+                                onClick={() => handleUpdateProduct(viewingProduct)}
+                            >
+                                💾 변경사항 저장
+                            </button>
+                            <button 
+                                className="btn-cancel"
+                                onClick={() => setActiveTab('manage')}
+                            >
+                                ❌ 취소
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
 

@@ -287,10 +287,13 @@ const EditInfo = () => {
                                         type="text"
                                         name="businessNumber"
                                         value={formData.businessNumber}
-                                        onChange={handleInputChange}
                                         placeholder="사업자등록번호를 입력하세요"
                                         required
+                                        disabled
+                                        className="disabled-input"
+                                        readOnly
                                     />
+                                    <small className="form-help">사업자등록번호는 변경할 수 없습니다.</small>
                                 </div>
 
                                 <div className="form-group">
@@ -409,7 +412,7 @@ const EditInfo = () => {
                             <li>이메일은 주문 확인 및 알림에 사용됩니다</li>
                             <li>전화번호는 배송 및 문의 시 연락용으로 사용됩니다</li>
                             {userType === 'seller' && (
-                                <li>사업자등록번호는 세금계산서 발행에 필요합니다</li>
+                                <li>사업자등록번호는 세금계산서 발행에 필요하며, 한 번 등록 후 변경할 수 없습니다</li>
                             )}
                         </ul>
                     </div>

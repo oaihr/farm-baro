@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCurrentUser } from '../../store/store';
 import './BuyerOrders.css';
 
 const BuyerOrders = () => {
     const { userId } = useParams();
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+    
+    const { userId: currentUserId } = useSelector((state) => state.auth);
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState('');
@@ -154,7 +159,7 @@ const BuyerOrders = () => {
                     <div className="no-orders">
                         <div className="no-orders-icon">📦</div>
                         <h4>주문 내역이 없습니다</h4>
-                        <p>첫 주문을 시작해보세요!</p>
+                        <p>첫 주문을 시작해보세요!</p> <br />
                         <button 
                             className="shop-now-btn"
                             onClick={() => navigate('/')}

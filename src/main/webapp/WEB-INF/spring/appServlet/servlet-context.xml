@@ -61,5 +61,6 @@
         </argument-resolvers>							
 	</annotation-driven>
 	
+	
 	<task:annotation-driven/>
 </beans:beans>

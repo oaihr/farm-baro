@@ -10,16 +10,16 @@ CREATE SEQUENCE qna_seq START WITH 1 INCREMENT BY 1;
 CREATE SEQUENCE image_seq START WITH 1 INCREMENT BY 1;
 
 -- 테스트용 판매 상품 데이터
-INSERT INTO sales (SALE_ITEM_ID, QTY, SALE_STATUS, JUDGE_KIND_NAME, TITLE, DESCRIPTION, SELLER_ID, CREATED_TIME)
-VALUES (sale_item_seq.NEXTVAL, 100, 'ACTIVE', '쌀', '신선한 사과', '맛있는 사과입니다', 'seller001', SYSTIMESTAMP);
+INSERT INTO sales (SALE_ITEM_ID, QTY, SALE_STATUS, JUDGE_KIND_NAME, CUT_NAME, TITLE, DESCRIPTION, WEIGHT, PRICE, GRADE, TRACEABILITY_NUM, SELLER_ID, CREATED_TIME)
+VALUES (sale_item_seq.NEXTVAL, 100, 'on', '소', '등심', '소고기 등심', '신선한 소고기 등심입니다', '1kg', 25000, '1++', 'KR123456789', 'seller001', SYSTIMESTAMP);
 
-INSERT INTO sales (SALE_ITEM_ID, QTY, SALE_STATUS, JUDGE_KIND_NAME, TITLE, DESCRIPTION, SELLER_ID, CREATED_TIME)
-VALUES (sale_item_seq.NEXTVAL, 50, 'ACTIVE', '쌀', '고급 쌀', '프리미엄 쌀입니다', 'seller001', SYSTIMESTAMP);
+INSERT INTO sales (SALE_ITEM_ID, QTY, SALE_STATUS, JUDGE_KIND_NAME, CUT_NAME, TITLE, DESCRIPTION, WEIGHT, PRICE, GRADE, TRACEABILITY_NUM, SELLER_ID, CREATED_TIME)
+VALUES (sale_item_seq.NEXTVAL, 50, 'on', '돼지', '삼겹살', '돼지고기 삼겹살', '프리미엄 돼지고기 삼겹살입니다', '500g', 15000, '1+', 'KR987654321', 'seller001', SYSTIMESTAMP);
 
 -- 테스트용 경매 데이터
 INSERT INTO auctions (AUCTION_ID, TITLE, DESCRIPTION, AUCTION_STATUS, JUDGE_KIND_NAME, ITEM_NAME, 
                      INITIAL_PRICE, BUY_NOW_PRICE, BID_INCREMENT, START_DATE, END_DATE, AUTO_EXTEND, SELLER_ID, CREATED_TIME)
-VALUES (auction_seq.NEXTVAL, '특급 쌀 경매', '최고급 쌀 경매입니다', 'ACTIVE', '쌀', '특급 쌀', 
+VALUES (auction_seq.NEXTVAL, '특급 소고기 경매', '최고급 소고기 경매입니다', 'ACTIVE', '소', '특급 소고기', 
         10000, 50000, 1000, SYSTIMESTAMP, SYSTIMESTAMP + INTERVAL '7' DAY, 'N', 'seller001', SYSTIMESTAMP);
 
 -- 테스트용 판매 주문 데이터
@@ -38,9 +38,15 @@ VALUES (bid_seq.NEXTVAL, 1, 'buyer001', 15000, 'ACTIVE', SYSTIMESTAMP, SYSTIMEST
 INSERT INTO cart (USER_ID, SALE_ITEM_ID, QUANTITY, CREATED_TIME, UPDATED_TIME)
 VALUES ('buyer001', 1, 3, SYSTIMESTAMP, SYSTIMESTAMP);
 
--- 테스트용 리뷰 데이터
-INSERT INTO reviews (REVIEW_ID, SALE_ITEM_ID, USER_ID, RATING, REVIEW_COMMENT, CREATED_TIME, UPDATED_TIME)
-VALUES (review_seq.NEXTVAL, 1, 'buyer001', 5, '정말 맛있어요!', SYSTIMESTAMP, SYSTIMESTAMP);
+-- 테스트용 리뷰 데이터 (sales 테이블의 sale_item_id와 매칭)
+INSERT INTO reviews (review_id, order_id, buyer_id, product_id, rating, review_content, review_date, seller_reply, reply_date)
+VALUES (review_seq.NEXTVAL, 1, 'buyer001', 1, 5, '맛있었습니다.', SYSTIMESTAMP, '감사합니다!', SYSTIMESTAMP);
+
+INSERT INTO reviews (review_id, order_id, buyer_id, product_id, rating, review_content, review_date, seller_reply, reply_date)
+VALUES (review_seq.NEXTVAL, 2, 'buyer002', 2, 4, '맛있었습니다.', SYSTIMESTAMP, '더 좋은 고기로 보답하겠습니다.', SYSTIMESTAMP);
+
+INSERT INTO reviews (review_id, order_id, buyer_id, product_id, rating, review_content, review_date)
+VALUES (review_seq.NEXTVAL, 3, 'buyer003', 1, 5, '맛있었습니다.', SYSTIMESTAMP);
 
 -- 테스트용 QnA 데이터
 INSERT INTO qna (QNA_ID, PRODUCT_ID, PRODUCT_TYPE, QUESTION_USER_ID, QUESTION_CONTENT, IS_ANSWERED, CREATED_TIME, UPDATED_TIME)
@@ -52,5 +58,12 @@ VALUES (image_seq.NEXTVAL, 1, 'SALE', '/images/apple1.jpg', 'Y', 1, SYSTIMESTAMP
 
 INSERT INTO product_images (IMAGE_ID, PRODUCT_ID, PRODUCT_TYPE, IMAGE_URL, IS_THUMBNAIL, ORDER_INDEX, CREATED_TIME)
 VALUES (image_seq.NEXTVAL, 1, 'SALE', '/images/apple2.jpg', 'N', 2, SYSTIMESTAMP);
+
+-- 테스트용 리뷰 이미지 데이터
+INSERT INTO product_images (IMAGE_ID, PRODUCT_ID, PRODUCT_TYPE, IMAGE_URL, IS_THUMBNAIL, ORDER_INDEX, CREATED_TIME)
+VALUES (image_seq.NEXTVAL, 1, 'REVIEW', '/images/review1.jpg', 'Y', 1, SYSTIMESTAMP);
+
+INSERT INTO product_images (IMAGE_ID, PRODUCT_ID, PRODUCT_TYPE, IMAGE_URL, IS_THUMBNAIL, ORDER_INDEX, CREATED_TIME)
+VALUES (image_seq.NEXTVAL, 1, 'REVIEW', '/images/review2.jpg', 'N', 2, SYSTIMESTAMP);
 
 COMMIT;

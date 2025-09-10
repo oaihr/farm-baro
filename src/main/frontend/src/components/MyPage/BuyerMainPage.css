@@ -188,6 +188,13 @@
     margin-bottom: 5px;
 }
 
+.stat-detail {
+    font-size: 0.9rem;
+    color: #2d9949;
+    font-weight: 600;
+    margin-top: 5px;
+}
+
 .stat-label {
     font-size: 0.9rem;
     color: #718096;

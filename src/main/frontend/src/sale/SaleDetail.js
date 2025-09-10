@@ -37,16 +37,23 @@ function SaleDetail() {
         }
 
         try {
-            const response = await axios.post('http://localhost:8080/api/cart/add', {
-                userId: userId,
+            console.log('장바구니 추가 요청:', { saleItemId: saleId, quantity: quantity });
+            
+            const response = await axios.post('http://localhost:8080/api/mypage/cart', {
                 saleItemId: saleId,
                 quantity: quantity, 
+            }, {
+                withCredentials: true // 세션 쿠키 포함
             });
 
-            if (response.status === 200) {
+            console.log('장바구니 추가 응답:', response.data);
+
+            if (response.status === 200 && response.data) {
                 if (window.confirm('장바구니에 상품을 담았습니다. 장바구니로 이동하시겠습니까?')) {
                     navigate(`/mypage/buyer/${userId}/cart`); 
                 }
+            } else {
+                alert('장바구니 추가에 실패했습니다.');
             }
         } catch (error) {
             console.error("장바구니 추가 실패:", error);

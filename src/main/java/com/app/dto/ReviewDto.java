@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.Data;
 
 @Data
@@ -13,7 +14,6 @@ public class ReviewDto {
     private String userId;          // user_id
     private Integer rating;         // rating (1~5)
     private String reviewComment;   // review_comment (기존 필드)
-    private String title;           // 리뷰 제목
     private String content;         // 리뷰 내용 (reviewComment와 동일)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdTime; // created_time
@@ -22,7 +22,19 @@ public class ReviewDto {
     
     // JOIN 정보
     private String productTitle;    // sales.title
+    private String productName;     // sales.title (동일)
     private String reviewerName;    // users.user_name
+    private String buyerName;       // users.user_name (동일)
     private String sellerName;      // 판매자 이름
     private List<String> productImages; // 상품 이미지들
+    
+    // 리뷰 이미지 관련
+    private List<String> reviewImages; // 리뷰 이미지 URL들
+    private String sellerReply;     // 판매자 답글 (seller_reply)
+    
+    // 추가 필드들
+    private String title;           // 리뷰 제목
+    private Integer views;          // 조회수 (views 컬럼)
+    private String sellerComment;   // 판매자 답글 (seller_comment 컬럼)
+    private Long productId;         // 상품 ID
 }

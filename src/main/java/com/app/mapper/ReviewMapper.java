@@ -1,15 +1,20 @@
 package com.app.mapper;
 
-import com.app.dto.ReviewDto;
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import java.util.List;
+
+import com.app.dto.ReviewDto;
 
 @Mapper
 public interface ReviewMapper {
     
     // 구매자별 리뷰 목록 조회
     List<ReviewDto> getReviewsByBuyer(@Param("buyerId") String buyerId);
+    
+    // 판매자별 리뷰 목록 조회
+    List<ReviewDto> getReviewsBySeller(@Param("userId") String userId);
     
     // 상품별 리뷰 목록 조회 (판매자용)
     List<ReviewDto> getReviewsByProduct(@Param("productId") Long productId);
