@@ -12,7 +12,7 @@ import MyPage from "./pages/MyPage";
 import MyPageRedirect from "./components/MyPage/MyPageRedirect.js";
 import BuyerWizard from "./pages/SignupWizard/BuyerWizard";
 import SellerWizard from "./pages/SignupWizard/SellerWizard";
-import SellerApprovals from "./pages/Admin/SellerApprovals";
+
 import ForgotPassword from "./pages/account/ForgotPassword";
 
 // 마이페이지 컴포넌트들

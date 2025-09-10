@@ -1,59 +1,36 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-
 <mapper namespace="com.app.mapper.UserMapper">
 
-  <!-- ========================
-       공통 컬럼 목록 & 매핑
-     ======================== -->
-  <sql id="BaseColumns">
-    ID,
-    PW,
-    EMAIL,
-    ADDRESS,
-    TEL,
-    USER_NAME,
-    USER_TYPE,
-    USER_STATUS,
-    BUSINESS_NUMBER,
-    CREATED_TIME,
-    TOTAL_BALANCE,
-    BID_DEPOSIT,
-    PROVIDER,
-    PROVIDER_ID
+  <!-- 공통 컬럼 셀렉트 (가독) -->
+  <sql id="userColumns">
+    ID           AS id,
+    PW           AS pw,
+    EMAIL        AS email,
+    ADDRESS      AS address,
+    TEL          AS tel,
+    USER_NAME    AS userName,
+    USER_TYPE    AS userType,
+    USER_STATUS  AS userStatus,
+    BUSINESS_NUMBER AS businessNumber,
+    CREATED_TIME AS createdTime,
+    TOTAL_BALANCE AS totalBalance,
+    BID_DEPOSIT   AS bidDeposit,
+    PROVIDER     AS provider,
+    PROVIDER_ID  AS providerId
   </sql>
 
-  <!-- 도메인 매핑: com.app.domain.User -->
-  <resultMap id="UserMap" type="com.app.domain.User">
-    <id     column="ID"               property="id"/>
-    <result column="PW"               property="pw"/>
-    <result column="EMAIL"            property="email"/>
-    <result column="ADDRESS"          property="address"/>
-    <result column="TEL"              property="tel"/>
-    <result column="USER_NAME"        property="userName"/>
-    <result column="USER_TYPE"        property="userType"/>
-    <result column="USER_STATUS"      property="userStatus"/>
-    <result column="BUSINESS_NUMBER"  property="businessNumber"/>
-    <result column="CREATED_TIME"     property="createdTime"/>
-    <result column="TOTAL_BALANCE"    property="totalBalance"/>
-    <result column="BID_DEPOSIT"      property="bidDeposit"/>
-    <result column="PROVIDER"         property="provider"/>
-    <result column="PROVIDER_ID"      property="providerId"/>
-  </resultMap>
-
-  <!-- ========================
-       조회
-     ======================== -->
-  <select id="findById" parameterType="string" resultMap="UserMap">
-    SELECT <include refid="BaseColumns"/>
-    FROM USERS
-    WHERE ID = #{id}
+  <!-- 조회 -->
+  <select id="findById" parameterType="string" resultType="com.app.domain.User">
+    SELECT <include refid="userColumns"/>
+      FROM USERS
+     WHERE ID = #{id}
   </select>
 
-  <select id="findByEmail" parameterType="string" resultMap="UserMap">
-    SELECT <include refid="BaseColumns"/>
-    FROM USERS
-    WHERE EMAIL = #{email}
+  <select id="findByEmail" parameterType="string" resultType="com.app.domain.User">
+    SELECT <include refid="userColumns"/>
+      FROM USERS
+     WHERE EMAIL = #{email}
   </select>
 
   <select id="existsByEmail" parameterType="string" resultType="int">
@@ -64,95 +41,91 @@
     SELECT COUNT(*) FROM USERS WHERE ID = #{id}
   </select>
 
-  <select id="existsByProvider" parameterType="map" resultType="int">
-    SELECT COUNT(*)
-    FROM USERS
-    WHERE PROVIDER = #{provider}
-      AND PROVIDER_ID = #{providerId}
+  <!-- SNS 조회/체크 -->
+  <select id="findByProvider" parameterType="map" resultType="com.app.domain.User">
+    SELECT <include refid="userColumns"/>
+      FROM USERS
+     WHERE PROVIDER   = #{provider}
+       AND PROVIDER_ID= #{providerId}
   </select>
 
-  <!-- ========================
-       등록
-     ======================== -->
+  <select id="existsByProvider" parameterType="map" resultType="int">
+    SELECT COUNT(*) FROM USERS
+     WHERE PROVIDER   = #{provider}
+       AND PROVIDER_ID= #{providerId}
+  </select>
 
-  <!-- 도메인(User) 직접 insert -->
+  <!-- 기본/가입 -->
   <insert id="insertUser" parameterType="com.app.domain.User">
     INSERT INTO USERS
       (ID, PW, EMAIL, ADDRESS, TEL, USER_NAME, USER_TYPE, USER_STATUS,
        CREATED_TIME, TOTAL_BALANCE, BID_DEPOSIT, PROVIDER, PROVIDER_ID)
     VALUES
-      (#{id},
-       #{pw},
-       #{email},
-       #{address},
-       #{tel},
-       #{userName},
-       #{userType},
-       COALESCE(#{userStatus}, 'ACTIVE'),
-       SYSTIMESTAMP,
-       COALESCE(#{totalBalance}, 0),
-       COALESCE(#{bidDeposit}, 0),
-       #{provider},
-       #{providerId})
+      (#{id}, #{pw}, #{email}, #{address}, #{tel}, #{userName},
+       #{userType}, COALESCE(#{userStatus}, 'ACTIVE'),
+       SYSTIMESTAMP, COALESCE(#{totalBalance},0), COALESCE(#{bidDeposit},0),
+       #{provider}, #{providerId})
   </insert>
 
-  <!-- 구매자 가입: 서비스에서 Map 키를 정확히 맞춤 (id, pw, email, name, address, tel) -->
+  <!-- 구매자 가입 -->
   <insert id="insertBuyer" parameterType="map">
     INSERT INTO USERS
       (ID, PW, EMAIL, USER_NAME, ADDRESS, TEL,
        USER_TYPE, USER_STATUS, CREATED_TIME, TOTAL_BALANCE, BID_DEPOSIT, PROVIDER, PROVIDER_ID)
     VALUES
-      (#{id},
-       #{pw},
-       #{email},
-       #{name},
-       #{address},
-       #{tel},
-       'BUYER',
-       'ACTIVE',
-       SYSTIMESTAMP,
-       0, 0,
-       NULL, NULL)
+      (#{id}, #{pw}, #{email}, #{name}, #{address}, #{tel},
+       'BUYER', 'ACTIVE', SYSTIMESTAMP, 0, 0, NULL, NULL)
   </insert>
 
-  <!-- 판매자 가입: 서비스에서 Map 키를 정확히 맞춤 (id, pw, email, address, tel, userName, brn) -->
+  <!-- 판매자 가입(검수요청) -->
   <insert id="insertSeller" parameterType="map">
     INSERT INTO USERS
-      (ID, PW, EMAIL, ADDRESS, TEL, USER_NAME, USER_TYPE, USER_STATUS,
-       BUSINESS_NUMBER, CREATED_TIME, TOTAL_BALANCE, BID_DEPOSIT, PROVIDER, PROVIDER_ID)
+     (ID, PW, EMAIL, ADDRESS, TEL, USER_NAME, USER_TYPE, USER_STATUS,
+      BUSINESS_NUMBER, CREATED_TIME, TOTAL_BALANCE, BID_DEPOSIT, PROVIDER, PROVIDER_ID)
     VALUES
-      (#{id},
-       #{pw},
-       #{email},
-       #{address},
-       #{tel},
-       #{userName},
-       'SELLER',
-       'PENDING',
-       #{brn},
-       SYSTIMESTAMP,
-       0, 0,
-       NULL, NULL)
+     (#{id}, #{pw}, #{email}, #{address}, #{tel}, #{userName},
+      'SELLER', 'PENDING', #{brn}, SYSTIMESTAMP, 0, 0, NULL, NULL)
   </insert>
 
-  <!-- ========================
-       수정
-     ======================== -->
+  <!-- SNS 신규(자동가입용) -->
+  <insert id="insertSnsUser" parameterType="map">
+    INSERT INTO USERS
+     (ID, PW, EMAIL, USER_NAME, ADDRESS, TEL,
+      USER_TYPE, USER_STATUS, CREATED_TIME, TOTAL_BALANCE, BID_DEPOSIT,
+      PROVIDER, PROVIDER_ID)
+    VALUES
+     (#{id}, #{pw}, #{email}, #{userName}, #{address}, #{tel},
+      #{userType}, #{userStatus}, SYSTIMESTAMP, 0, 0,
+      #{provider}, #{providerId})
+  </insert>
+
+  <!-- 비밀번호 재설정 (email 기준) -->
   <update id="updatePasswordByEmail" parameterType="map">
-    UPDATE USERS
-       SET PW = #{pw}
-     WHERE EMAIL = #{email}
+    UPDATE USERS SET PW = #{pw} WHERE EMAIL = #{email}
   </update>
 
-  <!-- SELLER 전환 시 상태 제어: role 파라미터로 분기 (method: updateRole(@Param("id"), @Param("role"))) -->
+  <!-- 역할/상태 업데이트 -->
+  <update id="updateUserType" parameterType="map">
+    UPDATE USERS SET USER_TYPE = #{userType} WHERE ID = #{id}
+  </update>
+
+  <!-- 레거시 호환: 역할 저장 -->
   <update id="updateRole" parameterType="map">
     UPDATE USERS
-       SET USER_TYPE   = #{role},
-           USER_STATUS = CASE WHEN #{role} = 'SELLER' THEN 'PENDING' ELSE 'ACTIVE' END
+       SET USER_TYPE  = #{role},
+           USER_STATUS= CASE WHEN #{role} = 'SELLER' THEN 'PENDING' ELSE 'ACTIVE' END
      WHERE ID = #{id}
   </update>
 
-  <!-- 판매자 정보 보강(필요 시) -->
+  <!-- SNS 연동(기존 이메일 계정에 공급자정보 붙이기) -->
+  <update id="linkProviderByEmail" parameterType="map">
+    UPDATE USERS
+       SET PROVIDER = #{provider},
+           PROVIDER_ID = #{providerId}
+     WHERE EMAIL = #{email}
+  </update>
+
+  <!-- 판매자 부가정보 업데이트(선택) -->
   <update id="updateSellerInfo" parameterType="map">
     UPDATE USERS
        SET BUSINESS_NUMBER = #{businessNumber,jdbcType=VARCHAR}

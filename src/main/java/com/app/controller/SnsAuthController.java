@@ -4,9 +4,7 @@ import com.app.domain.User;
 import com.app.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
@@ -24,13 +22,13 @@ public class SnsAuthController {
 
   private final UserMapper userMapper;
   private final HttpSession session;
+  // 굳이 빈 주입 안해도 됨. 간단히 필드 생성자로 사용
   private final RestTemplate rest = new RestTemplate();
 
   // ===== Front routes =====
-  @Value("${oauth.front-success}") private String FRONT_SUCCESS; // 예) http://localhost:3000/
-  @Value("${oauth.front-fail}")    private String FRONT_FAIL;    // 예) http://localhost:3000/login?error=1
-  // 👉 실제 프론트 경로를 꼭 프로젝트에 맞게 지정하세요 (예: /signup/select)
-  @Value("${oauth.front-role-select:http://localhost:3000/role-select}")
+  @Value("${oauth.front-success}") private String FRONT_SUCCESS;        // 예) http://localhost:3000/
+  @Value("${oauth.front-fail}")    private String FRONT_FAIL;           // 예) http://localhost:3000/login?error=1
+  @Value("${oauth.front-role-select:http://localhost:3000/oauth/role}") // 기본값을 /oauth/role 로 고정
   private String FRONT_ROLE_SELECT;
 
   // ===== Kakao =====
@@ -44,8 +42,8 @@ public class SnsAuthController {
   @Value("${oauth.naver.redirect-uri}")    private String NAVER_REDIRECT;
 
   // ===== Behavior flags =====
-  @Value("${oauth.sns.auto-signup:true}")     private boolean autoSignup;
-  @Value("${oauth.sns.auto-link-email:false}")private boolean autoLinkEmail;
+  @Value("${oauth.sns.auto-signup:true}")      private boolean autoSignup;
+  @Value("${oauth.sns.auto-link-email:false}") private boolean autoLinkEmail;
 
   private void clearLoginSession(HttpSession s) {
     s.removeAttribute("LOGIN_ID");
@@ -91,10 +89,11 @@ public class SnsAuthController {
                                             @RequestParam(required = false) String state) {
     String savedState = (String) session.getAttribute("OAUTH_STATE:KAKAO");
     if (savedState == null || !Objects.equals(savedState, state)) {
-      return redirect(FRONT_FAIL + "&reason=state");
+      return redirect(addQuery(FRONT_FAIL, "reason=state"));
     }
 
     try {
+      // 1) 액세스 토큰 요청 (폼-URL-인코딩 명시)
       MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
       form.add("grant_type", "authorization_code");
       form.add("client_id", KAKAO_ID);
@@ -102,10 +101,16 @@ public class SnsAuthController {
       form.add("redirect_uri", KAKAO_REDIRECT);
       form.add("code", code);
 
-      @SuppressWarnings("unchecked")
-      Map<String, Object> token = rest.postForObject("https://kauth.kakao.com/oauth/token", form, Map.class);
-      String accessToken = (String) token.get("access_token");
+      HttpHeaders tokenHeaders = new HttpHeaders();
+      tokenHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+      HttpEntity<MultiValueMap<String, String>> tokenReq = new HttpEntity<>(form, tokenHeaders);
 
+      @SuppressWarnings("unchecked")
+      Map<String, Object> token = rest.postForObject("https://kauth.kakao.com/oauth/token", tokenReq, Map.class);
+      String accessToken = token != null ? (String) token.get("access_token") : null;
+      if (isBlank(accessToken)) return redirect(addQuery(FRONT_FAIL, "reason=no-token"));
+
+      // 2) 사용자 정보 조회
       HttpHeaders h = new HttpHeaders();
       h.setBearerAuth(accessToken);
       HttpEntity<Void> req = new HttpEntity<>(h);
@@ -113,7 +118,7 @@ public class SnsAuthController {
       @SuppressWarnings("unchecked")
       Map<String, Object> body = rest.exchange(
           "https://kapi.kakao.com/v2/user/me",
-          org.springframework.http.HttpMethod.GET, req, Map.class
+          HttpMethod.GET, req, Map.class
       ).getBody();
 
       String provider = "KAKAO";
@@ -128,7 +133,7 @@ public class SnsAuthController {
       String name = profile != null ? String.valueOf(profile.getOrDefault("nickname", "카카오사용자")) : "카카오사용자";
 
       User u = loginOrCreate(provider, providerId, email, name);
-      if (u == null) return redirect(FRONT_FAIL + "&reason=no-account");
+      if (u == null) return redirect(addQuery(FRONT_FAIL, "reason=no-account"));
 
       boolean needRole = isBlank(u.getUserType());
       session.setAttribute("NEED_ROLE_SELECT", needRole ? "Y" : "N");
@@ -142,7 +147,7 @@ public class SnsAuthController {
 
     } catch (Exception ex) {
       ex.printStackTrace();
-      return redirect(FRONT_FAIL + "&reason=exception");
+      return redirect(addQuery(FRONT_FAIL, "reason=exception"));
     }
   }
 
@@ -168,10 +173,11 @@ public class SnsAuthController {
                                             @RequestParam String state) {
     String savedState = (String) session.getAttribute("OAUTH_STATE:NAVER");
     if (savedState == null || !Objects.equals(savedState, state)) {
-      return redirect(FRONT_FAIL + "&reason=state");
+      return redirect(addQuery(FRONT_FAIL, "reason=state"));
     }
 
     try {
+      // 1) 토큰 교환 (GET)
       String tokenUrl = "https://nid.naver.com/oauth2.0/token"
           + "?grant_type=authorization_code"
           + "&client_id=" + NAVER_ID
@@ -181,8 +187,10 @@ public class SnsAuthController {
 
       @SuppressWarnings("unchecked")
       Map<String, Object> token = rest.getForObject(tokenUrl, Map.class);
-      String accessToken = (String) token.get("access_token");
+      String accessToken = token != null ? (String) token.get("access_token") : null;
+      if (isBlank(accessToken)) return redirect(addQuery(FRONT_FAIL, "reason=no-token"));
 
+      // 2) 사용자 정보 조회
       HttpHeaders h = new HttpHeaders();
       h.setBearerAuth(accessToken);
       HttpEntity<Void> req = new HttpEntity<>(h);
@@ -190,7 +198,7 @@ public class SnsAuthController {
       @SuppressWarnings("unchecked")
       Map<String, Object> me = rest.exchange(
           "https://openapi.naver.com/v1/nid/me",
-          org.springframework.http.HttpMethod.GET, req, Map.class
+          HttpMethod.GET, req, Map.class
       ).getBody();
 
       @SuppressWarnings("unchecked")
@@ -202,7 +210,7 @@ public class SnsAuthController {
       String name  = resp != null ? String.valueOf(resp.getOrDefault("name", "네이버사용자")) : "네이버사용자";
 
       User u = loginOrCreate(provider, providerId, email, name);
-      if (u == null) return redirect(FRONT_FAIL + "&reason=no-account");
+      if (u == null) return redirect(addQuery(FRONT_FAIL, "reason=no-account"));
 
       boolean needRole = isBlank(u.getUserType());
       session.setAttribute("NEED_ROLE_SELECT", needRole ? "Y" : "N");
@@ -216,7 +224,7 @@ public class SnsAuthController {
 
     } catch (Exception ex) {
       ex.printStackTrace();
-      return redirect(FRONT_FAIL + "&reason=exception");
+      return redirect(addQuery(FRONT_FAIL, "reason=exception"));
     }
   }
 
@@ -226,7 +234,7 @@ public class SnsAuthController {
     // 0) provider로 기등록 여부
     User u = userMapper.findByProvider(provider, providerId);
 
-    // 1) 같은 이메일 계정 자동 연동 (옵션)
+    // 1) 같은 이메일 자동 연동 (옵션)
     if (u == null && email != null && autoLinkEmail) {
       User byEmail = userMapper.findByEmail(email);
       if (byEmail != null) {
@@ -236,21 +244,26 @@ public class SnsAuthController {
       }
     }
 
-    // 2) 자동가입 (USER_TYPE 비워서 역할선택 유도)
+    // 2) 자동가입: USER_TYPE 비워서 역할선택 유도
     if (u == null && autoSignup) {
       Map<String, Object> p = new HashMap<>();
       p.put("id", UUID.randomUUID().toString());
-      p.put("email", email);                     // null 허용
-      p.put("pw", UUID.randomUUID().toString()); // 사용 안 함(임시)
-      p.put("userName", name);
+      p.put("email", email);                       // null 허용
+      p.put("userName", isBlank(name) ? "" : name);
       p.put("provider", provider);
       p.put("providerId", providerId);
-      userMapper.insertSnsUser(p);              // USER_TYPE은 넣지 않음 → NULL
+      // ✅ Oracle null 바인딩 이슈 피하기 위해 기본값 지정
+      p.put("address", "");
+      p.put("tel", "");
+      p.put("userType", null);
+      p.put("pw", "");                             // SNS계정은 내부 PW 미사용
+
+      userMapper.insertSnsUser(p);
       u = userMapper.findByProvider(provider, providerId);
       System.out.println("[OAUTH] auto-signup created: " + (u != null ? u.getId() : "NULL"));
     }
 
-    // 3) 세션 저장 (+ 필요 시 역할선택 플래그)
+    // 3) 세션 저장
     if (u != null) {
       session.setAttribute("LOGIN_ID", u.getId());
       session.setAttribute("LOGIN_EMAIL", u.getEmail());

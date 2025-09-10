@@ -61,12 +61,7 @@
   WHERE EMAIL = #{email}
 </select>
 
-  <select id="existsByEmail" parameterType="string" resultType="int">
-    SELECT COUNT(*)
-    FROM USERS
-    WHERE EMAIL = #{email}
-  </select>
-
+  
   <!-- User 도메인 객체 삽입 -->
   <insert id="insertUser" parameterType="com.app.domain.User">
     INSERT INTO USERS
@@ -123,12 +118,16 @@
 </update>
 
 <!-- SNS -->
-  <select id="findByProvider" resultType="com.app.domain.User">
-    SELECT *
-      FROM USERS
-     WHERE PROVIDER = #{provider}
-       AND PROVIDER_ID = #{providerId}
-  </select>
+ <select id="findByProvider" parameterType="map" resultType="com.app.domain.User">
+  SELECT ID AS id, PW AS pw, EMAIL AS email, ADDRESS AS address, TEL AS tel,
+         USER_NAME AS userName, USER_TYPE AS userType, USER_STATUS AS userStatus,
+         BUSINESS_NUMBER AS businessNumber, CREATED_TIME AS createdTime,
+         TOTAL_BALANCE AS totalBalance, BID_DEPOSIT AS bidDeposit,
+         PROVIDER AS provider, PROVIDER_ID AS providerId
+    FROM USERS
+   WHERE PROVIDER = #{provider}
+     AND PROVIDER_ID = #{providerId}
+</select>
 
   <update id="linkProviderByEmail">
     UPDATE USERS
@@ -137,12 +136,27 @@
      WHERE EMAIL = #{email}
   </update>
 
-  <insert id="insertSnsUser" parameterType="map">
-    INSERT INTO USERS
-      (ID, EMAIL, PW, USER_NAME, PROVIDER, PROVIDER_ID, CREATED_TIME)
-    VALUES
-      (#{id}, #{email}, #{pw}, #{userName}, #{provider}, #{providerId}, SYSTIMESTAMP)
-  </insert>
+  <!-- SNS 자동가입: USER_TYPE은 NULL로 저장하여 역할 선택 유도 -->
+<insert id="insertSnsUser" parameterType="map">
+  INSERT INTO USERS
+    (ID, EMAIL, USER_NAME, ADDRESS, TEL,
+     USER_TYPE, USER_STATUS, CREATED_TIME,
+     TOTAL_BALANCE, BID_DEPOSIT, PROVIDER, PROVIDER_ID, PW)
+  VALUES
+    (#{id},
+     #{email,jdbcType=VARCHAR},
+     #{userName,jdbcType=VARCHAR},
+     #{address,jdbcType=VARCHAR},
+     #{tel,jdbcType=VARCHAR},
+     NULL,                                  <!-- ★ 여기! 바인딩 안하고 상수 NULL -->
+     'ACTIVE',
+     SYSTIMESTAMP,
+     0, 0,
+     #{provider,jdbcType=VARCHAR},
+     #{providerId,jdbcType=VARCHAR},
+     COALESCE(#{pw,jdbcType=VARCHAR}, '')
+    )
+</insert>
 
  <!-- provider 존재 여부 -->
 	<select id="existsByProvider" resultType="int">
