@@ -1337,7 +1337,7 @@ const ProductRegister = () => {
                                                 viewProductDetail(product);
                                             }}
                                         >
-                                            👁️ 상세보기
+                                            상세보기
                                         </button>
                                         <button 
                                             className="delete-btn"

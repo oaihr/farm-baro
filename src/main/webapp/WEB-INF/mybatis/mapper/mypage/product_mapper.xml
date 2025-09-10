@@ -19,30 +19,43 @@
         <result property="sellerId" column="SELLER_ID"/>
         <result property="createdTime" column="CREATED_TIME"/>
         <result property="sellerName" column="SELLER_NAME"/>
+        <result property="imageUrl" column="IMAGE_URL"/>
     </resultMap>
 
     <!-- 판매자별 상품 목록 조회 -->
     <select id="getProductsBySeller" resultMap="ProductResultMap">
-        SELECT s.*, u.USER_NAME as SELLER_NAME
+        SELECT s.*, u.USER_NAME as SELLER_NAME,
+               pi.IMAGE_URL as IMAGE_URL
         FROM sales s
         LEFT JOIN users u ON s.SELLER_ID = u.ID
+        LEFT JOIN product_images pi ON s.SALE_ITEM_ID = pi.PRODUCT_ID 
+            AND pi.PRODUCT_TYPE = 'sale' 
+            AND pi.IS_THUMBNAIL = 'y'
         WHERE s.SELLER_ID = #{sellerId}
         ORDER BY s.CREATED_TIME DESC
     </select>
 
     <!-- 상품 상세 조회 -->
     <select id="getProductById" resultMap="ProductResultMap">
-        SELECT s.*, u.USER_NAME as SELLER_NAME
+        SELECT s.*, u.USER_NAME as SELLER_NAME,
+               pi.IMAGE_URL as IMAGE_URL
         FROM sales s
         LEFT JOIN users u ON s.SELLER_ID = u.ID
+        LEFT JOIN product_images pi ON s.SALE_ITEM_ID = pi.PRODUCT_ID 
+            AND pi.PRODUCT_TYPE = 'sale' 
+            AND pi.IS_THUMBNAIL = 'y'
         WHERE s.SALE_ITEM_ID = #{saleItemId}
     </select>
 
     <!-- 상품 검색 -->
     <select id="searchProducts" resultMap="ProductResultMap">
-        SELECT s.*, u.USER_NAME as SELLER_NAME
+        SELECT s.*, u.USER_NAME as SELLER_NAME,
+               pi.IMAGE_URL as IMAGE_URL
         FROM sales s
         LEFT JOIN users u ON s.SELLER_ID = u.ID
+        LEFT JOIN product_images pi ON s.SALE_ITEM_ID = pi.PRODUCT_ID 
+            AND pi.PRODUCT_TYPE = 'sale' 
+            AND pi.IS_THUMBNAIL = 'y'
         WHERE 1=1
         <if test="sellerId != null and sellerId != ''">
             AND s.SELLER_ID = #{sellerId}

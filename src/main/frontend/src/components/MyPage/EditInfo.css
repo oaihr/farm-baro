@@ -140,6 +140,15 @@
     color: #2d3748;
 }
 
+.view-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
 .edit-btn {
     padding: 10px 20px;
     background: #38761D;
