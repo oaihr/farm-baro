@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCurrentUser } from '../../store/store';
 import './SellerMainPage.css';
 import ProductRegistration from './ProductRegistration';
 import OrderList from './OrderList';
@@ -9,6 +11,9 @@ import ProfileEdit from './ProfileEdit';
 
 const SellerMainPage = () => {
     const { userId } = useParams();
+    const dispatch = useDispatch();
+    
+    const { userId: currentUserId } = useSelector((state) => state.auth);
     const [activeTab, setActiveTab] = useState('dashboard');
     const [userInfo, setUserInfo] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -17,6 +22,15 @@ const SellerMainPage = () => {
         businessNumber: '',
         specialty: '농산물 판매'
     });
+    const [orderStats, setOrderStats] = useState({
+        pending: 0,
+        processing: 0,
+        shipping: 0,
+        delivered: 0,
+        completed: 0
+    });
+    const [recentOrders, setRecentOrders] = useState([]);
+    const [ordersLoading, setOrdersLoading] = useState(false);
     
     // 세션에서 사용자 정보 가져오기
     const fetchUserInfo = async () => {
@@ -40,9 +54,92 @@ const SellerMainPage = () => {
         }
     };
 
+    // 주문 데이터 가져오기
+    const fetchOrderData = async () => {
+        if (!userId) return;
+        
+        try {
+            setOrdersLoading(true);
+            console.log('주문 데이터 조회 시작 - sellerId:', userId);
+            
+            // 최근 주문 조회
+            const recentResponse = await fetch(`http://localhost:8080/api/sellers/${userId}/recent-orders`, {
+                credentials: 'include'
+            });
+            
+            if (recentResponse.ok) {
+                const recentData = await recentResponse.json();
+                console.log('최근 주문 데이터:', recentData);
+                setRecentOrders(recentData);
+            } else {
+                console.error('최근 주문 조회 실패:', recentResponse.status);
+            }
+            
+            // 전체 주문 조회하여 통계 계산
+            const allOrdersResponse = await fetch(`http://localhost:8080/api/sellers/${userId}/orders`, {
+                credentials: 'include'
+            });
+            
+            if (allOrdersResponse.ok) {
+                const allOrders = await allOrdersResponse.json();
+                console.log('전체 주문 데이터:', allOrders);
+                
+                // 주문 상태별 통계 계산
+                const stats = {
+                    pending: 0,
+                    processing: 0,
+                    shipping: 0,
+                    delivered: 0,
+                    completed: 0
+                };
+                
+                allOrders.forEach(order => {
+                    const status = order.orderStatus?.toLowerCase();
+                    switch (status) {
+                        case 'ordered':
+                        case 'pending':
+                            stats.pending++;
+                            break;
+                        case 'processing':
+                            stats.processing++;
+                            break;
+                        case 'shipped':
+                        case 'shipping':
+                            stats.shipping++;
+                            break;
+                        case 'delivered':
+                            stats.delivered++;
+                            break;
+                        case 'completed':
+                            stats.completed++;
+                            break;
+                        default:
+                            stats.pending++;
+                    }
+                });
+                
+                setOrderStats(stats);
+                console.log('주문 통계:', stats);
+            } else {
+                console.error('전체 주문 조회 실패:', allOrdersResponse.status);
+            }
+            
+        } catch (error) {
+            console.error('주문 데이터 조회 오류:', error);
+        } finally {
+            setOrdersLoading(false);
+        }
+    };
+
     useEffect(() => {
         fetchUserInfo();
     }, []);
+
+    useEffect(() => {
+        if (userInfo && userInfo.id) {
+            fetchOrderData();
+        }
+    }, [userInfo]);
     
     // 편집 모드 토글
     const toggleEdit = () => {
@@ -95,32 +192,42 @@ const SellerMainPage = () => {
         return <div>사용자 정보를 불러올 수 없습니다.</div>;
     }
 
-    const orderStats = {
-        pending: 1,
-        processing: 0,
-        shipping: 0,
-        delivered: 0,
-        completed: 0
+    // 주문 상태를 한국어로 변환하는 함수
+    const getOrderStatusText = (status) => {
+        switch (status?.toLowerCase()) {
+            case 'ordered':
+            case 'pending':
+                return '주문대기';
+            case 'processing':
+                return '처리중';
+            case 'shipped':
+            case 'shipping':
+                return '배송중';
+            case 'delivered':
+                return '배송완료';
+            case 'completed':
+                return '완료';
+            default:
+                return '주문대기';
+        }
     };
 
-    const recentOrders = [
-        {
-            id: '#12377',
-            date: '2024.01.15',
-            status: '주문대기',
-            product: '프리미엄 한우 등심 500g',
-            price: '45,000원',
-            quantity: '1개'
-        },
-        {
-            id: '#12376',
-            date: '2024.01.14',
-            status: '배송완료',
-            product: '돼지고기 삼겹살 1kg',
-            price: '28,000원',
-            quantity: '2개'
-        }
-    ];
+    // 날짜 포맷팅 함수
+    const formatDate = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('ko-KR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        }).replace(/\./g, '.').replace(/\s/g, '');
+    };
+
+    // 가격 포맷팅 함수
+    const formatPrice = (price) => {
+        if (!price) return '0원';
+        return new Intl.NumberFormat('ko-KR').format(price) + '원';
+    };
 
     const tabs = [
         { id: 'dashboard', label: '대시보드', icon: '📊' },
@@ -205,7 +312,7 @@ const SellerMainPage = () => {
                                 </>
                             ) : (
                                 <button onClick={toggleEdit} style={{
-                                    backgroundColor: '#2196F3', 
+                                    backgroundColor: '#2e9a4d', 
                                     color: 'white', 
                                     border: 'none', 
                                     padding: '8px 16px', 
@@ -319,32 +426,40 @@ const SellerMainPage = () => {
                     <h3>최근 주문</h3>
                     <Link to={`/mypage/seller/${userId}/orders`} className="more-link">더보기</Link>
                 </div>
-                <div className="orders-grid">
-                    {recentOrders.map((order, index) => (
-                        <div key={index} className="order-card">
-                            <div className="order-header">
-                                <span className="order-date">{order.date} 주문</span>
-                                <span className="order-number">{order.id}</span>
-                            </div>
-                            <div className="order-status">{order.status}</div>
-                            <div className="order-product">
-                                <div className="product-image">🥩</div>
-                                <div className="product-info">
-                                    <div className="product-name">{order.product}</div>
-                                    <div className="product-price">{order.price}</div>
-                                    <div className="product-quantity">{order.quantity}</div>
+                {ordersLoading ? (
+                    <div style={{textAlign: 'center', padding: '20px'}}>주문 데이터를 불러오는 중...</div>
+                ) : recentOrders.length > 0 ? (
+                    <div className="orders-grid">
+                        {recentOrders.map((order, index) => (
+                            <div key={order.saleOrderId || index} className="order-card">
+                                <div className="order-header">
+                                    <span className="order-date">{formatDate(order.orderDate)} 주문</span>
+                                    <span className="order-number">#{order.saleOrderId}</span>
+                                </div>
+                                <div className="order-status">{getOrderStatusText(order.orderStatus)}</div>
+                                <div className="order-product">
+                                    <div className="product-image">🥩</div>
+                                    <div className="product-info">
+                                        <div className="product-name">{order.productTitle || '상품명 없음'}</div>
+                                        <div className="product-price">{formatPrice(order.totalPrice)}</div>
+                                        <div className="product-quantity">{order.orderQuantity}개</div>
+                                    </div>
+                                </div>
+                                <div className="order-actions">
+                                    {order.orderStatus?.toLowerCase() === 'ordered' || order.orderStatus?.toLowerCase() === 'pending' ? (
+                                        <button className="action-btn primary">처리하기</button>
+                                    ) : (
+                                        <button className="action-btn secondary">상세보기</button>
+                                    )}
                                 </div>
                             </div>
-                            <div className="order-actions">
-                                {order.status === '주문대기' ? (
-                                    <button className="action-btn primary">처리하기</button>
-                                ) : (
-                                    <button className="action-btn secondary">상세보기</button>
-                                )}
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div style={{textAlign: 'center', padding: '20px', color: '#666'}}>
+                        최근 주문이 없습니다.
+                    </div>
+                )}
             </div>
 
             {/* 탭 네비게이션 */}

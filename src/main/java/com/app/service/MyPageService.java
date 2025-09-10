@@ -47,10 +47,10 @@ public class MyPageService {
     private InquiryMapper inquiryMapper;
     
     @Autowired
-    private BidMapper bidMapper;
+    private CartMapper cartMapper;
     
     @Autowired
-    private CartMapper cartMapper;
+    private BidMapper bidMapper;
 
     // 구매자 마이페이지 메인 정보 조회
     public Map<String, Object> getBuyerMyPageInfo(String buyerId) {
@@ -116,6 +116,16 @@ public class MyPageService {
 
     // 개인정보 수정
     public boolean updateUserInfo(UserDto user) {
+        // 사업자번호는 수정할 수 없도록 제한
+        if (user.getBusinessNumber() != null && !user.getBusinessNumber().trim().isEmpty()) {
+            // 기존 사용자 정보 조회
+            UserDto existingUser = userMapper.getUserById(user.getId());
+            if (existingUser != null && existingUser.getBusinessNumber() != null) {
+                // 기존 사업자번호가 있으면 변경하지 않음
+                user.setBusinessNumber(existingUser.getBusinessNumber());
+                System.out.println("사업자번호 수정 제한: " + existingUser.getBusinessNumber());
+            }
+        }
         return userMapper.updateUser(user) > 0;
     }
 
@@ -155,6 +165,16 @@ public class MyPageService {
         }
     }
 
+    // 판매자 리뷰 목록 조회
+    public List<ReviewDto> getSellerReviews(String userId) {
+        try {
+            return reviewMapper.getReviewsBySeller(userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
     // 구매자 문의 목록 조회
     public List<InquiryDto> getBuyerInquiries(String buyerId) {
         try {
@@ -162,6 +182,28 @@ public class MyPageService {
         } catch (Exception e) {
             e.printStackTrace();
             return new ArrayList<>();
+        }
+    }
+
+    // 장바구니에 상품 추가
+    public boolean addToCart(String userId, Long saleItemId, Integer quantity) {
+        try {
+            System.out.println("=== MyPageService.addToCart 호출 ===");
+            System.out.println("userId: " + userId);
+            System.out.println("saleItemId: " + saleItemId);
+            System.out.println("quantity: " + quantity);
+            
+            int result = cartMapper.addOrUpdateCartItem(userId, saleItemId, quantity);
+            System.out.println("장바구니 추가 결과: " + result);
+            
+            boolean success = result > 0;
+            System.out.println("장바구니 추가 성공 여부: " + success);
+            
+            return success;
+        } catch (Exception e) {
+            System.out.println("=== MyPageService.addToCart 오류 ===");
+            e.printStackTrace();
+            return false;
         }
     }
 
@@ -209,6 +251,70 @@ public class MyPageService {
         return reviewMapper.updateSellerReply(reviewId, sellerReply) > 0;
     }
 
+    // 리뷰 이미지 등록
+    public boolean insertReviewImage(Long reviewId, String imageUrl, int orderIndex, boolean isThumbnail) {
+        try {
+            int result = productMapper.insertReviewImage(reviewId, imageUrl, orderIndex, isThumbnail);
+            return result > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // 리뷰 이미지 조회
+    public List<String> getReviewImages(Long reviewId) {
+        try {
+            return productMapper.getReviewImages(reviewId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    // 리뷰 이미지 삭제
+    public boolean deleteReviewImages(Long reviewId) {
+        try {
+            int result = productMapper.deleteReviewImages(reviewId);
+            return result >= 0; // 삭제할 이미지가 없어도 성공으로 처리
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // ==================== 구매자 장바구니 서비스 ====================
+
+    // 구매자 장바구니 목록 조회
+    public List<CartDto> getCartItems(String buyerId) {
+        return cartMapper.getCartByBuyer(buyerId);
+    }
+
+    // 구매자 장바구니 통계 조회 (총 상품 수, 총 금액)
+    public Map<String, Object> getCartStats(String buyerId) {
+        Map<String, Object> stats = new HashMap<>();
+        try {
+            // 총 상품 수 (CART 테이블의 SALE_ITEM_ID 종류 수)
+            List<CartDto> cartItems = cartMapper.getCartByBuyer(buyerId);
+            int totalItemCount = cartItems.size();
+            
+            // 총 결제 금액 (SALES 테이블의 PRICE 합계)
+            Double totalAmount = cartMapper.getCartTotalAmount(buyerId);
+            if (totalAmount == null) {
+                totalAmount = 0.0;
+            }
+            
+            stats.put("totalItemCount", totalItemCount);
+            stats.put("totalAmount", totalAmount);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            stats.put("totalItemCount", 0);
+            stats.put("totalAmount", 0.0);
+        }
+        return stats;
+    }
+
     // 판매자 문의 목록 조회
     public List<InquiryDto> getSellerInquiries(Long productId) {
         return inquiryMapper.getInquiriesByProduct(productId);
@@ -234,24 +340,30 @@ public class MyPageService {
         return bidMapper.getWinningBids(buyerId);
     }
 
+    // 구매자별 낙찰상품 납부 대기 리스트 조회
+    public List<BidDto> getWinningAuctionsForPayment(String winnerId) {
+        try {
+            return bidMapper.getWinningAuctionsForPayment(winnerId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
     // 입찰 생성
     public boolean createBid(BidDto bid) {
         return bidMapper.insertBid(bid) > 0;
     }
 
-    // 장바구니 목록 조회
-    public List<CartDto> getCartItems(String buyerId) {
-        return cartMapper.getCartByBuyer(buyerId);
-    }
 
-    // 장바구니 상품 추가
+    // 장바구니에 상품 추가 (기존 상품이 있으면 수량 증가)
     public boolean addToCart(CartDto cart) {
-        CartDto existingItem = cartMapper.checkCartItem(cart.getUserId(), cart.getSaleItemId());
-        if (existingItem != null) {
-            return cartMapper.updateCartQuantity(cart.getUserId(), cart.getSaleItemId(), 
-                existingItem.getQuantity() + cart.getQuantity()) > 0;
-        } else {
-            return cartMapper.insertCartItem(cart) > 0;
+        try {
+            int result = cartMapper.addOrUpdateCartItem(cart.getUserId(), cart.getSaleItemId(), cart.getQuantity());
+            return result > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
     }
 
@@ -536,8 +648,23 @@ public class MyPageService {
     // 구매자 장바구니 조회
     public List<CartDto> getBuyerCart(String userId) {
         try {
-            return cartMapper.getCartByBuyer(userId);
+            System.out.println("=== MyPageService.getBuyerCart 호출 ===");
+            System.out.println("userId: " + userId);
+            
+            List<CartDto> cartItems = cartMapper.getCartByBuyer(userId);
+            System.out.println("조회된 장바구니 아이템 수: " + cartItems.size());
+            
+            for (CartDto item : cartItems) {
+                System.out.println("장바구니 아이템 - userId: " + item.getUserId() + 
+                                 ", saleItemId: " + item.getSaleItemId() + 
+                                 ", quantity: " + item.getQuantity() +
+                                 ", title: " + item.getProductTitle() +
+                                 ", productImageUrl: " + item.getProductImageUrl());
+            }
+            
+            return cartItems;
         } catch (Exception e) {
+            System.out.println("=== MyPageService.getBuyerCart 오류 ===");
             e.printStackTrace();
             return new ArrayList<>();
         }
@@ -557,9 +684,38 @@ public class MyPageService {
     // 장바구니 상품 삭제
     public boolean removeCartItem(String userId, Long saleItemId) {
         try {
+            System.out.println("=== MyPageService.removeCartItem 호출 ===");
+            System.out.println("userId: " + userId);
+            System.out.println("saleItemId: " + saleItemId);
+            
+            // 디버깅: 모든 장바구니 아이템 조회
+            List<CartDto> allCartItems = cartMapper.getAllCartItems();
+            System.out.println("=== 데이터베이스의 모든 장바구니 아이템 ===");
+            for (CartDto item : allCartItems) {
+                System.out.println("DB 아이템 - userId: " + item.getUserId() + 
+                                 ", saleItemId: " + item.getSaleItemId() + 
+                                 ", quantity: " + item.getQuantity());
+            }
+            
+            // 삭제 전 해당 아이템이 존재하는지 확인
+            List<CartDto> existingItems = cartMapper.checkCartItem(userId, saleItemId);
+            System.out.println("삭제 전 존재하는 아이템 수: " + existingItems.size());
+            System.out.println("삭제 전 존재하는 아이템들: " + existingItems);
+            
+            if (existingItems == null || existingItems.isEmpty()) {
+                System.out.println("삭제할 아이템이 존재하지 않습니다.");
+                return false;
+            }
+            
             int result = cartMapper.deleteCartItem(userId, saleItemId);
-            return result > 0;
+            System.out.println("삭제된 행 수: " + result);
+            
+            boolean success = result > 0;
+            System.out.println("삭제 성공 여부: " + success);
+            
+            return success;
         } catch (Exception e) {
+            System.out.println("=== MyPageService.removeCartItem 오류 ===");
             e.printStackTrace();
             return false;
         }
@@ -601,6 +757,28 @@ public class MyPageService {
             params.put("specialty", specialty);
             
             int result = userMapper.updateSellerInfo(params);
+            return result > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    // 상품 이미지 삭제
+    public boolean deleteProductImages(Long productId) {
+        try {
+            int result = productMapper.deleteProductImages(productId);
+            return result >= 0; // 삭제할 이미지가 없어도 성공으로 처리
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    // 상품 이미지 등록
+    public boolean insertProductImage(Long productId, String imageUrl, int orderIndex, boolean isThumbnail) {
+        try {
+            int result = productMapper.insertProductImage(productId, imageUrl, orderIndex, isThumbnail);
             return result > 0;
         } catch (Exception e) {
             e.printStackTrace();

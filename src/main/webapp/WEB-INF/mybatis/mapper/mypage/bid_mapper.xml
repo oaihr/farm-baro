@@ -61,4 +61,26 @@
         SELECT MAX(BID_PRICE) FROM bids WHERE AUCTION_ID = #{auctionId}
     </select>
 
+    <!-- 구매자별 낙찰상품 납부 대기 리스트 조회 (AUCTIONS 테이블의 WINNER_ID 기준) -->
+    <select id="getWinningAuctionsForPayment" resultMap="BidResultMap">
+        SELECT 
+            a.AUCTION_ID,
+            a.WINNER_ID as USER_ID,
+            a.CURRENT_BID_PRICE as BID_PRICE,
+            'WON' as BID_STATUS,
+            a.END_DATE as BID_TIME,
+            a.END_DATE as CREATED_TIME,
+            a.TITLE as AUCTION_TITLE,
+            a.END_DATE as AUCTION_END_DATE,
+            u.USER_NAME as BIDDER_NAME,
+            a.CURRENT_BID_PRICE as CURRENT_HIGHEST_BID,
+            1 as IS_WINNER
+        FROM AUCTIONS a
+        LEFT JOIN users u ON a.WINNER_ID = u.ID
+        WHERE a.WINNER_ID = #{winnerId}
+        AND a.AUCTION_STATUS = 'ENDED'
+        AND a.CURRENT_BID_PRICE IS NOT NULL
+        ORDER BY a.END_DATE DESC
+    </select>
+
 </mapper>

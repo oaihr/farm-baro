@@ -57,4 +57,26 @@
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
 
+	<!-- CORS Filter -->
+	<filter>
+		<filter-name>CorsFilter</filter-name>
+		<filter-class>com.app.web.CorsFilter</filter-class>
+	</filter>
+	
+	<filter-mapping>
+		<filter-name>CorsFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<!-- 세션 설정 -->
+	<session-config>
+		<session-timeout>30</session-timeout> <!-- 30분 -->
+		<cookie-config>
+			<http-only>true</http-only>
+			<secure>false</secure>
+			<max-age>1800</max-age> <!-- 30분 (초 단위) -->
+		</cookie-config>
+		<tracking-mode>COOKIE</tracking-mode>
+	</session-config>
+
 </web-app>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './BuyerCart.css';
 
@@ -12,12 +12,16 @@ const BuyerCart = () => {
     const [selectAll, setSelectAll] = useState(false);
 
     // 장바구니 목록 가져오기
-    const fetchCartItems = async () => {
+    const fetchCartItems = useCallback(async () => {
         try {
             setLoading(true);
-            const response = await fetch(`http://localhost:8080/mypage/api/buyers/${userId}/cart`);
+            const response = await fetch(`http://localhost:8080/api/mypage/cart`, {
+                credentials: 'include' // 세션 쿠키 포함
+            });
             if (response.ok) {
                 const data = await response.json();
+                console.log('장바구니 데이터:', data);
+                console.log('첫 번째 아이템:', data[0]);
                 setCartItems(data);
                 // 모든 아이템 선택 해제
                 setSelectedItems(new Set());
@@ -32,11 +36,11 @@ const BuyerCart = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
     useEffect(() => {
         fetchCartItems();
-    }, [userId]);
+    }, [fetchCartItems]);
 
     // 전체 선택/해제
     const handleSelectAll = () => {
@@ -44,45 +48,53 @@ const BuyerCart = () => {
             setSelectedItems(new Set());
             setSelectAll(false);
         } else {
-            const allItemIds = new Set(cartItems.map(item => item.cartItemId));
+            const allItemIds = new Set(cartItems.map(item => item.saleItemId));
             setSelectedItems(allItemIds);
             setSelectAll(true);
         }
     };
 
     // 개별 아이템 선택/해제
-    const handleSelectItem = (itemId) => {
+    const handleSelectItem = (saleItemId) => {
         const newSelectedItems = new Set(selectedItems);
-        if (newSelectedItems.has(itemId)) {
-            newSelectedItems.delete(itemId);
+        if (newSelectedItems.has(saleItemId)) {
+            newSelectedItems.delete(saleItemId);
         } else {
-            newSelectedItems.add(itemId);
+            newSelectedItems.add(saleItemId);
         }
         setSelectedItems(newSelectedItems);
         setSelectAll(newSelectedItems.size === cartItems.length);
     };
 
     // 수량 변경
-    const handleQuantityChange = async (itemId, newQuantity) => {
+    const handleQuantityChange = async (saleItemId, newQuantity) => {
         if (newQuantity < 1) return;
 
         try {
-            const response = await fetch(`http://localhost:8080/mypage/api/cart/${itemId}/quantity`, {
+            console.log('수량 변경 요청 - saleItemId:', saleItemId, 'newQuantity:', newQuantity);
+            
+            const response = await fetch(`http://localhost:8080/api/mypage/cart/${saleItemId}/quantity`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: 'include', // 세션 쿠키 포함
                 body: JSON.stringify({ quantity: newQuantity })
             });
 
+            console.log('수량 변경 응답 상태:', response.status);
+
             if (response.ok) {
                 setCartItems(prev => prev.map(item => 
-                    item.cartItemId === itemId 
+                    item.saleItemId === saleItemId 
                         ? { ...item, quantity: newQuantity }
                         : item
                 ));
                 setMessage('수량이 성공적으로 변경되었습니다.');
+                console.log('수량 변경 성공');
             } else {
+                const errorText = await response.text();
+                console.error('수량 변경 실패:', response.status, errorText);
                 setMessage('수량 변경에 실패했습니다.');
             }
         } catch (error) {
@@ -92,30 +104,86 @@ const BuyerCart = () => {
     };
 
     // 장바구니에서 삭제
-    const handleRemoveItem = async (itemId) => {
+    const handleRemoveItem = async (saleItemId) => {
         if (!window.confirm('정말로 이 상품을 장바구니에서 삭제하시겠습니까?')) {
             return;
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/mypage/api/cart/${itemId}`, {
-                method: 'DELETE'
+            console.log('장바구니 삭제 요청 - saleItemId:', saleItemId);
+            console.log('현재 장바구니 아이템들:', cartItems);
+            console.log('삭제할 아이템:', cartItems.find(item => item.saleItemId === saleItemId));
+            
+            const response = await fetch(`http://localhost:8080/api/mypage/cart/${saleItemId}`, {
+                method: 'DELETE',
+                credentials: 'include' // 세션 쿠키 포함
             });
 
+            console.log('삭제 응답 상태:', response.status);
+
             if (response.ok) {
-                setCartItems(prev => prev.filter(item => item.cartItemId !== itemId));
-                setSelectedItems(prev => {
-                    const newSet = new Set(prev);
-                    newSet.delete(itemId);
-                    return newSet;
-                });
-                setMessage('상품이 장바구니에서 삭제되었습니다.');
+                const deleteResult = await response.json();
+                console.log('삭제 결과:', deleteResult);
+                
+                if (deleteResult) {
+                    // 삭제 성공 시 서버에서 최신 장바구니 데이터 다시 조회
+                    console.log('삭제 성공, 장바구니 데이터 다시 조회');
+                    await fetchCartItems();
+                    setMessage('상품이 장바구니에서 삭제되었습니다.');
+                } else {
+                    console.log('삭제 실패 - 서버에서 false 반환');
+                    setMessage('상품 삭제에 실패했습니다.');
+                }
             } else {
+                const errorText = await response.text();
+                console.error('삭제 실패:', response.status, errorText);
                 setMessage('상품 삭제에 실패했습니다.');
             }
         } catch (error) {
             console.error('상품 삭제 오류:', error);
             setMessage('상품 삭제 중 오류가 발생했습니다.');
+        }
+    };
+
+    // 개별 상품 구매 확정
+    const handlePurchaseConfirm = async (itemId) => {
+        const item = cartItems.find(item => item.cartItemId === itemId);
+        if (!item) return;
+
+        const totalAmount = item.price * item.quantity;
+        
+        if (!window.confirm(`${item.title} 상품을 ${totalAmount.toLocaleString()}원에 구매 확정하시겠습니까?`)) {
+            return;
+        }
+
+        try {
+            // TODO: 실제 구매 확정 API 호출 (추후 구현)
+            const response = await fetch(`http://localhost:8080/mypage/api/cart/${itemId}/purchase-confirm`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    itemId: itemId,
+                    totalAmount: totalAmount
+                })
+            });
+
+            if (response.ok) {
+                setMessage('구매가 확정되었습니다! 🎉');
+                // 구매 확정된 상품을 장바구니에서 제거
+                setCartItems(prev => prev.filter(cartItem => cartItem.cartItemId !== itemId));
+                setSelectedItems(prev => {
+                    const newSet = new Set(prev);
+                    newSet.delete(itemId);
+                    return newSet;
+                });
+            } else {
+                setMessage('구매 확정에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('구매 확정 오류:', error);
+            setMessage('구매 확정 중 오류가 발생했습니다.');
         }
     };
 
@@ -131,19 +199,30 @@ const BuyerCart = () => {
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/mypage/api/cart/batch-remove`, {
+            const response = await fetch(`http://localhost:8080/api/mypage/cart/batch-remove`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: 'include', // 세션 쿠키 포함
                 body: JSON.stringify({ itemIds: Array.from(selectedItems) })
             });
 
             if (response.ok) {
-                setCartItems(prev => prev.filter(item => !selectedItems.has(item.cartItemId)));
-                setSelectedItems(new Set());
-                setSelectAll(false);
-                setMessage('선택된 상품들이 장바구니에서 삭제되었습니다.');
+                const deleteResult = await response.json();
+                console.log('배치 삭제 결과:', deleteResult);
+                
+                if (deleteResult) {
+                    // 삭제 성공 시 서버에서 최신 장바구니 데이터 다시 조회
+                    console.log('배치 삭제 성공, 장바구니 데이터 다시 조회');
+                    await fetchCartItems();
+                    setSelectedItems(new Set());
+                    setSelectAll(false);
+                    setMessage('선택된 상품들이 장바구니에서 삭제되었습니다.');
+                } else {
+                    console.log('배치 삭제 실패 - 서버에서 false 반환');
+                    setMessage('상품 삭제에 실패했습니다.');
+                }
             } else {
                 setMessage('상품 삭제에 실패했습니다.');
             }
@@ -233,10 +312,6 @@ const BuyerCart = () => {
                         <div className="stat-label">총 상품</div>
                     </div>
                     <div className="stat-item">
-                        <div className="stat-number">{selectedCount}</div>
-                        <div className="stat-label">선택된 상품</div>
-                    </div>
-                    <div className="stat-item">
                         <div className="stat-number">{calculateTotal().toLocaleString()}원</div>
                         <div className="stat-label">총 결제 금액</div>
                     </div>
@@ -293,8 +368,8 @@ const BuyerCart = () => {
                                 <div className="item-selection">
                                     <input
                                         type="checkbox"
-                                        checked={selectedItems.has(item.cartItemId)}
-                                        onChange={() => handleSelectItem(item.cartItemId)}
+                                        checked={selectedItems.has(item.saleItemId)}
+                                        onChange={() => handleSelectItem(item.saleItemId)}
                                         className="item-checkbox"
                                     />
                                 </div>
@@ -332,13 +407,15 @@ const BuyerCart = () => {
                                 <div className="item-price">
                                     <div className="price-info">
                                         <p className="unit-price">
-                                            단가: {item.price ? `${item.price.toLocaleString()}원` : '가격 정보 없음'}
+                                            단가: {item.price ? `${Math.round(item.price).toLocaleString()}원` : '가격 정보 없음'}
                                         </p>
                                         <p className="total-price">
                                             총액: <strong>
                                                 {item.price && item.quantity 
-                                                    ? `${(item.price * item.quantity).toLocaleString()}원`
-                                                    : '계산 불가'
+                                                    ? `${Math.round(item.price * item.quantity).toLocaleString()}원`
+                                                    : item.totalPrice 
+                                                        ? `${Math.round(item.totalPrice).toLocaleString()}원`
+                                                        : '계산 불가'
                                                 }
                                             </strong>
                                         </p>
@@ -350,7 +427,7 @@ const BuyerCart = () => {
                                     <div className="quantity-controls">
                                         <button 
                                             className="quantity-btn"
-                                            onClick={() => handleQuantityChange(item.cartItemId, item.quantity - 1)}
+                                            onClick={() => handleQuantityChange(item.saleItemId, item.quantity - 1)}
                                             disabled={item.quantity <= 1}
                                         >
                                             -
@@ -358,7 +435,7 @@ const BuyerCart = () => {
                                         <span className="quantity-display">{item.quantity}</span>
                                         <button 
                                             className="quantity-btn"
-                                            onClick={() => handleQuantityChange(item.cartItemId, item.quantity + 1)}
+                                            onClick={() => handleQuantityChange(item.saleItemId, item.quantity + 1)}
                                         >
                                             +
                                         </button>
@@ -367,10 +444,16 @@ const BuyerCart = () => {
 
                                 <div className="item-actions">
                                     <button 
-                                        className="remove-item-btn"
-                                        onClick={() => handleRemoveItem(item.cartItemId)}
+                                        className="purchase-confirm-btn"
+                                        onClick={() => handlePurchaseConfirm(item.cartItemId)}
                                     >
-                                        🗑️ 삭제
+                                        결제
+                                    </button>
+                                    <button 
+                                        className="remove-item-btn"
+                                        onClick={() => handleRemoveItem(item.saleItemId)}
+                                    >
+                                        삭제
                                     </button>
                                 </div>
                             </div>
@@ -429,17 +512,6 @@ const BuyerCart = () => {
                 </div>
             </div>
 
-            {/* 추천 상품 */}
-            <div className="recommended-products">
-                <h3>🔥 추천 상품</h3>
-                <p>장바구니와 함께 구매하면 좋은 상품들을 확인해보세요!</p>
-                <button 
-                    className="view-recommendations-btn"
-                    onClick={() => navigate('/products/recommended')}
-                >
-                    🔥 추천 상품 보기
-                </button>
-            </div>
         </div>
     );
 };

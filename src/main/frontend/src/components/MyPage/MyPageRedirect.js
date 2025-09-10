@@ -1,26 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCurrentUser } from '../../store/store';
 import { http } from '../../api/http';
 
 const MyPageRedirect = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const { userId } = useSelector((state) => state.auth);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        redirectToUserMyPage();
-    }, []);
+        dispatch(fetchCurrentUser());
+    }, [dispatch]);
+
+    useEffect(() => {
+        if (userId) {
+            redirectToUserMyPage();
+        } else if (loading) {
+            setLoading(false);
+        }
+    }, [userId, loading]);
 
     const redirectToUserMyPage = async () => {
         try {
-            // 세션에서 사용자 정보 가져오기
-            const response = await http.get('/api/auth/me');
-            const userInfo = response.data;
-            
-            if (userInfo && userInfo.id) {
+            // Redux에서 이미 userId를 가지고 있으므로 직접 사용
+            if (userId) {
+                // 사용자 타입을 확인하기 위해 추가 API 호출
+                const response = await http.get('/api/auth/me');
+                const userInfo = response.data;
                 const userType = userInfo.userType;
-                const userId = userInfo.id;
                 
-                if (userType && userId) {
+                if (userType) {
                     // 사용자 타입에 따라 적절한 마이페이지로 리다이렉트
                     if (userType === 'BUYER') {
                         navigate(`/mypage/buyer/${userId}`, { replace: true });

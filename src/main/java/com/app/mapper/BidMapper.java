@@ -1,9 +1,11 @@
 package com.app.mapper;
 
-import com.app.dto.BidDto;
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import java.util.List;
+
+import com.app.dto.BidDto;
 
 @Mapper
 public interface BidMapper {
@@ -37,4 +39,7 @@ public interface BidMapper {
     
     // 구매자별 낙찰 상품 조회
     List<BidDto> getWinningBids(@Param("bidderId") String bidderId);
+    
+    // 구매자별 낙찰상품 납부 대기 리스트 조회 (AUCTIONS 테이블의 WINNER_ID 기준)
+    List<BidDto> getWinningAuctionsForPayment(@Param("winnerId") String winnerId);
 }

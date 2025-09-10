@@ -34,10 +34,10 @@ CREATE SEQUENCE sale_item_seq START WITH 1 INCREMENT BY 1;
 
 -- 테스트용 판매 상품 데이터
 INSERT INTO sales (SALE_ITEM_ID, SELLER_ID, TITLE, DESCRIPTION, QTY, SALE_STATUS, CREATED_TIME)
-VALUES (sale_item_seq.NEXTVAL, 'seller001', '신선한 사과', '맛있는 사과입니다', 100, 'ACTIVE', SYSTIMESTAMP);
+VALUES (sale_item_seq.NEXTVAL, 'seller001', '소고기 등심 1++등급', '신선한 소고기 등심입니다', 100, 'ACTIVE', SYSTIMESTAMP);
 
 INSERT INTO sales (SALE_ITEM_ID, SELLER_ID, TITLE, DESCRIPTION, QTY, SALE_STATUS, CREATED_TIME)
-VALUES (sale_item_seq.NEXTVAL, 'seller001', '고급 쌀', '프리미엄 쌀입니다', 50, 'ACTIVE', SYSTIMESTAMP);
+VALUES (sale_item_seq.NEXTVAL, 'seller001', '돼지고기 삼겹살 1+등급', '프리미엄 돼지고기 삼겹살입니다', 50, 'ACTIVE', SYSTIMESTAMP);
 
 -- 테스트용 주문 데이터
 INSERT INTO order_sales (SALE_ORDER_ID, USER_ID, ORDER_STATUS, ORDER_DATE)

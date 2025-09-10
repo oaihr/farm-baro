@@ -31,9 +31,17 @@ public interface CartMapper {
     int deleteAllCartItems(@Param("buyerId") String buyerId);
     
     // 장바구니 상품 존재 여부 확인
-    CartDto checkCartItem(@Param("userId") String userId, 
-                         @Param("saleItemId") Long saleItemId);
+    List<CartDto> checkCartItem(@Param("userId") String userId, 
+                               @Param("saleItemId") Long saleItemId);
+    
+    // 장바구니에 상품 추가 또는 수량 증가
+    int addOrUpdateCartItem(@Param("userId") String userId, 
+                           @Param("saleItemId") Long saleItemId, 
+                           @Param("quantity") Integer quantity);
     
     // 장바구니 총 금액 계산
     Double getCartTotalAmount(@Param("buyerId") String buyerId);
+    
+    // 디버깅용: 모든 장바구니 아이템 조회
+    List<CartDto> getAllCartItems();
 }

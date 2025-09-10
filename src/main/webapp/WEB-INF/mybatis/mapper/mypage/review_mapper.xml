@@ -4,80 +4,116 @@
 <mapper namespace="com.app.mapper.ReviewMapper">
 
     <resultMap id="ReviewResultMap" type="com.app.dto.ReviewDto">
-        <id property="reviewId" column="REVIEW_ID"/>
-        <result property="saleItemId" column="SALE_ITEM_ID"/>
-        <result property="userId" column="USER_ID"/>
-        <result property="rating" column="RATING"/>
-        <result property="reviewComment" column="REVIEW_COMMENT"/>
-        <result property="createdTime" column="CREATED_TIME"/>
-        <result property="updatedTime" column="UPDATED_TIME"/>
-        <result property="productTitle" column="PRODUCT_TITLE"/>
-        <result property="reviewerName" column="REVIEWER_NAME"/>
-        <result property="sellerName" column="SELLER_NAME"/>
+        <id property="reviewId" column="review_id"/>
+        <result property="saleItemId" column="sale_item_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="rating" column="rating"/>
+        <result property="reviewComment" column="review_comment"/>
+        <result property="content" column="review_comment"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="updatedTime" column="updated_time"/>
+        <result property="views" column="views"/>
+        <result property="sellerComment" column="seller_comment"/>
+        <result property="productTitle" column="product_title"/>
+        <result property="productName" column="product_title"/>
+        <result property="buyerName" column="customer_name"/>
+        <result property="reviewerName" column="customer_name"/>
     </resultMap>
 
     <!-- 구매자별 리뷰 목록 조회 -->
     <select id="getReviewsByBuyer" resultMap="ReviewResultMap">
-        SELECT r.REVIEW_ID, r.SALE_ITEM_ID, r.USER_ID, r.RATING, r.REVIEW_COMMENT,
-               r.CREATED_TIME, r.UPDATED_TIME,
-               s.TITLE as PRODUCT_TITLE,
-               u.USER_NAME as REVIEWER_NAME,
-               seller.USER_NAME as SELLER_NAME
+        SELECT r.review_id, r.sale_item_id, r.user_id, r.rating, 
+               r.review_comment, r.created_time, r.updated_time, 
+               r.views, r.seller_comment,
+               s.title as product_title,
+               u.user_name as customer_name
         FROM reviews r
-        LEFT JOIN sales s ON r.SALE_ITEM_ID = s.SALE_ITEM_ID
-        LEFT JOIN users u ON r.USER_ID = u.ID
-        LEFT JOIN users seller ON s.SELLER_ID = seller.ID
-        WHERE r.USER_ID = #{buyerId}
-        ORDER BY r.CREATED_TIME DESC
+        LEFT JOIN sales s ON r.sale_item_id = s.sale_item_id
+        LEFT JOIN users u ON r.user_id = u.id
+        WHERE r.user_id = #{buyerId}
+        ORDER BY r.created_time DESC
+    </select>
+
+    <!-- 판매자별 리뷰 목록 조회 -->
+    <select id="getReviewsBySeller" resultMap="ReviewResultMap">
+        SELECT r.review_id, r.sale_item_id, r.user_id, r.rating, 
+               r.review_comment, r.created_time, r.updated_time, 
+               r.views, r.seller_comment,
+               s.title as product_title,
+               u.user_name as customer_name
+        FROM reviews r
+        LEFT JOIN sales s ON r.sale_item_id = s.sale_item_id
+        LEFT JOIN users u ON r.user_id = u.id
+        WHERE r.review_id IS NOT NULL
+        ORDER BY r.created_time DESC
     </select>
 
     <!-- 상품별 리뷰 목록 조회 -->
     <select id="getReviewsByProduct" resultMap="ReviewResultMap">
-        SELECT r.REVIEW_ID, r.SALE_ITEM_ID, r.USER_ID, r.RATING, r.REVIEW_COMMENT,
-               r.CREATED_TIME, r.UPDATED_TIME,
-               s.TITLE as PRODUCT_TITLE,
-               u.USER_NAME as REVIEWER_NAME,
-               seller.USER_NAME as SELLER_NAME
+        SELECT r.review_id, r.sale_item_id, r.user_id, r.rating, 
+               r.review_comment, r.created_time, r.updated_time, 
+               r.views, r.seller_comment,
+               s.title as product_title,
+               u.user_name as customer_name
         FROM reviews r
-        LEFT JOIN sales s ON r.SALE_ITEM_ID = s.SALE_ITEM_ID
-        LEFT JOIN users u ON r.USER_ID = u.ID
-        LEFT JOIN users seller ON s.SELLER_ID = seller.ID
-        WHERE r.SALE_ITEM_ID = #{saleItemId}
-        ORDER BY r.CREATED_TIME DESC
+        LEFT JOIN sales s ON r.sale_item_id = s.sale_item_id
+        LEFT JOIN users u ON r.user_id = u.id
+        WHERE r.sale_item_id = #{productId}
+        ORDER BY r.created_time DESC
     </select>
 
     <!-- 리뷰 상세 조회 -->
     <select id="getReviewById" resultMap="ReviewResultMap">
-        SELECT r.REVIEW_ID, r.SALE_ITEM_ID, r.USER_ID, r.RATING, r.REVIEW_COMMENT,
-               r.CREATED_TIME, r.UPDATED_TIME,
-               s.TITLE as PRODUCT_TITLE,
-               u.USER_NAME as REVIEWER_NAME,
-               seller.USER_NAME as SELLER_NAME
+        SELECT r.review_id, r.sale_item_id, r.user_id, r.rating, 
+               r.review_comment, r.created_time, r.updated_time, 
+               r.views, r.seller_comment,
+               s.title as product_title,
+               u.user_name as customer_name
         FROM reviews r
-        LEFT JOIN sales s ON r.SALE_ITEM_ID = s.SALE_ITEM_ID
-        LEFT JOIN users u ON r.USER_ID = u.ID
-        LEFT JOIN users seller ON s.SELLER_ID = seller.ID
-        WHERE r.REVIEW_ID = #{reviewId}
+        LEFT JOIN sales s ON r.sale_item_id = s.sale_item_id
+        LEFT JOIN users u ON r.user_id = u.id
+        WHERE r.review_id = #{reviewId}
     </select>
 
     <!-- 리뷰 작성 -->
     <insert id="insertReview" parameterType="com.app.dto.ReviewDto">
-        INSERT INTO reviews (REVIEW_ID, SALE_ITEM_ID, USER_ID, RATING, REVIEW_COMMENT, CREATED_TIME, UPDATED_TIME)
-        VALUES (review_seq.NEXTVAL, #{saleItemId}, #{userId}, #{rating}, #{reviewComment}, SYSTIMESTAMP, SYSTIMESTAMP)
+        INSERT INTO reviews (review_id, sale_item_id, user_id, rating, review_comment, created_time)
+        VALUES (review_seq.NEXTVAL, #{saleItemId}, #{userId}, #{rating}, #{reviewComment}, SYSTIMESTAMP)
     </insert>
 
     <!-- 리뷰 수정 -->
     <update id="updateReview" parameterType="com.app.dto.ReviewDto">
         UPDATE reviews 
-        SET RATING = #{rating},
-            REVIEW_COMMENT = #{reviewComment},
-            UPDATED_TIME = SYSTIMESTAMP
-        WHERE REVIEW_ID = #{reviewId}
+        SET rating = #{rating},
+            review_comment = #{reviewComment},
+            updated_time = SYSTIMESTAMP
+        WHERE review_id = #{reviewId}
     </update>
 
     <!-- 리뷰 삭제 -->
     <delete id="deleteReview">
-        DELETE FROM reviews WHERE REVIEW_ID = #{reviewId}
+        DELETE FROM reviews WHERE review_id = #{reviewId}
     </delete>
+
+    <!-- 판매자 답글 작성 -->
+    <update id="updateSellerReply">
+        UPDATE reviews 
+        SET seller_comment = #{sellerReply},
+            updated_time = SYSTIMESTAMP
+        WHERE review_id = #{reviewId}
+    </update>
+
+    <!-- 주문별 리뷰 존재 여부 확인 -->
+    <select id="getReviewByOrder" resultMap="ReviewResultMap">
+        SELECT r.review_id, r.sale_item_id, r.user_id, r.rating, 
+               r.review_comment, r.created_time, r.updated_time, 
+               r.views, r.seller_comment,
+               s.title as product_title,
+               u.user_name as customer_name
+        FROM reviews r
+        LEFT JOIN sales s ON r.sale_item_id = s.sale_item_id
+        LEFT JOIN users u ON r.user_id = u.id
+        WHERE r.sale_item_id = #{orderId}
+    </select>
 
 </mapper>
