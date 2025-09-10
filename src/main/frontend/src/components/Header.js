@@ -20,7 +20,7 @@ function Header() {
     const [isNotiOpen, setIsNotiOpen] = useState(false);
 
     // searchKeyword
-    const [ searchKeyword, setSearchKeyword ] = useState('');
+    const [searchKeyword, setSearchKeyword] = useState('');
     const navigate = useNavigate();
 
     const dispatch = useDispatch();
@@ -28,7 +28,7 @@ function Header() {
     const { user, userId, isLoggedIn } = useSelector((state) => state.auth);
     console.log("user 상태:", user);
     console.log("userId 상태:", userId);
-    
+
     // userId가 null이면 로그아웃 상태로 처리
     const isUserLoggedIn = isLoggedIn && userId !== null && userId !== undefined;
 
@@ -53,7 +53,7 @@ function Header() {
     };
 
     const handleInquireClick = (e) => {
-        
+
         e.preventDefault();
 
         if (isUserLoggedIn) {
@@ -72,7 +72,7 @@ function Header() {
             dispatch(fetchCurrentUser()).then((res) => {
                 console.log("Header - fetchCurrentUser 결과:", res);
                 console.log("Header - 현재 auth 상태:", { user, userId, isLoggedIn });
-                
+
                 // 세션이 무효화된 경우 (사용자 정보가 없는 경우)
                 if (!res.payload || !res.payload.id) {
                     console.log("Header - 세션이 무효화됨, 로그아웃 처리");
@@ -113,26 +113,36 @@ function Header() {
                         <button className="home-search-btn">검색</button>
                     </div>
                     <div className="header-buttons">
-                        <div className="login-button-slot">
-                            {
-                                isUserLoggedIn ? (
-                                    <button className="home-login-btn btn"
-                                        onClick={handleLogout}>로그아웃</button>
-                                ) : (
-                                    <button
-                                        className="home-login-btn btn"
-                                        onClick={() => navigate("/login")} >로그인</button>
-                                )
-                            }
-                        </div>
-                        {
-                            isUserLoggedIn && (
-                                <div className="mypage-button-slot">
-                                    <button className="home-mypage-btn btn"
-                                        onClick={() => navigate("/me")}>마이페이지</button>
-                                </div>
-                            )
-                        }
+                        {userId && userId !== "" ? (
+                            <>
+                                <img
+                                    src={notiBell}
+                                    alt="알림"
+                                    className="home-noti-btn"
+                                    onClick={() => setIsNotiOpen(!isNotiOpen)}
+                                />
+                                <img
+                                    src={mypageLogo}
+                                    alt="마이페이지"
+                                    className="home-mypage-btn"
+                                    onClick={() => navigate("/me")}
+                                />
+                                {isNotiOpen && <NotificationList userId={userId} />}
+                                <img
+                                    src={logoutLogo}
+                                    alt="로그아웃"
+                                    className="home-login-btn"
+                                    onClick={handleLogout}
+                                />
+                            </>
+                        ) : (
+                            <img
+                                src={loginLogo}
+                                alt="로그인"
+                                className="home-login-btn"
+                                onClick={() => navigate("/login")}
+                            />
+                        )}
                     </div>
                 </div>
             </div>
