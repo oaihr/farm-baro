@@ -13,12 +13,15 @@ const BuyerWinningAuctions = () => {
     const fetchWinningAuctions = useCallback(async () => {
         try {
             setLoading(true);
-            const response = await fetch(`http://localhost:8080/mypage/buyer/${userId}/winning-auctions`);
+            const response = await fetch(`http://localhost:8080/api/mypage/buyer/${userId}/winning-auctions`, {
+                credentials: 'include'
+            });
             if (response.ok) {
                 const data = await response.json();
-                setWinningAuctions(data);
+                console.log('낙찰상품 데이터:', data);
+                setWinningAuctions(data || []);
             } else {
-                console.error('낙찰상품 조회 실패');
+                console.error('낙찰상품 조회 실패:', response.status);
                 setMessage('낙찰상품을 불러오는데 실패했습니다.');
             }
         } catch (error) {
@@ -41,11 +44,12 @@ const BuyerWinningAuctions = () => {
 
         try {
             // TODO: 실제 구매 확정 API 호출 (추후 구현)
-            const response = await fetch(`http://localhost:8080/mypage/api/auctions/${auctionId}/purchase-confirm`, {
+            const response = await fetch(`http://localhost:8080/api/mypage/auctions/${auctionId}/purchase-confirm`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: 'include',
                 body: JSON.stringify({
                     auctionId: auctionId,
                     bidPrice: bidPrice
