@@ -46,6 +46,7 @@ import FaqPage from './cs/FaqPage.js';
 import InquirePage from './cs/InquirePage.js';
 import NoticePage from './cs/Notice.js';
 
+import TestKG from './sale/TestKG.js';
 function App() {
 
   return (
@@ -133,6 +134,7 @@ function App() {
           <Route path="/cs/faq" element={<FaqPage />} />
           <Route path="/cs/inquire" element={<InquirePage />} />
 
+          <Route path="/test/test" element={<TestKG />} />
           {/* 없는 경로는 메인으로 */}
           <Route path="*" element={<Navigate to="/" replace />} />
 
