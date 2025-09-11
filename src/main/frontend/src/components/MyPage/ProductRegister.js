@@ -35,8 +35,6 @@ const ProductRegister = () => {
     const tabs = [
         { id: 'register', label: '상품 등록', icon: '📦' },
         { id: 'manage', label: '상품 관리', icon: '📋' },
-        { id: 'edit', label: '상품 수정', icon: '✏️' },
-        { id: 'detail', label: '상품 상세', icon: '🔍' },
         { id: 'analytics', label: '판매 분석', icon: '📊' }
     ];
 
@@ -1023,6 +1021,59 @@ const ProductRegister = () => {
 
                     <div className="edit-form-container">
                         <form onSubmit={handleUpdateProductForm} className="product-form">
+                            <div className="main-image">
+                                {editingProduct.imageUrl ? (
+                                    <img src={editingProduct.imageUrl} alt={editingProduct.title} />
+                                ) : (
+                                    <div className="no-image">
+                                        <span>📦</span>
+                                        <p>이미지 없음</p>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="image-actions">
+                                <button 
+                                    className="btn-primary"
+                                    onClick={handleImageChange}
+                                >
+                                    📸 이미지 변경
+                                </button>
+                            </div>
+                            
+                            {/* 이미지 변경 입력 UI */}
+                            {showImageInput && (
+                                <div className="image-change-section">
+                                    <h4>이미지 변경</h4>
+                                    <div className="form-group">
+                                        <label>새로운 이미지 URL</label>
+                                        <textarea
+                                            value={newImageUrls}
+                                            onChange={(e) => setNewImageUrls(e.target.value)}
+                                            placeholder="이미지 URL을 쉼표로 구분하여 입력하세요&#10;예: https://example.com/image1.jpg, https://example.com/image2.jpg"
+                                            rows="3"
+                                            className="url-input"
+                                        />
+                                        <small className="input-help">
+                                            여러 이미지를 쉼표(,)로 구분하여 입력하세요. 첫 번째 이미지가 대표 이미지로 설정됩니다.
+                                        </small>
+                                    </div>
+                                    <div className="image-change-actions">
+                                        <button 
+                                            className="btn-save"
+                                            onClick={handleImageChangeSave}
+                                            disabled={loading}
+                                        >
+                                            💾 이미지 저장
+                                        </button>
+                                        <button 
+                                            className="btn-cancel"
+                                            onClick={handleImageChangeCancel}
+                                        >
+                                            ❌ 취소
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                             <div className="form-row">
                                 <div className="form-group">
                                     <label>상품명 *</label>

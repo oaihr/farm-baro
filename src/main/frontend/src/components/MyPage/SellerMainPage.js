@@ -229,13 +229,7 @@ const SellerMainPage = () => {
         return new Intl.NumberFormat('ko-KR').format(price) + '원';
     };
 
-    const tabs = [
-        { id: 'dashboard', label: '대시보드', icon: '📊' },
-        { id: 'products', label: '상품관리', icon: '🥩' },
-        { id: 'orders', label: '주문관리', icon: '📋' },
-        { id: 'reviews', label: '리뷰관리', icon: '⭐' },
-        { id: 'inquiries', label: '문의관리', icon: '❓' }
-    ];
+    
 
     const quickActions = [
         { icon: '🥩', label: '상품 등록', link: `/mypage/seller/${userId}/product-register` },
@@ -251,22 +245,6 @@ const SellerMainPage = () => {
             <div className="header">
                 <h1>판매자 마이페이지</h1>
                 <p>판매자 정보와 활동을 한 곳에서 관리하세요</p>
-            </div>
-
-            {/* 탭 메뉴 */}
-            <div className="tab-container">
-                <div className="tabs">
-                    {tabs.map(tab => (
-                        <button
-                            key={tab.id}
-                            className={`tab ${activeTab === tab.id ? 'active' : ''}`}
-                            onClick={() => setActiveTab(tab.id)}
-                        >
-                            <span className="tab-icon">{tab.icon}</span>
-                            {tab.label}
-                        </button>
-                    ))}
-                </div>
             </div>
 
             {/* 빠른 액션 카드 */}

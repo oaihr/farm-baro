@@ -349,11 +349,6 @@ const BuyerMainPage = () => {
                         <div className="order-status">주문 없음</div>
                         <div className="order-product">
                             <div className="product-image">📦</div>
-                            <div className="product-info">
-                                <div className="product-name">첫 주문을 시작해보세요!</div>
-                                <div className="product-price">상품을 둘러보고 주문해보세요</div>
-                                <div className="product-quantity">-</div>
-                            </div>
                         </div>
                         <div className="order-actions">
                             <button 

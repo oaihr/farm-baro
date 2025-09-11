@@ -201,7 +201,7 @@
 /* 장바구니 아이템 카드 */
 .cart-item-card {
     display: grid;
-    grid-template-columns: auto 80px 1fr auto auto auto;
+    grid-template-columns: auto 120px 1fr auto auto auto;
     gap: 20px;
     align-items: center;
     background: white;
@@ -259,11 +259,19 @@
 }
 
 /* 아이템 상세 정보 */
+.item-details {
+    min-width: 0; /* 그리드 아이템이 축소될 수 있도록 */
+    overflow: hidden; /* 내용이 넘치지 않도록 */
+}
+
 .item-details h4 {
     margin: 0 0 10px 0;
     color: #1f2937;
     font-size: 1.2rem;
     font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .item-category, .item-description {
@@ -271,6 +279,11 @@
     color: #6b7280;
     font-size: 0.9rem;
     line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .item-options {
@@ -562,7 +575,7 @@
 /* 반응형 디자인 */
 @media (max-width: 1024px) {
     .cart-item-card {
-        grid-template-columns: auto 80px 1fr auto;
+        grid-template-columns: auto 100px 1fr auto;
         gap: 15px;
     }
 
