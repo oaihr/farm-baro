@@ -147,10 +147,6 @@ function SaleDetail() {
                             <a href={`https://mtrace.go.kr/search.do?mtraceNo=${item.traceabilityNum}`} target="_blank"><button className='traceability-number-btn'>축산물 이력정보 &#10095;</button></a>
                         </div>
                     </div>
-                    <div className='pack-date'>
-                        <span className='bold-span'>포장일</span>
-                        <p>2025-08-22</p>
-                    </div>
                     <div className='shipping-fee'>
                         <span className='bold-span'>배송비</span>
                         <p>3,000원 (50,000원 이상 구매 시 무료)</p>

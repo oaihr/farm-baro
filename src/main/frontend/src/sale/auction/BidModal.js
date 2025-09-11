@@ -73,7 +73,6 @@ function BidModal({ isOpen, onClose, onBid, currentBid, initialPrice, totalBalan
 
     const handleSuccessAlertClose = () => {
         setIsAlertOpen(false);
-        onClose();
         setDisplayBid('');
         setNumericBid(0);
     };
@@ -83,8 +82,8 @@ function BidModal({ isOpen, onClose, onBid, currentBid, initialPrice, totalBalan
             <div className="modal-content">
                 <div className='modal-info'>
                     <h3>입찰 금액 입력</h3>
-                    <p>현재 입찰가 : {currentBid.toLocaleString()} 원</p>
-                    <p>입찰가능 금액 : {((totalBalance - bidDeposit)*10).toLocaleString()} 원</p>
+                    <p> 현재 입찰가 : <span className='modal-info-price'>{currentBid.toLocaleString()}</span> 원</p>
+                    <p>입찰가능금액 : <span className='modal-info-price modal-info-available'>{((totalBalance - bidDeposit)*10).toLocaleString()}</span> 원</p>
                     <div className='modal-input'>
                         <input
                             type="text"

@@ -4,6 +4,7 @@ import axios from 'axios';
 import './Auction.css';
 import useRemainingTime from '../common/RemainigTime';
 import { useAuctionData } from './useAuctionData';
+import noSearch from '../../images/no_search_keyword.png';
 
 function Auction(){
 
@@ -22,8 +23,9 @@ function Auction(){
     };
 
     if (loading) return <div>로딩 중..</div>;
-    if (!data || data.length === 0) return <div>데이터가 없습니다.</div>;
-
+    if (!data || data.length === 0) {
+        return (<div>데이터가 없습니다. <img src={noSearch} alt="No search results" /> </div>)
+    }
     return(
         <div className='auction-main-container'>
             <h1>경매 목록</h1>

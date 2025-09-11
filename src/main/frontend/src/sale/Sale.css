@@ -94,3 +94,14 @@
   color: white;
   border-color: #38761D;
 }
+
+
+.sale-no-data{
+  display: flex;
+  justify-content: center;
+  margin-top: 100px;
+}
+.sale-no-data img{
+  width: 20%;
+  color: white;
+}
