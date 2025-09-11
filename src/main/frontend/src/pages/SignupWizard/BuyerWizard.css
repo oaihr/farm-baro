@@ -1,116 +1,260 @@
-/* src/pages/SignupWizard/BuyerWizard.css */
-:root{
---green:#38761D; --sub:#6B7280; --border:#E5E7EB; --radius:12px;
---brand-600:#38761D;
---brand-700:#2f5e18;
+/* =========================================================
+   Buyer/Seller Signup Wizard 공통 스타일
+   파일명: BuyerWizard.css (두 컴포넌트에서 공통 import)
+   ---------------------------------------------------------
+   - 순수 CSS (Tailwind @apply 제거)
+   - Buyer/Seller의 레이아웃과 버튼/체크박스 통일
+   - email 액션 버튼(중복확인/인증메일/확인) 한 줄 정렬
+   - 로그인 폼의 '로그인 상태 유지' 라인 정리
+   ========================================================= */
 
+/* ---------- Theme Tokens ---------- */
+:root{
+  --brand:#2f7d32;        /* 포인트 그린 */
+  --ink:#1a1a1a;          /* 본문색 */
+  --sub:#6b7280;          /* 보조 텍스트 */
+  --line:#e5e7eb;         /* 경계선 */
+  --ok:#108a00;           /* 성공 */
+  --err:#d93025;          /* 오류 */
+  --focus:#2563eb;        /* 포커스 블루 */
+  --shadow:0 8px 24px rgba(0,0,0,.06);
 }
-/* 전체 톤: 다크 배경 위에서 텍스트 가독성 ↑ */
-.wiz-wrap {
-max-width: 840px;
-margin: 40px auto 120px;
-padding: 0 20px;
-color: #163f16; /* 기본 텍스트 컬러 밝게 */
-font-weight: 500;
+
+/* ---------- Page Shell ---------- */
+.wiz-wrap{
+  max-width: 760px;
+  margin: 32px auto 56px;
+  padding: 0 16px;
+  color: var(--ink);
+  font-size: 15px;
 }
-.wiz-head .brand{font-weight:700;color:var(--green);margin-bottom:8px}
-.wiz-head .title{font-weight:600;font-size:22px;margin-bottom:8px}
+
+.wiz-head{ margin-bottom: 16px; }
+.wiz-head .brand{ font-size:14px; color:var(--sub); margin-bottom:6px; }
+.wiz-head .title{ font-size:24px; font-weight:700; margin-bottom:8px; }
+
 /* 진행바 */
 .wiz-head .bar{
-height:6px; background:#e6efea; border-radius:99px; overflow:hidden;
+  height:8px; background:var(--line); border-radius:999px; overflow:hidden;
 }
 .wiz-head .bar i{
-display:block; height:100%;
-background: var(--brand-600);
-transition:width .3s ease;
+  display:block; height:100%; background:var(--brand); border-radius:999px; transition:width .25s ease;
 }
+.wiz-head .step{ margin-top:8px; font-size:13px; color:var(--sub); }
 
-.wiz-head .step{color:var(--sub);font-size:13px;margin-top:6px}
-/* 카드(입력 박스 영역) */
+/* ---------- Card ---------- */
 .card{
-background: var(--panel);
-border:1px solid var(--panel-border);
-border-radius:16px;
-box-shadow: var(--shadow);
-padding:24px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:20px;
+  box-shadow: var(--shadow);
 }
 
-.row{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
-.row label{font-size:13px;color:#111827}
+/* ---------- Form Layout ---------- */
+.row{ margin-bottom:16px; }
+.row:last-child{ margin-bottom:0; }
+.row > label{ display:block; font-weight:600; margin-bottom:8px; }
 
-/* 입력 */
-.row input{
-width:100%; height:44px; border-radius:10px;
-background: var(--input-bg);
-border:1px solid var(--input-border);
-padding:0 14px;
-color:var(--text);
-}
-.row input:focus{
-outline:none;
-border-color: var(--input-focus);
-box-shadow:0 0 0 3px color-mix(in srgb, var(--brand-600) 20%, transparent);
-}
+.hstack{ display:flex; align-items:center; gap:8px; }
+.hstack > input, .hstack > select, .hstack > textarea{ flex:1 1 auto; }
 
-.row select {
-width: 100%;
-box-sizing: border-box;
-font-size: 15px;
-line-height: 1.15;
-padding: 12px 14px;
-color: #0f1d14; /* 필드 안 글씨는 진하게 */
-background: #ffffff; /* 흰 바탕 */
-border: 1px solid #cfe0d4; /* 은은한 테두리 */
-border-radius: 12px;
-outline: none;
-transition: border-color .15s, box-shadow .15s;
+/* 입력요소 공통 */
+input, select, textarea{
+  width:100%;
+  height:44px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:10px 12px;
+  background:#fff;
+  outline:none;
+  transition:border-color .15s, box-shadow .15s;
+  font-size:15px;
 }
-.hstack{display:flex;gap:8px}
-.hstack > input{flex:1}
-.buyer-button{height:44px;border:0;border-radius:10px;background:var(--green);color:#fff;padding:0 18px;cursor:pointer}
-button.ghost{background:#fff;color:#111827;border:1px solid var(--border)}
-.agreements{margin-top:8px;border-top:1px dashed var(--border);padding-top:12px}
-.check{display:flex;align-items:center;gap:8px;margin:6px 0}
-.check.req span::after{content:"";display:inline-block;width:4px;height:4px;background:var(--green);border-radius:50%;margin-left:6px}
-.actions{display:flex;justify-content:space-between;margin-top:16px}
-.ok{color:var(--green);font-size:13px;margin-top:6px}
-/* 에러 표시 */
-.row .err{ color: var(--danger); font-size:12px; margin-top:6px; }
-/* 유효성 오류 */
-.row .invalid, .row input.invalid{
-border-color: var(--danger);
-background: var(--danger-bg);
+textarea{ height:auto; min-height:120px; resize:vertical; }
+input:focus, select:focus, textarea:focus{
+  border-color:var(--focus);
+  box-shadow:0 0 0 3px rgba(37,99,235,.12);
+}
+input[readonly], input:read-only{ background:#fafafa; color:#666; }
+
+/* 입력 오류 테두리 */
+.invalid{
+  border-color: var(--err) !important;
+  box-shadow: 0 0 0 3px rgba(217,48,37,.12) !important;
 }
 
-/* 버튼 */
-actions button{
-min-width:120px; height:44px; border-radius:10px; outline:1px solid #ddd;
-background: var(--brand-600, var(--green)); color:#fff; border:none; padding:0 16px;
+/* 상태 메시지 */
+.err{ margin-top:6px; color:var(--err); font-size:13px; }
+.ok { margin-top:6px; color:var(--ok);  font-size:13px; }
+.hint{ margin-top:6px; color:var(--sub); font-size:13px; }
+
+/* ---------- Buttons: 기본 규칙 ---------- */
+button{
+  height:42px;
+  padding:0 14px;
+  border-radius:10px;
+  border:1px solid var(--brand);
+  background:var(--brand);
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+  transition: transform .02s, opacity .15s, background .15s, color .15s, border-color .15s;
+  white-space:nowrap;              /* ✅ 버튼 글자 줄바꿈 방지 */
 }
-.actions button:hover{ background: var(--brand-700, #2f5e18); }
-.actions .ghost{
-background:#fff; color:var(--brand-600);
-border:1px solid var(--panel-border);
+button:active{ transform: translateY(1px); }
+button[disabled], button[aria-disabled="true"]{ opacity:.55; pointer-events:none; }
+
+/* 팔레트 (공통 명칭) */
+.btn-next{ background:var(--brand); color:#fff; border-color:var(--brand); }          /* '다음' 기본 */
+.btn-prev{ background:#fff; color:#333; border-color:var(--line); }                  /* '이전' */
+.btn-ghost{ background:#fff; color:var(--brand); border-color:var(--brand); }        /* 외곽선 그린 */
+.btn-check{ background:#e7f3e7; color:#1a531c; border-color:#cbe6cb; }               /* 연한 그린 */
+.btn-danger{ background:#ffe8e6; color:#b42318; border-color:#ffc9c3; }              /* 반려/삭제 */
+.btn-warning{ background:#fff7e0; color:#8a6b00; border-color:#f7e2a1; }
+
+/* ✅ 하위 호환(기존 Buyer/Seller 코드에서 쓰던 별칭들) */
+.ghost{ background:#fff; color:#333; border-color:var(--line); }
+.btn-primary{ background:var(--brand); color:#fff; border-color:var(--brand); }
+.btn-secondary{ background:#fff; color:#333; border-color:var(--line); }
+
+/* ---------- Segment Tabs (판매자: 사업자/농가 토글) ---------- */
+.seg{
+  display:flex;
+  border:1px solid var(--line);
+  border-radius:12px;
+  overflow:hidden;
 }
-button[aria-disabled="true"]{ opacity:.6; }
-
-.actions button:disabled { opacity: .5; cursor: not-allowed; pointer-events:none; /* 클릭만 막기 */ }
-
-
-
-
-.modal-backdrop {
-position: fixed; inset: 0;
-background: rgba(0,0,0,.45);
-display: flex; align-items: center; justify-content: center;
-z-index: 1000;
+.btn-tab{
+  flex:1 1 0;
+  height:42px;
+  background:#fff;
+  color:#333;
+  border:0;
 }
-.modal-card {
-width: 480px; max-width: 92%;
-background: #fff; border-radius: 14px;
-padding: 24px; text-align: center;
-box-shadow: 0 20px 60px rgba(0,0,0,.2);
+.btn-tab + .btn-tab{ border-left:1px solid var(--line); }
+.btn-tab.active{
+  background:var(--brand);
+  color:#fff;
 }
-.modal-icon { font-size: 40px; margin-bottom: 8px; }
-.mt8 { margin-top: 8px; } .mt16 { margin-top: 16px; } .ml8 { margin-left: 8px; }
-button.ghost { background: #f2f4f6; color: #333; }
+
+/* ---------- Agreements (필수 동의, 한 줄씩 고정) ---------- */
+.agreements{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-top:8px;
+  border-top:1px dashed var(--line);
+  padding-top:12px;
+}
+
+/* Buyer는 div.check, Seller는 label.check 인 경우 모두 커버 */
+.agreements .check{
+  display:flex !important;
+  align-items:flex-start;
+  gap:10px;
+  margin:0;
+  font-size:14px;
+  line-height:1.4;
+  font-weight:400;
+}
+.agreements .check > input[type="checkbox"]{
+  flex:0 0 auto;
+  width:18px; height:18px;
+  margin:2px 0 0 0;                 /* 텍스트 상단과 수직 정렬 */
+}
+.agreements input[type="checkbox"] + label{
+  display:inline-block;
+  margin-left:8px;
+}
+
+/* ---------- Bottom Actions ---------- */
+.actions{
+  margin-top:16px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.actions-grid{
+  margin-top:16px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.actions-grid .is-placeholder{ visibility:hidden; }
+
+/* ---------- Modal (Seller 완료 안내 등) ---------- */
+.modal-backdrop{
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.38);
+  display:flex; align-items:center; justify-content:center;
+  z-index:9999;
+}
+.modal-card{
+  width:min(520px, 92%);
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:24px;
+  box-shadow:var(--shadow);
+  text-align:center;
+}
+.modal-icon{ font-size:36px; margin-bottom:8px; }
+
+/* ---------- Inline Action Buttons (이메일/코드/BRN 확인 라인) ---------- */
+/* 기본: 한 줄 고정, 버튼은 내용폭에 맞춰 축소, 입력창이 가능한 한 많이 차지 */
+.hstack.email-actions{
+  flex-wrap:nowrap;
+}
+.hstack.email-actions > input{ flex:1 1 auto; min-width: 0; }
+.hstack.email-actions > button{
+  flex:0 0 auto;
+  min-width:86px;                    /* 버튼 최소폭 */
+  padding:0 12px;
+}
+
+/* 작은 화면(<=520px): 1행에 모두 안 들어가면 입력이 1행, 버튼 2개는 2번째 줄에서 2열 배치 */
+@media (max-width: 520px){
+  .hstack.email-actions{ flex-wrap:wrap; }
+  .hstack.email-actions > input{ flex:1 1 100%; }
+  .hstack.email-actions > button{
+    flex:1 1 calc(50% - 4px);
+    min-width:0;
+  }
+}
+
+/* ---------- Login Form helpers ---------- */
+/* 로그인 페이지에서 '로그인 상태 유지' 영역을 한 줄로 정리하려면
+   체크박스/라벨을 .login-remember 로 감싸 주세요. */
+.login-remember{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin:10px 0 12px;
+  font-size:14px;
+  color:var(--sub);
+}
+.login-remember input[type="checkbox"]{ width:16px; height:16px; }
+.login-remember label{ margin:0; }
+
+/* '비밀번호 찾기' 링크를 오른쪽에 붙이고 싶다면 .login-meta 행을 사용 */
+.login-meta{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin:8px 0 0;
+  font-size:14px;
+}
+.login-meta .find-link{ color:var(--brand); text-decoration:none; }
+
+/* ---------- Utilities ---------- */
+.mt4{ margin-top:4px; } .mt8{ margin-top:8px; } .mt12{ margin-top:12px; } .mt16{ margin-top:16px; }
+.ml8{ margin-left:8px; } .mr8{ margin-right:8px; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 520px){
+  .wiz-wrap{ margin:24px auto 40px; }
+  .card{ padding:16px; }
+  .wiz-head .title{ font-size:21px; }
+  button{ height:40px; }
+}

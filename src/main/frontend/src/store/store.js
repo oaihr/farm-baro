@@ -2,6 +2,7 @@ import { configureStore, createSlice, createAsyncThunk, combineReducers } from '
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import { http } from '../api/http';
+import axios from 'axios';
 
 const meatSlice = createSlice({
   name: 'meat',
@@ -24,6 +25,7 @@ const meatSlice = createSlice({
   },
   reducers: {
 
+
   },
 });
 
@@ -31,16 +33,16 @@ export const fetchCurrentUser = createAsyncThunk(
   'auth/fetchCurrentUser',
   async (_, { rejectWithValue, getState }) => {
     try {
-      
+
       const sessionId = localStorage.getItem('JSESSIONID');
       const url = sessionId ? `/api/auth/me?sessionId=${sessionId}` : '/api/auth/me';
       console.log('요청 URL:', url);
-      
+
       const response = await http.get(url);
       console.log('fetchCurrentUser 응답:', response.data);
       console.log('응답 헤더:', response.headers);
       console.log('응답 상태 코드:', response.status);
-      
+
       // 응답이 성공적이면 세션 ID를 localStorage에 저장
       if (response.data && response.data.id) {
         console.log('사용자 정보 조회 성공, 세션 유지');
@@ -56,13 +58,13 @@ export const fetchCurrentUser = createAsyncThunk(
       console.error('에러 응답:', error.response);
       console.error('에러 상태:', error.response?.status);
       console.error('에러 데이터:', error.response?.data);
-      
+
       // 401 Unauthorized 에러인 경우 세션 ID 제거
       if (error.response?.status === 401) {
         console.log('인증 실패, 세션 ID 제거');
         localStorage.removeItem('JSESSIONID');
       }
-      
+
       return rejectWithValue(error.response?.data || '로그인 정보 가져오기 실패');
     }
   }
@@ -110,7 +112,7 @@ const authSlice = createSlice({
       .addCase(fetchCurrentUser.fulfilled, (state, action) => {
         console.log('fetchCurrentUser.fulfilled 호출됨');
         console.log('action.payload:', action.payload);
-        
+
         // action.payload가 null인 경우 처리
         if (!action.payload) {
           console.log('action.payload가 null이므로 로그아웃 처리');
@@ -123,10 +125,10 @@ const authSlice = createSlice({
           state.error = '사용자 정보를 가져올 수 없습니다.';
           return;
         }
-        
+
         const { id, totalBalance, bidDeposit } = action.payload;
         console.log('사용자 정보 업데이트:', { id, totalBalance, bidDeposit });
-        
+
         state.user = action.payload; // 전체 사용자 정보 저장
         state.userId = id;
         state.totalBalance = totalBalance || 0;
@@ -134,7 +136,7 @@ const authSlice = createSlice({
         state.isLoggedIn = !!(id && id !== null && id !== undefined);
         state.status = 'succeeded';
         state.error = null;
-        
+
         console.log('Redux 상태 업데이트 완료:', {
           userId: state.userId,
           isLoggedIn: state.isLoggedIn,
@@ -144,7 +146,7 @@ const authSlice = createSlice({
       .addCase(fetchCurrentUser.rejected, (state, action) => {
         console.log('fetchCurrentUser.rejected 호출됨');
         console.log('action.payload:', action.payload);
-        
+
         state.user = null;
         state.userId = null;
         state.totalBalance = 0;
@@ -152,10 +154,10 @@ const authSlice = createSlice({
         state.isLoggedIn = false;
         state.status = 'failed';
         state.error = action.payload;
-        
+
         // 세션 무효화 시 localStorage에서도 제거
         localStorage.removeItem('JSESSIONID');
-        
+
         console.log('세션 무효화로 인한 로그아웃 처리 완료');
       });
   },
@@ -167,7 +169,7 @@ export const { logout, clearAuth } = authSlice.actions;
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['auth'], // auth 상태만 persist
+  whitelist: [ 'auth' ], // auth 상태만 persist
 };
 
 const rootReducer = combineReducers({
@@ -183,7 +185,7 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
+        ignoredActions: [ 'persist/PERSIST', 'persist/REHYDRATE' ],
       },
     }),
 });

@@ -23,6 +23,8 @@ import BuyerWizard from "./pages/SignupWizard/BuyerWizard";
 import SellerWizard from "./pages/SignupWizard/SellerWizard";
 import { fetchCurrentUser } from './store/store';
 
+import ForgotPassword from "./pages/account/ForgotPassword";
+
 // 마이페이지 컴포넌트들
 import EditInfo from './components/MyPage/EditInfo.js';
 import OrderList from './components/MyPage/OrderList.js';
@@ -64,18 +66,26 @@ function App() {
     <Router>
       <Header />
       <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/home/search" element={<HomeSearch />} />
-          <Route path="/quote" element={<Quote />} />
-          <Route path="/sale/:kind/:part" element={<Sale />} />
-          <Route path="/sale/:saleId" element={<SaleDetail />} />
-          <Route path="/auctions/" element={<Auction />} />
-          <Route path="/auctions/off" element={<PastAuction />} />
-          <Route path="/auction/:auctionId" element={<AuctionDetail />} />
-          <Route path="/auction/off/:auctionId" element={<AuctionDetail />} />
-          {/* 인증/마이페이지 */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/me" element={<MyPageRedirect />} />
+        {/* 메인: 판매 화면 */}
+        <Route path="/" element={<Sale />} />
+        <Route path="/sale/:kind/:type" element={<Sale />} />
+        
+        
+        {/* 인증/마이페이지 */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/me" element={<MyPageRedirect />} />
+
+        {/* 로그인 */}
+        <Route path="/forgot" element={<ForgotPassword />} />
+        <Route path="/oauth/role" element={<RoleSelect />} />
+
+        {/* 회원가입(역할선택 → 폼) */}
+        <Route path="/signup">
+          <Route index element={<Navigate to="select" replace />} />
+          <Route path="select" element={<RoleSelect />} />
+          <Route path="buyer" element={<BuyerWizard />} />
+          <Route path="seller" element={<SellerWizard />} />
+        </Route>
 
 
 

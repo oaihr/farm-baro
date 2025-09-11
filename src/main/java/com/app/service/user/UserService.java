@@ -14,7 +14,7 @@ public interface UserService {
     // ↓ 컨트롤러에서 사용하는 메소드
     void registerBuyer(SignupRequest req);
     void registerSeller(SellerSignupPayload payload, String brnDocPath);
-    void resetPassword(String email, String rawPass);
+    void resetPassword(String email, String rawNewPassword);
 
     // (선택) 예전에 호출하던 곳이 있으면 안전하게 유지
     default void signupBuyer(SignupRequest req) { registerBuyer(req); }
