@@ -13,6 +13,8 @@ import MyPageRedirect from "./components/MyPage/MyPageRedirect.js";
 import BuyerWizard from "./pages/SignupWizard/BuyerWizard";
 import SellerWizard from "./pages/SignupWizard/SellerWizard";
 
+import ForgotPassword from "./pages/account/ForgotPassword";
+
 // 마이페이지 컴포넌트들
 import EditInfo from './components/MyPage/EditInfo.js';
 import OrderList from './components/MyPage/OrderList.js';
@@ -45,6 +47,10 @@ function App() {
         {/* 인증/마이페이지 */}
         <Route path="/login" element={<Login />} />
         <Route path="/me" element={<MyPageRedirect />} />
+
+        {/* 로그인 */}
+        <Route path="/forgot" element={<ForgotPassword />} />
+        <Route path="/oauth/role" element={<RoleSelect />} />
 
         {/* 회원가입(역할선택 → 폼) */}
         <Route path="/signup">

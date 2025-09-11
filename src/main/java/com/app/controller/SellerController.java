@@ -4,6 +4,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.Random;
 
 import javax.servlet.http.HttpSession;
 
@@ -35,76 +36,107 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SellerController {
 
-	private final UserMapper userMapper; // 이메일 중복 체크에 사용(이미 있으면 재사용)
-	private final EmailService emailService; // 이미 프로젝트에 존재(패키지 스샷 기준)
-	private final HttpSession session;
-	private final com.app.service.user.UserService userService;
+  private final UserMapper userMapper;
+  private final EmailService emailService;
+  private final HttpSession session;
+  private final com.app.service.user.UserService userService;
 
-	@GetMapping("/validate-email")
-	public Map<String, Object> validateEmail(@RequestParam String email) {
-		boolean ok = userMapper.existsByEmail(email) == 0; // 없으면 0
-		return Map.of("ok", ok);
-	}
+  private static final String OTP_KEY  = "EMAIL_OTP:";
+  private static final String OTP_TS   = "EMAIL_OTP_TS:";
+  private static final long   OTP_TTL  = 180_000L; // 3분
 
-	@PostMapping("/email/send")
-	public Map<String, Object> sendEmailCode(@RequestBody EmailReq req, HttpSession session) {
-		boolean available = userMapper.existsByEmail(req.getEmail()) == 0;
-		if (!available)
-			return Map.of("ok", false, "message", "이미 사용 중인 이메일입니다.");
+  /** 이메일 중복확인: 공백 제거 + 소문자 통일로 일관 비교 */
+  @GetMapping("/validate-email")
+  public Map<String, Object> validateEmail(@RequestParam String email) {
+    final String e = normEmail(email);
+    int cnt = userMapper.existsByEmail(e);
+    log.info("[validate-email] email='{}' (norm='{}') -> count={}", email, e, cnt);
+    boolean ok = cnt == 0;
+    return Map.of("ok", ok);
+  }
 
-		String code = String.format("%06d", new java.util.Random().nextInt(1_000_000));
-		session.setAttribute("EMAIL_OTP:" + req.getEmail(), code);
-		session.setAttribute("EMAIL_OTP_TS:" + req.getEmail(), System.currentTimeMillis());
+  /** 인증 코드 발송: 사용 가능 이메일만 발송 */
+  @PostMapping(value = "/email/send", consumes = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<Map<String, Object>> sendEmailCode(@RequestBody EmailReq req) {
+    final String e = normEmail(req.getEmail());
+    int cnt = userMapper.existsByEmail(e);
+    log.info("[email/send] request='{}' (norm='{}') -> count={}", req.getEmail(), e, cnt);
+    if (cnt > 0) {
+      return ResponseEntity.status(HttpStatus.CONFLICT)
+          .body(Map.of("ok", false, "message", "이미 사용 중인 이메일입니다."));
+    }
 
-		emailService.send(req.getEmail(), "[목장바로] 이메일 인증코드", "인증코드: " + code + "\n유효시간: 3분");
-		return Map.of("ok", true);
-	}
+    String code = String.format("%06d", new Random().nextInt(1_000_000));
+    session.setAttribute(OTP_KEY + e, code);
+    session.setAttribute(OTP_TS + e, System.currentTimeMillis());
 
-	@PostMapping("/email/verify")
-	public Map<String, Object> verifyEmailCode(@RequestBody EmailVerifyReq req) {
-		String key = "EMAIL_OTP:" + req.getEmail();
-		String saved = (String) session.getAttribute(key);
-		Long ts = (Long) session.getAttribute("EMAIL_OTP_TS:" + req.getEmail());
-		boolean ok = saved != null && saved.equals(req.getCode()) && ts != null
-				&& (System.currentTimeMillis() - ts) < 180_000;
-		return Map.of("ok", ok);
-	}
+    emailService.send(e, "[목장바로] 이메일 인증코드", "인증코드: " + code + "\n유효시간: 3분");
+    return ResponseEntity.ok(Map.of("ok", true));
+  }
 
-	@GetMapping("/check-brn")
-	public Map<String, Object> checkBrn(@RequestParam String brn) {
-		// TODO: 국세청/중복 검증. 현재는 프론트 흐름 테스트용으로 true
-		return Map.of("ok", true);
-	}
+  /** 인증 코드 검증 */
+  @PostMapping(value = "/email/verify", consumes = MediaType.APPLICATION_JSON_VALUE)
+  public Map<String, Object> verifyEmailCode(@RequestBody EmailVerifyReq req) {
+    final String e = normEmail(req.getEmail());
+    String saved = (String) session.getAttribute(OTP_KEY + e);
+    Long ts      = (Long)   session.getAttribute(OTP_TS + e);
 
-	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Map<String, Object>> create(@RequestPart("payload") String payloadJson,
-			@RequestPart(value = "brnFile", required = false) MultipartFile brnFile) {
+    boolean ok = saved != null
+        && saved.equals(req.getCode())
+        && ts != null
+        && (System.currentTimeMillis() - ts) < OTP_TTL;
 
-		try {
-			// 1) JSON 파싱
-			SellerSignupPayload payload = new ObjectMapper().readValue(payloadJson, SellerSignupPayload.class);
+    log.info("[email/verify] email='{}' (norm='{}') saved={}, ok={}", req.getEmail(), e, mask(saved), ok);
+    return Map.of("ok", ok);
+  }
 
-			// 2) (선택) 파일 저장
-			String savedPath = null;
-			if (brnFile != null && !brnFile.isEmpty()) {
-				Path dir = Paths.get("C:/farmbaro/upload/seller");
-				Files.createDirectories(dir);
-				Path dest = dir.resolve(System.currentTimeMillis() + "_" + brnFile.getOriginalFilename());
-				brnFile.transferTo(dest.toFile());
-				savedPath = dest.toString();
-			}
+  /** 사업자등록번호 간단 체크 (실제 검증은 추후 연동) */
+  @GetMapping("/check-brn")
+  public Map<String, Object> checkBrn(@RequestParam String brn) {
+    return Map.of("ok", true);
+  }
 
-			// 3) DB 저장 (PENDING)
-			userService.registerSeller(payload, savedPath);
+  /** 판매자 가입(검수요청) — 프론트는 반드시 멀티파트(FormData)로 전송 */
+  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+               produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<Map<String, Object>> create(
+      @RequestPart("payload") String payloadJson,
+      @RequestPart(value = "brnFile", required = false) MultipartFile brnFile) {
 
-			return ResponseEntity.ok(Map.of("ok", true));
-		} catch (Exception e) {
-			// ★ 어떤 단계에서 터졌는지 바로 보이게 로그 + 응답
-			log.error("[/api/sellers] submit failed, payloadJson={}", payloadJson, e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("ok", false, "message",
-					e.getClass().getSimpleName(), "detail", String.valueOf(e.getMessage())));
+    try {
+      // 1) JSON 파싱
+      SellerSignupPayload payload = new ObjectMapper().readValue(payloadJson, SellerSignupPayload.class);
 
-		}
-	}
+      // 2) 파일 저장(선택)
+      String savedPath = null;
+      if (brnFile != null && !brnFile.isEmpty()) {
+        Path dir = Paths.get("C:/farmbaro/upload/seller");
+        Files.createDirectories(dir);
+        Path dest = dir.resolve(System.currentTimeMillis() + "_" + brnFile.getOriginalFilename());
+        brnFile.transferTo(dest.toFile());
+        savedPath = dest.toString();
+      }
 
+      // 3) DB 저장 (상태 PENDING)
+      userService.registerSeller(payload, savedPath);
+      return ResponseEntity.ok(Map.of("ok", true));
+
+    } catch (Exception e) {
+      log.error("[/api/sellers] submit failed, payloadJson={}", payloadJson, e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body(Map.of("ok", false,
+                       "message", e.getClass().getSimpleName(),
+                       "detail", String.valueOf(e.getMessage())));
+    }
+  }
+
+  /** 이메일 비교 표준화: null 안전 + trim + lower-case */
+  private String normEmail(String email) {
+    return email == null ? "" : email.trim().toLowerCase();
+  }
+
+  private String mask(String s) {
+    if (s == null || s.length() < 2) return "null";
+    return s.charAt(0) + "****" + s.charAt(s.length()-1);
+  }
 }

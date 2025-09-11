@@ -1,6 +1,5 @@
 package com.app.service.user.impl;
 
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -9,7 +8,6 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.DigestUtils;
 
 import com.app.domain.User;
 import com.app.dto.auth.SignupRequest;
@@ -21,25 +19,47 @@ import com.app.service.user.UserService;
 public class UserServiceImpl implements UserService {
 
     @Autowired private UserMapper userMapper;
-    // @Autowired private PasswordEncoder passwordEncoder; // 임시로 주석 처리
 
-    // 간단한 해시 함수 (개발용 - 실제 운영에서는 BCrypt 사용 권장)
-    private String hashPassword(String rawPassword) {
-        return DigestUtils.md5DigestAsHex(rawPassword.getBytes(StandardCharsets.UTF_8));
-    }
-    
+    /* 원문 비밀번호 정책(그대로 저장) */
     private boolean matchesPassword(String rawPassword, String storedPassword) {
-        // 원본 비밀번호 저장 시: 단순 문자열 비교
-        return rawPassword.equals(storedPassword);
-        
-        // 해시화된 비밀번호 저장 시: 아래 주석 해제
-        // return BCrypt.checkpw(rawPassword, storedPassword);
+        return rawPassword != null && rawPassword.equals(storedPassword);
     }
+
+    /* ===== 주소 정규화 유틸 ===== */
+    private static String normalize(String s) {
+        if (s == null) return "";
+        return s
+            .replace('\u00A0',' ')                       // nbsp
+            .replaceAll("[\\u200B-\\u200D\\uFEFF]", "")  // zero-width
+            .replace('|', ' ')                           // 파이프/세로획
+            .replace('ㅣ', ' ')
+            .trim()
+            .replaceAll("\\s+", " ");
+    }
+
+    private static String normalizeZip(String zip) {
+        return normalize(zip).replaceAll("\\D", "");
+    }
+
+    /** (zip, addr1, addr2) → 정규화하여 하나로 합치기 */
+    private static String joinAddress(String zip, String addr1, String addr2) {
+        String z  = normalizeZip(zip);
+        String a1 = normalize(addr1);
+        String a2 = normalize(addr2);
+
+        StringBuilder sb = new StringBuilder();
+        if (!z.isEmpty())  sb.append(z).append(' ');
+        if (!a1.isEmpty()) sb.append(a1).append(' ');
+        if (!a2.isEmpty()) sb.append(a2).append(' ');
+
+        return sb.toString().trim().replaceAll("\\s+", " ");
+    }
+
+    /* ================= 기본 가입/로그인 ================= */
 
     @Override
     public void signup(User u) {
         if (u.getId() == null) u.setId(UUID.randomUUID().toString());
-        // u.setPw(hashPassword(u.getPw())); // 원본 비밀번호 그대로 사용
         userMapper.insertUser(u);
     }
 
@@ -51,87 +71,94 @@ public class UserServiceImpl implements UserService {
         User u = new User();
         u.setId(UUID.randomUUID().toString());
         u.setEmail(email);
-        u.setPw(pw); // 원본 비밀번호 그대로 사용
+        u.setPw(pw);
         u.setUserName(name);
         u.setTel(tel);
         userMapper.insertUser(u);
         return u;
     }
 
-    // ===================== 구매자 가입 =====================
+    /* ================= 구매자 가입 ================= */
+
     @Override
     @Transactional
     public void registerBuyer(SignupRequest req) {
-        if (userMapper.existsById(req.getId()) > 0) {
-            throw new IllegalStateException("이미 사용 중인 아이디입니다.");
-        }
-        if (userMapper.existsByEmail(req.getEmail()) > 0) {
-            throw new IllegalStateException("이미 가입된 이메일입니다.");
-        }
 
-        // user_mapper.xml 의 <insert id="insertBuyer">가 기대하는 키 이름과 맞춥니다.
+        // 기본 검증
+        if (req.getEmail() == null || req.getEmail().isBlank())
+            throw new IllegalArgumentException("이메일이 필요합니다.");
+        if (req.getPassword() == null || req.getPassword().isBlank())
+            throw new IllegalArgumentException("비밀번호가 필요합니다.");
+        if (userMapper.existsByEmail(req.getEmail()) > 0)
+            throw new IllegalStateException("이미 가입된 이메일입니다.");
+
+        // ★ id 자동 생성 (NOT NULL)
+        String id = (req.getId() == null || req.getId().isBlank())
+                  ? UUID.randomUUID().toString()
+                  : req.getId().trim();
+
+        // ★ address: DTO에서 합친 값 → 정규화해서 저장
+        String address = normalize(req.mergedAddress());
+
         Map<String, Object> p = new HashMap<>();
-        p.put("id", req.getId());                               // 사용자가 입력한 ID
-        p.put("pw", req.getPassword()); // 사용자가 입력한 원본 비밀번호
+        p.put("id", id);                            // ← 반드시 지역변수 id 사용
+        p.put("pw", req.getPassword());             // 원문 저장
         p.put("email", req.getEmail());
-        p.put("name", req.getUserName());                       // XML에서 USER_NAME 으로 들어감
-        p.put("address", req.getAddress());                     // addr1/addr2 아님!
-        p.put("tel", req.getTel());                             // 전화번호 추가
+        p.put("name", req.getUserName());           // USER_NAME 컬럼으로 매핑됨
+        p.put("address", address);
+        p.put("tel", req.getTel());
 
         userMapper.insertBuyer(p);
     }
 
-    // 옛 코드 대비 호환 (있어도 되고 없어도 됨)
     @Override
     public void signupBuyer(SignupRequest req) { registerBuyer(req); }
 
-    // ===================== 로그인 =====================
     @Override
     public User login(String email, String rawPw) {
-        // 이메일로만 로그인 (ID는 닉네임 개념)
         User found = userMapper.findByEmail(email);
         if (found == null) return null;
         return matchesPassword(rawPw, found.getPw()) ? found : null;
     }
 
-    @Override
-    public User findByEmail(String email) { return userMapper.findByEmail(email); }
+    @Override public User findByEmail(String email) { return userMapper.findByEmail(email); }
+    @Override public User findById(String id) { return userMapper.findById(id); }
 
-    @Override
-    public User findById(String id) { return userMapper.findById(id); }
+    /* ================= 판매자 가입(검수요청) ================= */
 
-    // ===================== 판매자 가입(검수요청) =====================
     @Override
     public void registerSeller(SellerSignupPayload p, String brnDocPath) {
         SellerSignupPayload.Basic b = Objects.requireNonNull(p.getBasic(), "basic is null");
         SellerSignupPayload.Business bs = Objects.requireNonNull(p.getBusiness(), "business is null");
 
-        // 원본 비밀번호 그대로 사용
-        String encPw = b.getPass();
-
-        String address = ((bs.getAddr1() == null ? "" : bs.getAddr1().trim()) + " " +
-                          (bs.getAddr2() == null ? "" : bs.getAddr2().trim())).trim();
+        // zip/addr1/addr2를 정규화하여 하나로
+        String address = joinAddress(bs.getZip(), bs.getAddr1(), bs.getAddr2());
 
         Map<String, Object> u = new HashMap<>();
         u.put("id", UUID.randomUUID().toString());
-        u.put("pw", encPw);
+        u.put("pw", b.getPass());                // 원문 저장
         u.put("email", b.getEmail());
         u.put("address", address);
-        u.put("tel", b.getTel());  // 전화번호 추가
+        u.put("tel", b.getTel());
         u.put("userName", b.getName());
-        u.put("brn", bs.getBrn()); // 사업자번호 (선택사항)
+        u.put("brn", bs.getBrn());
 
         userMapper.insertSeller(u);
-        // 사업자등록증 파일 저장은 별도 테이블 설계 후 추가
+        // brnDocPath 저장은 별도 테이블 설계 후 처리
     }
 
-    // ===================== 비밀번호 재설정 =====================
+    /* ================= 비밀번호 재설정 ================= */
+
     @Override
     @Transactional
-    public void resetPassword(String email, String rawPass) {
-        Map<String, Object> p = new HashMap<>();
-        p.put("email", email);
-        p.put("pw", rawPass); // 원본 비밀번호 그대로 사용
-        userMapper.updatePasswordByEmail(p);
+    public void resetPassword(String email, String rawNewPassword) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("email", email);
+        params.put("pw", rawNewPassword);
+
+        int updated = userMapper.updatePasswordByEmail(params);
+        if (updated != 1) {
+            throw new IllegalStateException("계정을 찾을 수 없거나 비밀번호 변경에 실패했습니다.");
+        }
     }
 }

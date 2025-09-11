@@ -57,6 +57,14 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-appl
 .form-row.between{
   display:flex;align-items:center;justify-content:space-between
 }
+.form-row.between .checkbox{
+  white-space: nowrap; /* 줄바꿈 금지 */
+  flex: 0 0 auto;      /* 폭 줄어들며 줄바꿈되는 것 방지 */
+}
+
+.form-row.between .link-btn{
+  flex: 0 0 auto;      /* 우측 링크도 고정 폭 */
+}
 
 .input{
   width:100%;
@@ -267,4 +275,51 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-appl
   color: #2f6b2f;
   font-weight: 700;
   cursor: pointer;
+}
+
+
+
+/* SNS brand buttons */
+.sns-login {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.btn-sns {
+  flex: 1 1 0;
+  height: 44px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 14px;
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: filter .2s ease, transform .02s ease, box-shadow .2s ease;
+  cursor: pointer;
+}
+
+/* Kakao */
+.btn-sns.kakao {
+  background: #FEE500;        /* 카카오 옐로우 */
+  color: #191600;             /* 카카오 블랙 */
+  border-color: #f0d800;
+}
+.btn-sns.kakao:hover { filter: brightness(0.98); }
+.btn-sns.kakao:active { transform: translateY(1px); }
+
+/* Naver */
+.btn-sns.naver {
+  background: #03C75A;        /* 네이버 그린 */
+  color: #ffffff;
+  border-color: #02b352;
+}
+.btn-sns.naver:hover { filter: brightness(0.98); }
+.btn-sns.naver:active { transform: translateY(1px); }
+
+/* 모바일에서는 세로로 쌓기 */
+@media (max-width: 480px) {
+  .sns-login { flex-direction: column; }
 }

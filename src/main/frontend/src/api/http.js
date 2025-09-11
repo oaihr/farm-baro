@@ -1,9 +1,44 @@
 // src/api/http.js
 import axios from "axios";
 
-export const http = axios.create({
-  // 톰캣 컨텍스트가 루트면 그대로 8080, 컨텍스트가 있으면 뒤에 /컨텍스트 붙여주세요.
-  baseURL: process.env.REACT_APP_API_BASE || "http://localhost:8080",
-  withCredentials: true,   // 세션/쿠키 전달. proxy에선 필수는 아니지만 켜둬도 OK
-  timeout: 10000,
+const inst = axios.create({
+  baseURL: "http://localhost:8080",
+  withCredentials: true,
 });
+
+inst.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    // eslint-disable-next-line no-console
+    console.error("[HTTP ERROR]", err);
+    return Promise.reject(err);
+  }
+);
+
+const http = {
+  get(url, config) {
+    return inst.get(url, config).then((r) => r.data);
+  },
+  post(url, body, config) {
+    return inst.post(url, body, config).then((r) => r.data);
+  },
+  put(url, body, config) {
+    return inst.put(url, body, config).then((r) => r.data);
+  },
+  del(url, config) {
+    return inst.delete(url, config).then((r) => r.data);
+  },
+  postForm(url, formData, config) {
+    return inst
+      .post(url, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+        ...(config || {}),
+      })
+      .then((r) => r.data);
+  },
+};
+
+// 둘 다 됩니다: import http from '...';  또는 import { http } from '...';
+export { http };           // named export(레거시 호환)
+export const api = http;   // 혹시 { api } 로 쓰던 곳도 커버
+export default http;       // default export(신규 코드)
