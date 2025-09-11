@@ -318,23 +318,7 @@ const SellerMainPage = () => {
                                 ` ${userInfo.businessNumber || '미등록'}`
                             )}
                         </p>
-                        <p>🥩 전문 분야: 
-                            {editing ? (
-                                <select 
-                                    value={editData.specialty} 
-                                    onChange={(e) => setEditData({...editData, specialty: e.target.value})}
-                                    style={{marginLeft: '10px', padding: '5px', border: '1px solid #ccc', borderRadius: '3px'}}
-                                >
-                                    <option value="농산물 판매">농산물 판매</option>
-                                    <option value="축산물 판매">축산물 판매</option>
-                                    <option value="수산물 판매">수산물 판매</option>
-                                    <option value="가공식품 판매">가공식품 판매</option>
-                                    <option value="기타">기타</option>
-                                </select>
-                            ) : (
-                                ` ${editData.specialty}`
-                            )}
-                        </p>
+                        
                     </div>
                     <div className="sales-info">
                         <div className="total-sales-large">

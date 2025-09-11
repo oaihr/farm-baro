@@ -858,7 +858,8 @@ const ProductRegister = () => {
                                 name="traceabilityNum"
                                 value={formData.traceabilityNum}
                                 onChange={handleInputChange}
-                                placeholder="가축 이력번호를 입력하세요 (선택사항)"
+                                placeholder="가축 이력번호를 입력하세요"
+                                required
                             />
                             <small className="input-help">가축의 출생부터 도축까지의 이력을 추적할 수 있는 번호</small>
                         </div>
@@ -874,6 +875,7 @@ const ProductRegister = () => {
                                 placeholder="이미지 URL을 쉼표로 구분하여 입력하세요&#10;예: https://example.com/image1.jpg, https://example.com/image2.jpg"
                                 rows="3"
                                 className="url-input"
+                                required
                             />
                             <small className="url-help">이미지 URL을 쉼표로 구분하여 입력하세요. 첫 번째 이미지가 대표 이미지로 사용됩니다.</small>
                             {formData.imageUrls && formData.imageUrls.length > 0 && (
