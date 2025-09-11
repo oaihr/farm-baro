@@ -629,6 +629,30 @@ public class MyPageController {
         }
     }
 
+    // 상품 이미지만 업데이트 API
+    @PutMapping("/products/{productId}/images")
+    @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"})
+    @ResponseBody
+    public ResponseEntity<Boolean> updateProductImages(
+            @PathVariable Long productId,
+            @RequestBody Map<String, List<String>> request) {
+        try {
+            System.out.println("=== 상품 이미지 업데이트 요청 ===");
+            System.out.println("productId: " + productId);
+            
+            List<String> imageUrls = request.get("imageUrls");
+            System.out.println("imageUrls: " + imageUrls);
+            
+            boolean result = myPageService.updateProductImages(productId, imageUrls);
+            System.out.println("이미지 업데이트 결과: " + result);
+            
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     // 상품 수정 API (Form 방식)
     @PutMapping("/products/{productId}/form")
     @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"})

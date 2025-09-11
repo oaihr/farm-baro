@@ -233,7 +233,6 @@ const SellerMainPage = () => {
 
     const quickActions = [
         { icon: '🥩', label: '상품 등록', link: `/mypage/seller/${userId}/product-register` },
-        { icon: '📋', label: '주문 현황', link: `/mypage/seller/${userId}/orders` },
         { icon: '⭐', label: '리뷰 확인', link: `/mypage/seller/${userId}/reviews` },
         { icon: '❓', label: '문의 답변', link: `/mypage/seller/${userId}/inquiries` },
         { icon: '👤', label: '정보 수정', link: `/mypage/seller/${userId}/edit` }
@@ -453,12 +452,6 @@ const SellerMainPage = () => {
                     onClick={() => setActiveTab('product-registration')}
                 >
                     🥩 상품 등록
-                </button>
-                <button 
-                    className={`tab-btn ${activeTab === 'orders' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('orders')}
-                >
-                    📋 주문 현황
                 </button>
                 <button 
                     className={`tab-btn ${activeTab === 'reviews' ? 'active' : ''}`}
