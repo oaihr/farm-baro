@@ -219,7 +219,7 @@ const BuyerMainPage = () => {
         },
         {
             icon: '👤',
-            label: '프로필',
+            label: '정보 수정',
             path: `/mypage/buyer/${userId}/profile`
         }
     ];

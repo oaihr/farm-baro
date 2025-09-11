@@ -82,7 +82,7 @@ function ProductInfoTable({ title }) {
                                 목장바로는 전자상거래 등에서의 소비자보호에 관한 법률에 의한 취소/반품/교환 규정을 준수합니다.
                             </p>
                     </div>
-                    <Link to='/'>
+                    <Link to='/cs/faq'>
                         <button className="customer-center-btn">
                             고객센터
                             <span className="arrow-icon">&gt;</span>
