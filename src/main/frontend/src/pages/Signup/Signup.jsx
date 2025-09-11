@@ -20,28 +20,6 @@ export default function Signup({ role }) {
     return `${d.slice(0,3)}-${d.slice(3,7)}-${d.slice(7)}`;
   };
 
-  // 사업자번호 포맷/검증
-  const normalizeBizNo = (s) => (s || "").replace(/\D/g, "").slice(0, 10);
-  const formatBizNo = (s) => {
-    const n = normalizeBizNo(s);
-    if (n.length <= 3) return n;
-    if (n.length <= 5) return `${n.slice(0,3)}-${n.slice(3)}`;
-    return `${n.slice(0,3)}-${n.slice(3,5)}-${n.slice(5)}`;
-  };
-  const isValidBizNo = (num) => {
-    const n = normalizeBizNo(num);
-    if (n.length !== 10) return false;
-    const d = n.split("").map(Number);
-    const w = [1,3,7,1,3,7,1,3,5];
-    let sum = 0;
-    for (let i=0;i<9;i++) sum += d[i]*w[i];
-    sum += Math.floor((d[8]*5)/10);
-    const check = (10 - (sum % 10)) % 10;
-    return check === d[9];
-  };
-  const HOMETAX_URL =
-    "https://hometax.go.kr/websquare/websquare.html?w2xPath=/ui/pp/index_pp.xml&tmIdx=43&tm2lIdx=4306000000&tm3lIdx=4306080000";
-
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -57,27 +35,10 @@ export default function Signup({ role }) {
 
   const onChange = (e) => {
     const { name, value } = e.target;
-    const next =
-      name === "tel"
-        ? formatPhone(value)
-        : name === "businessNumber"
-        ? formatBizNo(value)
-        : value;
-    setForm((f) => ({ ...f, [name]: next }));
+    const next = name === "tel" ? formatPhone(value) : value;
+    setForm((f) => ({ ...f, [name]: next }));      // ← next로 저장
     setErrors((prev) => ({ ...prev, [name]: undefined }));
     setMsg("");
-  };
-
-  // 홈택스 새탭 + 번호 복사
-  const openHometax = async () => {
-    const no = normalizeBizNo(form.businessNumber);
-    if (!isValidBizNo(no)) {
-      alert("유효하지 않은 사업자등록번호입니다.");
-      return;
-    }
-    try { await navigator.clipboard.writeText(no); } catch {}
-    window.open(HOMETAX_URL, "_blank", "noopener,noreferrer");
-    alert("사업자번호가 복사되었습니다. 홈택스 새 탭에서 붙여넣기 해주세요.");
   };
 
   // 가벼운 클라이언트 검증
@@ -93,7 +54,6 @@ export default function Signup({ role }) {
     if (isSeller) {
       if (!address.trim())        e.address = "사업장 주소를 입력해주세요.";
       if (!businessNumber.trim()) e.businessNumber = "사업자등록번호를 입력해주세요.";
-      else if (!isValidBizNo(businessNumber)) e.businessNumber = "유효하지 않은 사업자등록번호입니다.";
       if (!provider.trim())       e.provider = "농장/브랜드명을 입력해주세요.";
     }
     return e;
@@ -119,17 +79,17 @@ export default function Signup({ role }) {
         email: form.email.trim(),
         password: form.password,
         userName: form.userName.trim(),
-        tel: form.tel,
+        tel: form.tel, // 이미 010-0000-0000 형식
         ...(isSeller && {
           address: form.address.trim(),
-          businessNumber: normalizeBizNo(form.businessNumber),
+          businessNumber: form.businessNumber.trim(),
           provider: form.provider.trim(),
         }),
       };
 
       await http.post("/api/auth/signup", payload);
       alert("회원가입이 완료되었습니다. 로그인 해주세요.");
-      navigate("/login", { replace: true, state: { email: form.email } });
+      navigate("/login", { replace: true, state: { email: form.email } }); // 서버에서 세션 로그인까지 했다면 바로 이동
     } catch (err) {
       const res = err.response;
       if (res?.status === 400 && res.data?.errors) {
@@ -223,23 +183,17 @@ export default function Signup({ role }) {
               {errors.address && <div className={styles.error}>{errors.address}</div>}
             </div>
 
-            {/* 사업자등록번호 + 조회 버튼 */}
-            <div className={`${styles.field} ${styles["row-inline"]}`}>
+            <div className={styles.field}>
               <input
                 name="businessNumber"
                 className={styles.input}
-                placeholder="사업자등록번호 (000-00-00000)"
+                placeholder="사업자등록번호"
                 value={form.businessNumber}
                 onChange={onChange}
-                inputMode="numeric"
-                maxLength={12}
                 required
               />
-              <button type="button" className={styles["btn-check"]} onClick={openHometax}>
-                조회
-              </button>
+              {errors.businessNumber && <div className={styles.error}>{errors.businessNumber}</div>}
             </div>
-            {errors.businessNumber && <div className={styles.error}>{errors.businessNumber}</div>}
 
             <div className={styles.field}>
               <input
@@ -257,7 +211,7 @@ export default function Signup({ role }) {
 
         {msg && <div className={styles.msg}>{msg}</div>}
 
-        <button className={styles["btn-primary"]} type="submit" disabled={submitting}>
+        <button className={styles.button} type="submit" disabled={submitting}>
           {submitting ? "처리 중..." : "회원가입"}
         </button>
       </form>

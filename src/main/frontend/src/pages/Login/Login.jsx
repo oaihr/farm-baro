@@ -9,7 +9,7 @@ import { fetchCurrentUser, logout } from '../../store/store';
 export default function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { state } = useLocation();
+  const { state } = useLocation(); // 회원가입 완료 후 이메일 프리필용
 
   const [ email, setEmail ] = useState("");
   const [ password, setPassword ] = useState("");
@@ -17,23 +17,14 @@ export default function Login() {
   const [ msg, setMsg ] = useState("");
   const [ loading, setLoading ] = useState(false);
 
-  const API = process.env.REACT_APP_API_BASE || "http://localhost:8080";
-
+  // 가입 직후 전달된 이메일 표시
   useEffect(() => {
     if (state?.email) setEmail(state.email);
   }, [ state ]);
 
-  const decideNextRoute = (user) => {
-    // userType 있으면 홈(또는 이전 페이지), 없으면 역할선택
-    return user?.userType ? state?.from?.pathname || "/" : "/role-select";
-  };
-
-  const onSubmit = async (e) => {
+   const onSubmit = async (e) => {
     e.preventDefault();
-    if (!email.trim() || !password) {
-      setMsg("이메일과 비밀번호를 입력해 주세요.");
-      return;
-    }
+    if (!email.trim() || !password) return setMsg("이메일과 비밀번호를 입력해 주세요.");
     setMsg("");
     setLoading(true);
 
@@ -90,14 +81,15 @@ export default function Login() {
       } else {
         setMsg("로그인에 실패했습니다. 잠시 후 다시 시도해 주세요.");
       }
-
-      const target = state?.from?.pathname || decideNextRoute(user) || "/me";
-      navigate(decideNextRoute(user), { replace: true });
     } catch (err) {
       const r = err?.response;
-      if (r?.status === 400 && r.data?.message) setMsg(r.data.message);
-      else if (r?.status === 401) setMsg("이메일 또는 비밀번호가 올바르지 않습니다.");
-      else setMsg(r?.data?.error || "로그인 중 오류가 발생했습니다.");
+      if (r?.status === 400 && r.data?.message) {
+        setMsg(r.data.message);
+      } else if (r?.status === 401) {
+        setMsg("이메일 또는 비밀번호가 올바르지 않습니다.");
+      } else {
+        setMsg(r?.data?.error || "로그인 중 오류가 발생했습니다.");
+      }
     } finally {
       setLoading(false);
     }
@@ -108,7 +100,7 @@ export default function Login() {
       <section className="auth-card">
         <header className="auth-header">
           <div className="auth-brand">
-            <span className="leaf" aria-hidden>🌿</span>
+            <span className="leaf" aria-hidden >🌿</span>
             목장바로
           </div>
           <h1>로그인</h1>
@@ -126,7 +118,6 @@ export default function Login() {
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="username"
               required
-              disabled={loading}
             />
           </div>
 
@@ -141,7 +132,6 @@ export default function Login() {
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
               required
-              disabled={loading}
             />
           </div>
 
@@ -151,7 +141,6 @@ export default function Login() {
                 type="checkbox"
                 checked={keep}
                 onChange={(e) => setKeep(e.target.checked)}
-                disabled={loading}
               />
               로그인 상태 유지
             </label>
@@ -159,52 +148,39 @@ export default function Login() {
             <button
               type="button"
               className="link-btn"
-              onClick={() => navigate("/forgot")}
-              disabled={loading}
+              onClick={() => alert("비밀번호 찾기 기능은 추후 연결됩니다.")}
             >
               비밀번호 찾기
             </button>
           </div>
 
-          {msg && <div className="form-msg" role="alert">{msg}</div>}
+          {msg && (
+            <div className="form-msg" role="alert" aria-live="assertive">
+              {msg}
+            </div>
+          )}
 
           <button className="btn-primary" type="submit" disabled={loading}>
             {loading ? "로그인 중..." : "로그인"}
           </button>
 
-          <div className="auth-divider"><span>또는</span></div>
+          <div className="auth-divider">
+            <span>또는</span>
+          </div>
 
-          <div className="sns-login">
-            <button
-              type="button"
-              className="btn-sns kakao"
-              onClick={() => (window.location.href = `${API}/api/auth/oauth/kakao`)}
-              disabled={loading}
-              aria-label="카카오로 로그인"
-            >
-              카카오로 시작하기
+          <div className="sns-row">
+            <button type="button" className="btn-ghost" onClick={() => alert("카카오 로그인 준비 중")}>
+              카카오 로그인
             </button>
-
-            <button
-              type="button"
-              className="btn-sns naver"
-              onClick={() => (window.location.href = `${API}/api/auth/oauth/naver`)}
-              disabled={loading}
-              aria-label="네이버로 로그인"
-            >
-              네이버로 시작하기
+            <button type="button" className="btn-ghost" onClick={() => alert("네이버 로그인 준비 중")}>
+              네이버 로그인
             </button>
           </div>
         </form>
 
         <footer className="auth-footer">
           아직 계정이 없으신가요?{" "}
-          <button
-            className="link-btn"
-            type="button"
-            onClick={() => navigate("/signup/select")}
-            disabled={loading}
-          >
+          <button className="link-btn" type="button" onClick={() => navigate("/signup/select")}>
             회원가입
           </button>
         </footer>

@@ -9,7 +9,6 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { store, persistor } from './store/store';
 
-
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 // 모든 환경에서 PersistGate 사용

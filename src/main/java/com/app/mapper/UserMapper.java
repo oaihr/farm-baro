@@ -1,55 +1,54 @@
 package com.app.mapper;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.app.domain.User;
+import com.app.dto.UserDto;
 
 @Mapper
 public interface UserMapper {
-
-    // 조회/체크
-    int existsByEmail(@Param("email") String email);
-
-    int existsById(@Param("id") String id);
-
+    
+    // 사용자 정보 조회
+    UserDto getUserById(@Param("userId") String userId);
+    
+    // 사용자 정보 수정
+    int updateUser(UserDto user);
+    
+    // 사용자 타입별 조회
+    List<UserDto> getUsersByType(@Param("userType") String userType);
+    
+    // 이메일로 사용자 조회
+    UserDto getUserByEmail(@Param("email") String email);
+    
+    // ==================== UserServiceImpl에서 사용하는 메서드들 ====================
+    
+    // User 도메인 객체용 메서드들
     User findById(@Param("id") String id);
-
     User findByEmail(@Param("email") String email);
-
-    // 가입
     int insertUser(User user);
-
-    int insertBuyer(Map<String, Object> params);   // ← @Param 제거
-
-    int insertSeller(Map<String, Object> params);  // ← @Param 제거
-
-    // 비밀번호 재설정
-    int updatePasswordByEmail(Map<String, Object> params); // {email, pw}
-
+    
+    // 구매자 가입
+    int insertBuyer(Map<String, Object> params);
+    
+    // 판매자 가입
+    int insertSeller(Map<String, Object> params);
+    
+    // 이메일 존재 여부 확인
+    int existsByEmail(@Param("email") String email);
+    
+    // ID 존재 여부 확인
+    int existsById(@Param("id") String id);
+    
+    // 비밀번호 업데이트
+    int updatePasswordByEmail(Map<String, Object> params);
+    
     // 판매자 정보 업데이트
     int updateSellerInfo(Map<String, Object> params);
-
+    
     // 예치금 업데이트
     int updateUserBalance(@Param("userId") String userId, @Param("amount") Double amount);
-
-    // SNS
-    User findByProvider(@Param("provider") String provider,
-            @Param("providerId") String providerId);
-
-    int existsByProvider(@Param("provider") String provider,
-            @Param("providerId") String providerId);
-
-    int linkProviderByEmail(@Param("email") String email,
-            @Param("provider") String provider,
-            @Param("providerId") String providerId);
-
-    int insertSnsUser(Map<String, Object> params);
-
-    // 역할/유저타입(및 레거시)
-    int updateUserType(@Param("id") String id, @Param("userType") String userType);
-
-    int updateRole(@Param("id") String id, @Param("role") String role);
 }

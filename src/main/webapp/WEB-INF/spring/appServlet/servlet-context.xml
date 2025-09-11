@@ -1,69 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:mvc="http://www.springframework.org/schema/mvc"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:task="http://www.springframework.org/schema/task"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="
-         http://www.springframework.org/schema/beans   https://www.springframework.org/schema/beans/spring-beans.xsd
-         http://www.springframework.org/schema/mvc     https://www.springframework.org/schema/mvc/spring-mvc.xsd
-         http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd
-         http://www.springframework.org/schema/task    https://www.springframework.org/schema/task/spring-task.xsd">
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:task="http://www.springframework.org/schema/task"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/task 
+        https://www.springframework.org/schema/task/spring-task.xsd">
 
-  <!-- @Controller/@RestController 활성화 -->
-  <mvc:annotation-driven>
-    <mvc:message-converters>
-      <!-- @ResponseBody로 String 처리할때 한글처리 -->
-      <bean class="org.springframework.http.converter.StringHttpMessageConverter">
-        <property name="supportedMediaTypes">
-          <list>
-            <value>text/html;charset=UTF-8</value>
-            <value>application/text;charset=UTF-8</value>
-            <value>text/plain;charset=UTF-8</value>
-            <value>application/json;charset=UTF-8</value>
-          </list>
-        </property>
-      </bean>
-    </mvc:message-converters>
-    <mvc:argument-resolvers>
-      <bean class="org.springframework.data.web.PageableHandlerMethodArgumentResolver" />
-    </mvc:argument-resolvers>
-  </mvc:annotation-driven>
 
-  <!-- 멀티파트 업로드 (web.xml의 <multipart-config>와 함께 사용) -->
-  <bean id="multipartResolver"
-        class="org.springframework.web.multipart.support.StandardServletMultipartResolver" />
+	<context:component-scan base-package="com.app.controller"></context:component-scan>
+	<context:component-scan	base-package="com.app.service"></context:component-scan>
+	<context:component-scan	base-package="com.app.dao"></context:component-scan>
+	<context:component-scan	base-package="com.app.config"></context:component-scan>
+	<context:component-scan base-package="com.app.api" />
+	<context:component-scan base-package="com.app.scheduler" />
+	
+	
+	<!--뷰리졸버 설정 부분 -->
+	<beans:bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="/WEB-INF/views/"></beans:property>
+		<beans:property name="suffix" value=".jsp"></beans:property>
+		<beans:property name="order" value="1000" />
 
-  <!-- (선택) properties 주입 -->
-  <context:property-placeholder
-      location="classpath:application.properties"
-      ignore-unresolvable="true" />
+	</beans:bean>
+	
+	<resources location="/WEB-INF/resources/" mapping="/**"></resources>
 
-  <!-- 전역 CORS (프론트 3000/3001에서 withCredentials:true 허용) -->
-  <mvc:cors>
-    <mvc:mapping
-      path="/**"
-      allowed-origins="http://localhost:3000,http://localhost:3001"
-      allowed-methods="GET,POST,PUT,DELETE,PATCH,OPTIONS"
-      allowed-headers="*"
-      allow-credentials="true"
-      max-age="3600"/>
-  </mvc:cors>
-
-  <!-- 컨트롤러/어드바이스 스캔 (서비스/리포지토리는 root-context에서 처리) -->
-  <context:component-scan base-package="com.app.controller,com.app.api,com.app.config,com.app.scheduler" />
-
-  <!-- 정적 리소스 매핑 -->
-  <mvc:resources mapping="/resources/**" location="/WEB-INF/resources/"/>
-
-  <!-- JSP 뷰 리졸버 -->
-  <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-    <property name="prefix" value="/WEB-INF/views/"/>
-    <property name="suffix" value=".jsp"/>
-    <property name="order" value="1000"/>
-  </bean>
-
-  <!-- 스케줄러 활성화 -->
-  <task:annotation-driven/>
-
-</beans>
+	<cors>
+        <mapping path="/**"
+                allowed-origins="http://localhost:3000,http://localhost:3001"
+                allowed-methods="GET,POST,PUT,DELETE,PATCH,OPTIONS"
+                allowed-headers="*"
+                allow-credentials="true"
+                max-age="3600" />
+    </cors>
+    
+	<annotation-driven>								
+		<message-converters>							
+			<!-- @ResponseBody로 String 처리할때 한글처리 -->						
+			<beans:bean	class="org.springframework.http.converter.StringHttpMessageConverter">					
+				<beans:property name="supportedMediaTypes">					
+					<beans:list>				
+						<beans:value>text/html;charset=UTF-8</beans:value>			
+						<beans:value>application/text;charset=UTF-8</beans:value>			
+						<beans:value>text/plain;charset=UTF-8</beans:value>			
+						<beans:value>application/json;charset=UTF-8</beans:value>			
+					</beans:list>				
+				</beans:property>					
+			</beans:bean>						
+		</message-converters>
+		<argument-resolvers>
+            <beans:bean class="org.springframework.data.web.PageableHandlerMethodArgumentResolver" />
+        </argument-resolvers>							
+	</annotation-driven>
+	
+	
+	<task:annotation-driven/>
+</beans:beans>
