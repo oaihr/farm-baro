@@ -360,10 +360,10 @@ const SellerMainPage = () => {
                         </p>
                     </div>
                     <div className="sales-info">
-                        <p>총 매출: <strong>0원</strong></p>
-                        <p>사용 가능 금액: <strong>0원</strong></p>
-                        <p>판매자 등급: <strong>신규</strong></p>
-                        <p>주요 판매 품목: <strong>농산물</strong></p>
+                        <div className="total-sales-large">
+                            <p>총 매출</p>
+                            <strong>{userInfo?.totalBalance || 0}원</strong>
+                        </div>
                     </div>
                 </div>
                 <div className="summary-right">

@@ -1321,4 +1321,54 @@ public class MyPageController {
             return ResponseEntity.badRequest().body(Map.of("message", "오류가 발생했습니다: " + e.getMessage()));
         }
     }
+
+    // 예치금 입금 API
+    @PostMapping("/buyer/deposit")
+    @ResponseBody
+    public ResponseEntity<?> depositAmount(@RequestBody Map<String, Object> depositData, HttpSession session) {
+        try {
+            System.out.println("=== 예치금 입금 API 호출됨 ===");
+            System.out.println("요청 데이터: " + depositData);
+            System.out.println("세션 ID: " + session.getId());
+            
+            String userId = (String) session.getAttribute("LOGIN_ID");
+            System.out.println("세션에서 가져온 userId: " + userId);
+            
+            // 세션에서 userId를 가져올 수 없는 경우, 요청 데이터에서 직접 가져오기 (개발용)
+            if (userId == null) {
+                userId = (String) depositData.get("userId");
+                System.out.println("요청 데이터에서 가져온 userId: " + userId);
+            }
+            
+            if (userId == null) {
+                System.out.println("로그인되지 않은 사용자");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "로그인이 필요합니다."));
+            }
+
+            Double amount = Double.valueOf(depositData.get("amount").toString());
+            System.out.println("입금 금액: " + amount);
+            
+            if (amount <= 0) {
+                System.out.println("잘못된 금액: " + amount);
+                return ResponseEntity.badRequest().body(Map.of("message", "올바른 금액을 입력해주세요."));
+            }
+
+            // MyPageService에 예치금 업데이트 메서드 호출
+            System.out.println("MyPageService.updateUserBalance 호출 시작");
+            boolean result = myPageService.updateUserBalance(userId, amount);
+            System.out.println("MyPageService.updateUserBalance 결과: " + result);
+
+            if (result) {
+                System.out.println("예치금 입금 성공");
+                return ResponseEntity.ok(Map.of("message", "예치금이 성공적으로 입금되었습니다.", "amount", amount));
+            } else {
+                System.out.println("예치금 입금 실패");
+                return ResponseEntity.badRequest().body(Map.of("message", "예치금 입금에 실패했습니다."));
+            }
+        } catch (Exception e) {
+            System.out.println("=== 예치금 입금 API 오류 ===");
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(Map.of("message", "오류가 발생했습니다: " + e.getMessage()));
+        }
+    }
 }

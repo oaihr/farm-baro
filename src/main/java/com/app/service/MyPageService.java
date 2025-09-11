@@ -806,6 +806,26 @@ public class MyPageService {
             return false;
         }
     }
+
+    // 예치금 업데이트
+    public boolean updateUserBalance(String userId, Double amount) {
+        try {
+            System.out.println("=== 예치금 업데이트 시작 ===");
+            System.out.println("userId: " + userId);
+            System.out.println("amount: " + amount);
+            
+            int result = userMapper.updateUserBalance(userId, amount);
+            System.out.println("예치금 업데이트 결과: " + result);
+            
+            boolean success = result > 0;
+            System.out.println("=== 예치금 업데이트 완료: " + success + " ===");
+            return success;
+        } catch (Exception e) {
+            System.out.println("=== 예치금 업데이트 중 오류 발생 ===");
+            e.printStackTrace();
+            return false;
+        }
+    }
     
     // 상품 이미지 삭제
     public boolean deleteProductImages(Long productId) {
