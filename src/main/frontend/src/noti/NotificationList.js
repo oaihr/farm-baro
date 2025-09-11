@@ -1,20 +1,58 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useWebSocket } from '../services/useWebSocket';
-import axios from 'axios'; // axios를 사용하면 API 호출이 더 편리합니다.
+import axios from 'axios';
+
+const formatTimeAgo = (timeArray) => {
+    // 💡 입력이 유효한 배열인지 확인
+    if (!Array.isArray(timeArray) || timeArray.length < 6) {
+        return "Invalid date";
+    }
+
+    const [year, month, day, hour, minute, second, nanosecond] = timeArray;
+
+    // Date 객체는 월을 0부터 시작하므로 month - 1을 해줍니다.
+    const notificationTime = new Date(year, month - 1, day, hour, minute, second);
+
+    // 나노초가 넘어오는 경우 밀리초로 변환하여 더해줍니다.
+    if (nanosecond) {
+        // 나노초를 밀리초로 변환 (1000000으로 나눔)
+        notificationTime.setMilliseconds(Math.floor(nanosecond / 1000000));
+    }
+
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - notificationTime.getTime()) / 1000);
+
+    if (diffInSeconds < 60) {
+        return "방금 전";
+    }
+    const diffInMinutes = Math.floor(diffInSeconds / 60);
+    if (diffInMinutes < 60) {
+        return `${diffInMinutes}분 전`;
+    }
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) {
+        return `${diffInHours}시간 전`;
+    }
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) {
+        return `${diffInDays}일 전`;
+    }
+
+    // 7일 이상 지난 경우 YYYY-MM-DD 형식으로 반환
+    const formattedMonth = String(month).padStart(2, '0');
+    const formattedDay = String(day).padStart(2, '0');
+    return `${year}-${formattedMonth}-${formattedDay}`;
+};
 
 const NotificationList = ({ userId }) => {
-    // 💡 초기 알림 상태를 관리합니다.
     const [notifications, setNotifications] = useState([]);
     const { isConnected, subscribe } = useWebSocket();
 
     useEffect(() => {
-        // --- 1. DB에서 초기 알림 목록을 불러옵니다. ---
         const fetchInitialNotifications = async () => {
             if (!userId) return;
-
             try {
-                // 💡 백엔드에 알림 목록을 요청하는 API 엔드포인트입니다.
-                // 이 엔드포인트를 직접 구현해야 합니다.
                 const response = await axios.get(`/home/notifications?userId=${userId}`);
                 setNotifications(response.data);
             } catch (error) {
@@ -24,23 +62,19 @@ const NotificationList = ({ userId }) => {
 
         fetchInitialNotifications();
 
-        // --- 2. 웹소켓을 구독하여 실시간 알림을 받습니다. ---
         let subscription;
         if (isConnected && userId) {
             subscription = subscribe(`/topic/user/${userId}`, (data) => {
-                console.log('Received real-time notification:', data);
-                // 실시간으로 받은 알림을 기존 목록에 추가합니다.
                 setNotifications((prevNotifications) => [data, ...prevNotifications]);
             });
         }
 
-        // 컴포넌트가 언마운트될 때 웹소켓 구독을 해제합니다.
         return () => {
             if (subscription) {
                 subscription.unsubscribe();
             }
         };
-    }, [isConnected, userId, subscribe]); // isConnected와 userId가 변경될 때마다 useEffect를 다시 실행합니다.
+    }, [isConnected, userId, subscribe]);
 
     return (
         <div className="notification-container">
@@ -50,11 +84,19 @@ const NotificationList = ({ userId }) => {
                 <p>알림이 없습니다.</p>
             ) : (
                 <ul>
-                    {notifications.map((noti, index) => (
-                        <li key={index} className="notification-item">
-                            <strong>{noti.type}</strong>: {noti.message}
-                        </li>
-                    ))}
+                    {notifications.map((noti, index) => {
+                        return (
+                            <Link to={`/auction/${noti.relatedId}`} className='no-underline'>
+                                <li key={index} className="notification-item">
+                                    <div className="notification-content">
+                                        <strong style={{ color: "#38761D" }}>[{noti.title}]</strong>
+                                        <strong>{noti.type}</strong>: {noti.message}
+                                    </div>
+                                    <span className="notification-time">{formatTimeAgo(noti.createdTime)}</span>
+                                </li>
+                            </Link>
+                        );
+                    })}
                 </ul>
             )}
             <hr className='hr'></hr>

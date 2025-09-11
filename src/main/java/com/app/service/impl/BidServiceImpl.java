@@ -13,6 +13,7 @@ import com.app.dao.auction.BidDAO;
 import com.app.dto.auction.AuctionItem;
 import com.app.dto.auction.Bid;
 import com.app.dto.auction.BidMessage;
+import com.app.dto.noti.NotificationDTO;
 import com.app.dto.noti.WebSocketMessage;
 import com.app.service.BidService;
 import com.app.service.noti.NotificationService;
@@ -86,6 +87,7 @@ public class BidServiceImpl implements BidService{
                 auctionItem.getAuctionId()
             );
         }
+        
 
      // --- 💡 웹소켓을 통한 실시간 알림 전송 ---
         // 모든 경매 참여자에게 최신 입찰 정보를 실시간으로 업데이트

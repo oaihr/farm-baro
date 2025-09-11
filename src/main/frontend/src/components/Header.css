@@ -4,8 +4,6 @@
     box-sizing: border-box;
 }
 
-
-
 .hr {
     margin: 8px 0;
     border: 0;
@@ -158,7 +156,7 @@
     overflow-y: auto;
     border: 1px solid #e0e0e0;
     border-radius: 12px;
-    background-color: #FFF8E1;
+    background-color: #f3f3f3;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     text-align: left;
     padding: 16px;
@@ -188,12 +186,33 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     font-size: 0.9rem;
     line-height: 1.4;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.no-underline {
+    text-decoration: none;
 }
 
 .notification-item strong {
-    color: #d17b00; 
+    color: #d17b00;
     margin-right: 6px;
 }
+
+.notification-content {
+    flex-grow: 1;
+    margin-right: 15px;
+    line-height: 1.4;
+}
+
+.notification-time {
+    white-space: nowrap;
+    font-size: 0.8rem;
+    color: #888;
+}
+
 
 /* ================= menu ================= */
 .home-menu-container {

@@ -13,4 +13,6 @@ public class NotificationDTO {
     Integer relatedId;
     String isRead; // 또는 boolean 타입
     LocalDateTime createdTime;
+    
+    String title;
 }

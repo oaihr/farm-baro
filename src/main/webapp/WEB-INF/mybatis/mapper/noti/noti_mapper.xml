@@ -37,10 +37,27 @@
 		where auction_id = #{auctionId} AND bid_price = #{currentMaxBid}
 	</select>
 	
-	<!-- user별 알림 list 불러오기 -->
+	<!-- user별 알림 list 불러오기(auctions의 title JOIN) -->
 	<select id="userNotiList" resultType="com.app.dto.noti.NotificationDTO" parameterType="string">
-		select * from NOTIFICATIONS
-		where user_id = #{userId}
+		SELECT
+			A.title,
+		    N.user_id,
+		    N.type,
+		    N.message,
+		    N.is_read,
+		    N.created_time,
+		    N.related_id
+		FROM
+		    AUCTIONS A
+		JOIN
+		    NOTIFICATIONS N
+		ON
+		    A.auction_id = N.related_id
+		WHERE 
+			N.user_id = #{userId}
+		ORDER BY
+    		N.created_time DESC
 	</select>
+	
 
 </mapper>

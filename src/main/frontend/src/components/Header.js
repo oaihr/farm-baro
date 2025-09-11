@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCurrentUser, logout, clearAuth } from '../store/store';
@@ -18,6 +18,7 @@ function Header() {
 
     //noti
     const [isNotiOpen, setIsNotiOpen] = useState(false);
+    const notificationRef = useRef(null);
 
     // searchKeyword
     const [searchKeyword, setSearchKeyword] = useState('');
@@ -62,6 +63,20 @@ function Header() {
             navigate('/login');
         }
     };
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+                setIsNotiOpen(false);
+            }
+        };
+        if (isNotiOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isNotiOpen]);
 
     useEffect(() => {
         console.log("Header useEffect - fetchCurrentUser 호출");
@@ -115,19 +130,21 @@ function Header() {
                     <div className="header-buttons">
                         {userId && userId !== "" ? (
                             <>
-                                <img
-                                    src={notiBell}
-                                    alt="알림"
-                                    className="home-noti-btn"
-                                    onClick={() => setIsNotiOpen(!isNotiOpen)}
-                                />
+                                <div className="notification-wrapper" ref={notificationRef}>
+                                    <img
+                                        src={notiBell}
+                                        alt="알림"
+                                        className="home-noti-btn"
+                                        onClick={() => setIsNotiOpen(!isNotiOpen)}
+                                    />
+                                    {isNotiOpen && <NotificationList userId={userId} />}
+                                </div>
                                 <img
                                     src={mypageLogo}
                                     alt="마이페이지"
                                     className="home-mypage-btn"
                                     onClick={() => navigate("/me")}
                                 />
-                                {isNotiOpen && <NotificationList userId={userId} />}
                                 <img
                                     src={logoutLogo}
                                     alt="로그아웃"
