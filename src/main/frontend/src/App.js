@@ -49,6 +49,7 @@ import InquirePage from './cs/InquirePage.js';
 import NoticePage from './cs/Notice.js';
 
 import TestKG from './sale/TestKG.js';
+import ScrollToTop from './scroll/ScrollToTop.js';
 function App() {
   const dispatch = useDispatch();
 
@@ -62,6 +63,7 @@ function App() {
 
   return (
     <Router>
+      <ScrollToTop />
       <Header />
       <Routes>
           <Route path="/" element={<Home />} />
