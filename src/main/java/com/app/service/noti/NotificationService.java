@@ -17,7 +17,7 @@ public interface NotificationService {
     List<NotificationDTO> findByUserId(@Param("userId") String userId);
 
     // 알림을 읽음 처리
-    int updateIsRead(@Param("notificationId") Long notificationId);
+    int updateIsRead(@Param("notificationId") Integer notificationId);
     
     //현재 최고 입찰자 정보
     String maxBidId(Integer auctionId, double currentMaxBid);

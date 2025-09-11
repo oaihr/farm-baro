@@ -37,11 +37,11 @@ function Quote() {
 
     // 가격을 한국 원화 형식으로 포맷하는 함수
     const formatPrice = (price) => {
-        // 가격이 숫자 타입이 아닐 경우 예외 처리
-        if (typeof price !== 'number') {
-            return price;
+        // 가격이 숫자 타입이 아니거나 유효하지 않은 값일 경우 '정보 없음' 반환
+        if (price === null || price === undefined || isNaN(price)) {
+            return '정보 없음';
         }
-        return price.toLocaleString('ko-KR') + '원';
+        return price.toLocaleString('ko-KR'); // '원'은 JSX에서 추가
     };
 
     // 날짜 객체를 YYYYMMDD 형식의 문자열로 변환하는 함수
@@ -93,7 +93,7 @@ function Quote() {
                 // 월별 데이터일 경우 netSalePrice 사용, 아닐 경우 maxPrice 사용
                 const priceKey = activePeriod === 'month' ? 'netSalePrice' : 'maxPrice';
 
-                newPrices[meat.kind] = meatData ? formatPrice(meatData[priceKey]) : '정보 없음';
+                newPrices[meat.kind] = meatData ? meatData[priceKey] : null;
             });
             setPrices(newPrices);
 
@@ -109,6 +109,7 @@ function Quote() {
             setIsLoading(false);
         }
     };
+
 
     // activeDate 또는 activePeriod가 변경될 때마다 데이터를 다시 가져옵니다.
     useEffect(() => {
@@ -238,7 +239,7 @@ function Quote() {
                                 <div className="">
                                     <span className='quote-img'>{meat.icon}</span>
                                     <h3>{meat.kind}</h3>
-                                    <p>{prices[meat.kind]} 원/100g</p>
+                                    <p>{formatPrice(prices[meat.kind])}원 / 100g</p>
                                 </div>
                                 <div>
                                     {/* 사용하지 않는 빈 <p> 태그 삭제 */}

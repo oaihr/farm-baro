@@ -33,7 +33,7 @@ public class NotificationServiceImpl implements NotificationService{
 	}
 
 	@Override
-	public int updateIsRead(Long notificationId) {
+	public int updateIsRead(Integer notificationId) {
 		int result = notificationDAO.updateIsRead(notificationId);
 		return result;
 	}

@@ -178,6 +178,10 @@
     margin: 0;
 }
 
+.notification-item-wrapper {
+    cursor: pointer;
+}
+
 .notification-item {
     padding: 10px 12px;
     border-radius: 8px;
@@ -190,6 +194,18 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+/* 💡 읽지 않은 알림 스타일 (예시: 배경색 강조) */
+.notification-item.unread {
+    background-color: #ffffff;
+    border: 1px solid #cce0ff;
+}
+
+/* 💡 읽은 알림 스타일 (예시: 배경색 연하게) */
+.notification-item.read {
+    background-color: #d4d4d4;
+    border: 1px solid #e0e0e0;
 }
 
 .no-underline {

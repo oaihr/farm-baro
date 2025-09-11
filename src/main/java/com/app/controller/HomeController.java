@@ -70,6 +70,14 @@ public class HomeController {
     public List<NotificationDTO> getNotificationsByUserId(@RequestParam("userId") String userId) {
         return notificationService.userNotiList(userId);
     }
+    
+    //updateIsRead
+    @GetMapping("/notifications/isRead")
+    public int updateIsRead(@RequestParam("notificationId") Integer notificationId) {
+    	System.out.println(notificationId + "연결성공");
+        return notificationService.updateIsRead(notificationId);
+    }
+    
 	
 
 }

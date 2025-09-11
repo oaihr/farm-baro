@@ -17,7 +17,7 @@ public interface NotificationDAO {
     List<NotificationDTO> getNotificationsByUserId(String userId);
 
 	// 알림 ID로 is_read 상태를 'Y'로 업데이트합니다.
-    int updateIsRead(Long notificationId);
+    int updateIsRead(Integer notificationId);
 	
 	// Map을 파라미터로 받아 최고 입찰자 ID를 조회합니다.
     String maxBidId(Map<String, Object> params);

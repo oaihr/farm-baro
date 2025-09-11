@@ -13,8 +13,6 @@ import com.app.dao.auction.BidDAO;
 import com.app.dto.auction.AuctionItem;
 import com.app.dto.auction.Bid;
 import com.app.dto.auction.BidMessage;
-import com.app.dto.noti.NotificationDTO;
-import com.app.dto.noti.WebSocketMessage;
 import com.app.service.BidService;
 import com.app.service.noti.NotificationService;
 
@@ -83,37 +81,15 @@ public class BidServiceImpl implements BidService{
             notificationService.sendNotification(
                 previousMaxBidderId,
                 "입찰 실패",
-                "아쉽게도 최고가 입찰 지위를 잃으셨습니다.",
+                "다른 입찰자가 더 높은 가격으로 입찰하였습니다.현재 입찰가는 [" + bidMessage.getBidPrice() + "원] 입니다.",
                 auctionItem.getAuctionId()
             );
         }
-        
-
-     // --- 💡 웹소켓을 통한 실시간 알림 전송 ---
-        // 모든 경매 참여자에게 최신 입찰 정보를 실시간으로 업데이트
-        // 이 메시지는 프론트엔드에서 입찰 현황을 갱신하는 데 사용됩니다.
-//        WebSocketMessage updateMessage = new WebSocketMessage(
-//            "auction_update", 
-//            "새로운 입찰이 발생했습니다.",
-//            auctionItem.getAuctionId(),
-//            bidMessage.getBidPrice()
-//        );
-//        
-//        // 💡 messagingTemplate을 사용해 '/topic/auction/{id}' 채널로 메시지 전송
-//        messagingTemplate.convertAndSend(
-//            "/topic/auction/" + auctionItem.getAuctionId(),
-//            updateMessage
-//        );
-        
-        
-        
+                
         // 알림 전송 후, 입찰 내역 반환
         
         List<BidMessage> bidHistory = bidDAO.getBidHistory(auctionItem.getAuctionId());
         return bidHistory;
 	}
 
-
-	
-	
 }

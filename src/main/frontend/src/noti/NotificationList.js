@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useWebSocket } from '../services/useWebSocket';
 import axios from 'axios';
 
@@ -46,6 +46,8 @@ const formatTimeAgo = (timeArray) => {
 };
 
 const NotificationList = ({ userId }) => {
+
+    const navigate = useNavigate();
     const [notifications, setNotifications] = useState([]);
     const { isConnected, subscribe } = useWebSocket();
 
@@ -85,16 +87,32 @@ const NotificationList = ({ userId }) => {
             ) : (
                 <ul>
                     {notifications.map((noti, index) => {
+                        const handleNotificationClick = async () => {
+                            try {
+                                // 알림 읽음 상태 업데이트 API 호출
+                                await axios.get(`/home/notifications/isRead?notificationId=${noti.notificationId}`);
+                            } catch (error) {
+                                console.error("알림 읽음 상태 업데이트 실패:", error);
+                            }
+                            // 페이지 이동
+                            navigate(`/auction/${noti.relatedId}`);
+                        };
+
+                        // 💡 noti.isRead 값에 따라 클래스 동적 할당
+                        const itemClassName = noti.isRead === 'Y' ?
+                            "notification-item read" :
+                            "notification-item unread";
+
                         return (
-                            <Link to={`/auction/${noti.relatedId}`} className='no-underline'>
-                                <li key={index} className="notification-item">
+                            <li key={index} className="notification-item-wrapper">
+                                <div className={itemClassName} onClick={handleNotificationClick}>
                                     <div className="notification-content">
                                         <strong style={{ color: "#38761D" }}>[{noti.title}]</strong>
                                         <strong>{noti.type}</strong>: {noti.message}
                                     </div>
                                     <span className="notification-time">{formatTimeAgo(noti.createdTime)}</span>
-                                </li>
-                            </Link>
+                                </div>
+                            </li>
                         );
                     })}
                 </ul>
