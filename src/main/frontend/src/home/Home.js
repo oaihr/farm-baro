@@ -5,11 +5,15 @@ import pig from '../images/pig.png';
 import mainvideo from './video/856065-hd_1920_1080_30fps.mp4';
 
 import React, { useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom';
+
 import axios from 'axios';
 import useRemainingTime from './RemainingTime';
 
 
 function Home() {
+
+    const navigate = useNavigate();
 
     // 1. 상태(State) 변수 정의
     const [auctionData, setAuctionData] = useState([]);
@@ -68,7 +72,7 @@ function Home() {
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
         const formattedDate = formatDateToYYYYMMDD(yesterday);
-        const endpoint = `http://localhost:8080/quote/checkDay?day=${formattedDate}`;
+        const endpoint = `/quote/checkDay?day=${formattedDate}`;
 
         try {
             const response = await axios.get(endpoint);
@@ -137,7 +141,7 @@ function Home() {
                                 <div className="">
                                     <img src={prices[kind].icon} alt={kind} className='quote-img' />
                                     <h3>{kind}</h3>
-                                    <p>{prices[kind].price} 원/100g</p>
+                                    <p>{prices[kind].price.toLocaleString()} 원/100g</p>
                                 </div>
                             </div>
                         ))}
@@ -161,7 +165,7 @@ function Home() {
                                     : null;
 
                                 return (
-                                    <div key={index} className="home-auction-card">
+                                    <div key={index} className="home-auction-card" onClick={() => navigate(`/auction/${item.auctionId}`)}>
                                         {thumbnailImage ? (
                                             <img src={`${thumbnailImage.imageUrl}`} alt={item.title} />
                                         ) : (
@@ -193,7 +197,7 @@ function Home() {
                                     : null;
 
                                 return (
-                                    <div key={index} className="home-sale-card">
+                                    <div key={index} className="home-sale-card" onClick={() => navigate(`/sale/${item.saleItemId}`)}>
                                         {thumbnailImage ? (
                                             <img src={`${thumbnailImage.imageUrl}`} alt={item.title} />
                                         ) : (

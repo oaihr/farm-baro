@@ -3,11 +3,12 @@ import noSearch from '../images/no_search_keyword.png';
 import PageNation from './pageNation/PageNation.js';
 
 import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 function HomeSearch() {
 
+    const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const [searchResults, setSearchResults] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -46,8 +47,6 @@ function HomeSearch() {
         setCurrentPageSale(salesPage);
     }, [auctionPage, salesPage]);
 
-    const BASE_URL = 'http://localhost:8080';
-
     const ITEMS_PER_PAGE = 8; // 한 페이지에 표시할 아이템 수
     const PAGE_COUNT = 5; // 한 번에 표시할 페이지 번호 수
 
@@ -77,10 +76,10 @@ function HomeSearch() {
                         <div className="homeSearch-auction-list">
                             {auctionsToDisplay.length > 0 ? (
                                 auctionsToDisplay.map((item, index) => {
-                                    const imageUrl = item.images[0]?.imageUrl ? `${BASE_URL}${item.images[0].imageUrl}` : 'https://via.placeholder.com/150?text=No+Image';
+                                    const imageUrl = item.images[0]?.imageUrl ? `${item.images[0].imageUrl}` : 'https://via.placeholder.com/150?text=No+Image';
 
                                     return (
-                                        <div key={index} className="homeSearch-auction-card">
+                                        <div key={index} className="homeSearch-auction-card" onClick={() => navigate(`/auction/${item.auctionId}`)}>
                                             <img src={imageUrl} alt={item.title} />
                                             <h3>{item.title}</h3>
                                             <hr className='hr'></hr>
@@ -115,10 +114,10 @@ function HomeSearch() {
                         <div className="homeSearch-sale-list">
                             {salesToDisplay.length > 0 ? (
                                 salesToDisplay.map((item, index) => {
-                                    const imageUrl = item.images[0]?.imageUrl ? `${BASE_URL}${item.images[0].imageUrl}` : 'https://via.placeholder.com/150?text=No+Image';
+                                    const imageUrl = item.images[0]?.imageUrl ? `${item.images[0].imageUrl}` : 'https://via.placeholder.com/150?text=No+Image';
 
                                     return (
-                                        <div key={index} className="homeSearch-sale-card">
+                                        <div key={index} className="homeSearch-sale-card" onClick={() => navigate(`/sale/${item.saleItemId}`)}>
                                             <img src={imageUrl} alt={item.title} />
                                             <h3>{item.title}</h3>
                                             <hr className='hr'></hr>
