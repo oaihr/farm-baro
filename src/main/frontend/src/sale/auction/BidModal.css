@@ -31,6 +31,15 @@
 .modal-info p {
     padding-left: 25px;
 }
+
+.modal-info-price{
+  font-weight: 600;
+}
+
+.modal-info-available{
+  color: #38761D;
+}
+
 .bid-input {
   width: 50%;
   padding: 10px;

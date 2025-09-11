@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import './Sale.css';
+import noSearch from '../images/no_sales.png';
 
 function Sale(){
 
@@ -43,7 +44,8 @@ function Sale(){
     };
 
     if (loading) return <div>로딩 중..</div>;
-    if (!data || data.length === 0) return <div>데이터가 없습니다.</div>;
+     if (!data || data.length === 0) {
+            return (<div className='sale-no-data'><img src={noSearch} alt="No search results" /> </div>)}
 
     return (
         <div className='sale-main-container'>
