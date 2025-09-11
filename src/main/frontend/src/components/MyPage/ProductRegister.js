@@ -6,12 +6,12 @@ import './ProductRegister.css';
 const ProductRegister = () => {
     const { userId } = useParams();
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState('register');
-    const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState('');
-    const [products, setProducts] = useState([]);
-    
-    const [formData, setFormData] = useState({
+    const [ activeTab, setActiveTab ] = useState('register');
+    const [ loading, setLoading ] = useState(false);
+    const [ message, setMessage ] = useState('');
+    const [ products, setProducts ] = useState([]);
+
+    const [ formData, setFormData ] = useState({
         title: '',           // sales.TITLE
         meatKind: '',        // 고기 종류 (소, 돼지, 닭)
         meatPart: '',        // 부위 (등심, 삼겹살, 가슴살 등)
@@ -26,11 +26,11 @@ const ProductRegister = () => {
         imageUrls: []        // product_images 테이블용 (이미지 URL 배열)
     });
 
-    const [editingProduct, setEditingProduct] = useState(null);
-    const [viewingProduct, setViewingProduct] = useState(null);
-    const [imageUrlsText, setImageUrlsText] = useState(''); // 이미지 URL 텍스트 상태
-    const [showImageInput, setShowImageInput] = useState(false); // 이미지 입력 표시 상태
-    const [newImageUrls, setNewImageUrls] = useState(''); // 새로운 이미지 URL 텍스트
+    const [ editingProduct, setEditingProduct ] = useState(null);
+    const [ viewingProduct, setViewingProduct ] = useState(null);
+    const [ imageUrlsText, setImageUrlsText ] = useState(''); // 이미지 URL 텍스트 상태
+    const [ showImageInput, setShowImageInput ] = useState(false); // 이미지 입력 표시 상태
+    const [ newImageUrls, setNewImageUrls ] = useState(''); // 새로운 이미지 URL 텍스트
 
     const tabs = [
         { id: 'register', label: '상품 등록', icon: '📦' },
@@ -48,45 +48,45 @@ const ProductRegister = () => {
 
     // 상품 종류 옵션 정의
     const meatOptions = {
-        '소': ['등심', '안심', '갈비', '기타'],
-        '돼지': ['삼겹살', '목살', '갈비', '기타'],
-        '닭': ['가슴살', '다리살', '기타']
+        '소': [ '등심', '안심', '갈비', '기타' ],
+        '돼지': [ '삼겹살', '목살', '갈비', '기타' ],
+        '닭': [ '가슴살', '다리살', '기타' ]
     };
 
-         // 고기 종류가 변경될 때 부위와 등급 초기화
-     const handleMeatKindChange = (e) => {
-         const selectedKind = e.target.value;
-         setFormData(prev => ({
-             ...prev,
-             meatKind: selectedKind,
-             meatPart: '', // 부위 초기화
-             grade: ''     // 등급 초기화 (고기 종류별로 다른 등급 체계)
-         }));
-     };
+    // 고기 종류가 변경될 때 부위와 등급 초기화
+    const handleMeatKindChange = (e) => {
+        const selectedKind = e.target.value;
+        setFormData(prev => ({
+            ...prev,
+            meatKind: selectedKind,
+            meatPart: '', // 부위 초기화
+            grade: ''     // 등급 초기화 (고기 종류별로 다른 등급 체계)
+        }));
+    };
 
     // 부위가 변경될 때 cutName 자동 설정
     const handleMeatPartChange = (e) => {
         const selectedPart = e.target.value;
         const meatKind = formData.meatKind;
-        
+
         // cutName 자동 매핑
         let cutName = 'etc';
         if (meatKind === '소') {
-            switch(selectedPart) {
+            switch (selectedPart) {
                 case '등심': cutName = 'sirloin'; break;
                 case '안심': cutName = 'tenderloin'; break;
                 case '갈비': cutName = 'rib'; break;
                 default: cutName = 'etc';
             }
         } else if (meatKind === '돼지') {
-            switch(selectedPart) {
+            switch (selectedPart) {
                 case '삼겹살': cutName = 'belly'; break;
                 case '목살': cutName = 'neck'; break;
                 case '갈비': cutName = 'rib'; break;
                 default: cutName = 'etc';
             }
         } else if (meatKind === '닭') {
-            switch(selectedPart) {
+            switch (selectedPart) {
                 case '가슴살': cutName = 'breast'; break;
                 case '다리살': cutName = 'leg'; break;
                 default: cutName = 'etc';
@@ -101,7 +101,7 @@ const ProductRegister = () => {
 
     // judgeKindName 자동 생성 (고기 종류 → 영문)
     const getJudgeKindName = () => {
-        switch(formData.meatKind) {
+        switch (formData.meatKind) {
             case '소': return 'beef';
             case '돼지': return 'pork';
             case '닭': return 'chicken';
@@ -113,23 +113,23 @@ const ProductRegister = () => {
     const getCutName = () => {
         const meatKind = formData.meatKind;
         const meatPart = formData.meatPart;
-        
+
         if (meatKind === '소') {
-            switch(meatPart) {
+            switch (meatPart) {
                 case '등심': return 'sirloin';
                 case '안심': return 'tenderloin';
                 case '갈비': return 'rib';
                 default: return 'etc';
             }
         } else if (meatKind === '돼지') {
-            switch(meatPart) {
+            switch (meatPart) {
                 case '삼겹살': return 'belly';
                 case '목살': return 'neck';
                 case '갈비': return 'rib';
                 default: return 'etc';
             }
         } else if (meatKind === '닭') {
-            switch(meatPart) {
+            switch (meatPart) {
                 case '가슴살': return 'breast';
                 case '다리살': return 'leg';
                 default: return 'etc';
@@ -161,17 +161,17 @@ const ProductRegister = () => {
         // judgeKindName에서 고기 종류와 부위 분리
         let meatKind = '';
         let cutName = product.cutName || '';
-        
+
         if (product.judgeKindName) {
             const parts = product.judgeKindName.split(' ');
             if (parts.length >= 2) {
-                meatKind = parts[0];
+                meatKind = parts[ 0 ];
                 cutName = parts.slice(1).join(' ');
             } else {
                 meatKind = product.judgeKindName;
             }
         }
-        
+
         setViewingProduct({
             ...product,
             meatKind: meatKind,
@@ -200,16 +200,16 @@ const ProductRegister = () => {
     // 이미지 변경 저장 (이미지만 따로 업데이트)
     const handleImageChangeSave = async () => {
         if (!editingProduct) return;
-        
+
         try {
             setLoading(true);
             const imageUrls = newImageUrls.split(',').map(url => url.trim()).filter(url => url);
-            
+
             if (imageUrls.length === 0) {
                 setMessage('이미지 URL을 입력해주세요.');
                 return;
             }
-            
+
             // 이미지만 업데이트하는 API 호출
             const response = await fetch(`http://localhost:8080/api/mypage/products/${editingProduct.saleItemId}/images`, {
                 method: 'PUT',
@@ -226,10 +226,10 @@ const ProductRegister = () => {
                 setMessage('이미지가 성공적으로 변경되었습니다.');
                 setShowImageInput(false);
                 setNewImageUrls('');
-                
+
                 // 상품 목록 새로고침
                 await fetchProducts();
-                
+
                 // 현재 편집 중인 상품 정보도 업데이트
                 const updatedProduct = products.find(p => p.saleItemId === editingProduct.saleItemId);
                 if (updatedProduct) {
@@ -414,7 +414,7 @@ const ProductRegister = () => {
             formDataToSend.append('grade', formData.grade);
             formDataToSend.append('traceabilityNum', formData.traceabilityNum);
             formDataToSend.append('sellerId', userId);
-            
+
             if (formData.imageUrls && formData.imageUrls.length > 0) {
                 formData.imageUrls.forEach((url, index) => {
                     formDataToSend.append(`imageUrls`, url);
@@ -436,10 +436,10 @@ const ProductRegister = () => {
                 traceabilityNum: formData.traceabilityNum,
                 sellerId: userId
             });
-            
+
             // FormData 내용 확인
             console.log('FormData 내용:');
-            for (let [key, value] of formDataToSend.entries()) {
+            for (let [ key, value ] of formDataToSend.entries()) {
                 console.log(`${key}: ${value}`);
             }
 
@@ -501,7 +501,7 @@ const ProductRegister = () => {
             formDataToSend.append('detailDescription', formData.detailDescription);
             formDataToSend.append('grade', formData.grade);
             formDataToSend.append('traceabilityNum', formData.traceabilityNum);
-            
+
             if (formData.imageUrls && formData.imageUrls.length > 0) {
                 formData.imageUrls.forEach((url, index) => {
                     formDataToSend.append(`imageUrls`, url);
@@ -509,7 +509,7 @@ const ProductRegister = () => {
                 });
             }
 
-                         const response = await fetch(`http://localhost:8080/api/mypage/products/${editingProduct.saleItemId}/form`, {
+            const response = await fetch(`http://localhost:8080/api/mypage/products/${editingProduct.saleItemId}/form`, {
                 method: 'PUT',
                 body: formDataToSend
             });
@@ -549,9 +549,9 @@ const ProductRegister = () => {
         // 더 상세한 확인 다이얼로그
         const product = products.find(p => p.saleItemId === productId);
         const productName = product ? product.title : '이 상품';
-        
+
         const confirmMessage = `정말로 "${productName}"을(를) 삭제하시겠습니까?\n\n⚠️ 주의: 이 작업은 되돌릴 수 없습니다.\n상품과 관련된 모든 데이터가 영구적으로 삭제됩니다.`;
-        
+
         if (!window.confirm(confirmMessage)) {
             return;
         }
@@ -559,7 +559,7 @@ const ProductRegister = () => {
         try {
             setLoading(true);
             setMessage('상품을 삭제하는 중입니다...');
-            
+
             console.log(`상품 삭제 요청: ${productId}`);
             const response = await fetch(`http://localhost:8080/api/mypage/products/${productId}`, {
                 method: 'DELETE'
@@ -569,7 +569,7 @@ const ProductRegister = () => {
                 setMessage(`✅ "${productName}"이(가) 성공적으로 삭제되었습니다.`);
                 // 상품 목록 새로고침
                 await fetchProducts();
-                
+
                 // 3초 후 메시지 자동 제거
                 setTimeout(() => {
                     setMessage('');
@@ -596,7 +596,7 @@ const ProductRegister = () => {
         if (product.judgeKindName) {
             const parts = product.judgeKindName.split(' ');
             if (parts.length >= 2) {
-                meatKind = parts[0];
+                meatKind = parts[ 0 ];
                 meatPart = parts.slice(1).join(' ');
             }
         }
@@ -605,7 +605,7 @@ const ProductRegister = () => {
         let saleStatus = product.saleStatus || 'draft';
         if (saleStatus === 'ACTIVE') saleStatus = 'on';
         if (saleStatus === 'WAITING') saleStatus = 'draft';
-        
+
         setFormData({
             title: product.title || '',
             meatKind: meatKind,
@@ -658,7 +658,7 @@ const ProductRegister = () => {
         } else {
             setFormData(prev => ({
                 ...prev,
-                [name]: value
+                [ name ]: value
             }));
         }
     };
@@ -668,7 +668,7 @@ const ProductRegister = () => {
         if (activeTab === 'manage') {
             fetchProducts();
         }
-    }, [activeTab, userId]);
+    }, [ activeTab, userId ]);
 
     return (
         <div className="product-register-container">
@@ -716,7 +716,7 @@ const ProductRegister = () => {
                 {/* 폼 섹션 */}
                 <div className="form-section">
                     <h3>📦 상품 정보</h3>
-                    
+
                     <form onSubmit={editingProduct ? handleUpdate : handleSubmit}>
                         <div className="form-group">
                             <label>상품명 *</label>
@@ -755,7 +755,7 @@ const ProductRegister = () => {
                                     required
                                 >
                                     <option value="">부위를 선택하세요</option>
-                                    {meatOptions[formData.meatKind]?.map(part => (
+                                    {meatOptions[ formData.meatKind ]?.map(part => (
                                         <option key={part} value={part}>{part}</option>
                                     ))}
                                 </select>
@@ -815,41 +815,41 @@ const ProductRegister = () => {
                             <small className="input-help">무게와 단위를 함께 입력하세요 (예: 1kg, 500g, 2lb)</small>
                         </div>
 
-                                                 <div className="form-group">
-                             <label>고기 등급 *</label>
-                             <select
-                                 name="grade"
-                                 value={formData.grade}
-                                 onChange={handleInputChange}
-                                 required
-                             >
-                                 <option value="">등급을 선택하세요</option>
-                                 {formData.meatKind === '소' && (
-                                     <>
-                                         <option value="1++">1++등급 (최고급)</option>
-                                         <option value="1+">1+등급 (고급)</option>
-                                         <option value="1">1등급 (상급)</option>
-                                         <option value="2">2등급 (중급)</option>
-                                         <option value="3">3등급 (일반)</option>
-                                     </>
-                                 )}
-                                 {formData.meatKind === '돼지' && (
-                                     <>
-                                         <option value="1+">1+등급 (고급)</option>
-                                         <option value="1">1등급 (상급)</option>
-                                         <option value="2">2등급 (중급)</option>
-                                         <option value="등외">등외등급 (일반)</option>
-                                     </>
-                                 )}
-                                 {formData.meatKind === '닭' && (
-                                     <>
-                                         <option value="1+">1+등급 (고급)</option>
-                                         <option value="1">1등급 (상급)</option>
-                                         <option value="2">2등급 (중급)</option>
-                                     </>
-                                 )}
-                             </select>
-                         </div>
+                        <div className="form-group">
+                            <label>고기 등급 *</label>
+                            <select
+                                name="grade"
+                                value={formData.grade}
+                                onChange={handleInputChange}
+                                required
+                            >
+                                <option value="">등급을 선택하세요</option>
+                                {formData.meatKind === '소' && (
+                                    <>
+                                        <option value="1++">1++등급 (최고급)</option>
+                                        <option value="1+">1+등급 (고급)</option>
+                                        <option value="1">1등급 (상급)</option>
+                                        <option value="2">2등급 (중급)</option>
+                                        <option value="3">3등급 (일반)</option>
+                                    </>
+                                )}
+                                {formData.meatKind === '돼지' && (
+                                    <>
+                                        <option value="1+">1+등급 (고급)</option>
+                                        <option value="1">1등급 (상급)</option>
+                                        <option value="2">2등급 (중급)</option>
+                                        <option value="등외">등외등급 (일반)</option>
+                                    </>
+                                )}
+                                {formData.meatKind === '닭' && (
+                                    <>
+                                        <option value="1+">1+등급 (고급)</option>
+                                        <option value="1">1등급 (상급)</option>
+                                        <option value="2">2등급 (중급)</option>
+                                    </>
+                                )}
+                            </select>
+                        </div>
 
                         <div className="form-group">
                             <label>가축 이력번호</label>
@@ -951,20 +951,20 @@ const ProductRegister = () => {
                 {/* 가이드 섹션 */}
                 <div className="guide-section">
                     <h3>📦 상품 등록 팁</h3>
-                    
+
                     <div className="guide-cards">
                         <div className="guide-card">
                             <div className="guide-icon">📸</div>
                             <h4>이미지 품질</h4>
                             <p>선명하고 깔끔한 상품 이미지를 업로드하세요.</p>
                         </div>
-                        
+
                         <div className="guide-card">
                             <div className="guide-icon">💰</div>
                             <h4>가격 설정</h4>
                             <p>시장 가격을 참고하여 적절한 가격을 설정하세요.</p>
                         </div>
-                        
+
                         <div className="guide-card">
                             <div className="guide-icon">📝</div>
                             <h4>상세 정보</h4>
@@ -975,20 +975,20 @@ const ProductRegister = () => {
                     {/* 상품 통계 */}
                     <div className="stats-summary">
                         <h4>📦 상품 판매 현황</h4>
-                                                 <div className="stats-grid">
-                             <div className="stat-item">
-                                 <div className="stat-number">{products.length}</div>
-                                 <div className="stat-label">등록된 상품</div>
-                             </div>
-                             <div className="stat-item">
-                                 <div className="stat-number">{products.filter(p => p.saleStatus === 'on').length}</div>
-                                 <div className="stat-label">판매중</div>
-                             </div>
-                             <div className="stat-item">
-                                 <div className="stat-number">{products.filter(p => p.saleStatus === 'draft').length}</div>
-                                 <div className="stat-label">보류중</div>
-                             </div>
-                         </div>
+                        <div className="stats-grid">
+                            <div className="stat-item">
+                                <div className="stat-number">{products.length}</div>
+                                <div className="stat-label">등록된 상품</div>
+                            </div>
+                            <div className="stat-item">
+                                <div className="stat-number">{products.filter(p => p.saleStatus === 'on').length}</div>
+                                <div className="stat-label">판매중</div>
+                            </div>
+                            <div className="stat-item">
+                                <div className="stat-number">{products.filter(p => p.saleStatus === 'draft').length}</div>
+                                <div className="stat-label">보류중</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -997,7 +997,7 @@ const ProductRegister = () => {
             {activeTab === 'edit' && editingProduct && (
                 <div className="product-edit-section">
                     <div className="edit-header">
-                        <button 
+                        <button
                             className="back-btn"
                             onClick={() => {
                                 setActiveTab('manage');
@@ -1026,14 +1026,14 @@ const ProductRegister = () => {
                                 )}
                             </div>
                             <div className="image-actions">
-                                <button 
+                                <button
                                     className="btn-primary"
                                     onClick={handleImageChange}
                                 >
                                     📸 이미지 변경
                                 </button>
                             </div>
-                            
+
                             {/* 이미지 변경 입력 UI */}
                             {showImageInput && (
                                 <div className="image-change-section">
@@ -1052,14 +1052,14 @@ const ProductRegister = () => {
                                         </small>
                                     </div>
                                     <div className="image-change-actions">
-                                        <button 
+                                        <button
                                             className="btn-save"
                                             onClick={handleImageChangeSave}
                                             disabled={loading}
                                         >
                                             💾 이미지 저장
                                         </button>
-                                        <button 
+                                        <button
                                             className="btn-cancel"
                                             onClick={handleImageChangeCancel}
                                         >
@@ -1179,22 +1179,41 @@ const ProductRegister = () => {
                             </div>
 
                             <div className="form-row">
-                                <div className="form-group">
-                                    <label>등급 *</label>
-                                    <select
-                                        name="grade"
-                                        value={formData.grade}
-                                        onChange={handleInputChange}
-                                        required
-                                    >
-                                        <option value="">선택하세요</option>
-                                        <option value="1++">1++</option>
-                                        <option value="1+">1+</option>
-                                        <option value="1">1</option>
-                                        <option value="2">2</option>
-                                        <option value="3">3</option>
-                                    </select>
-                                </div>
+                                 <div className="form-group">
+                                     <label>등급 *</label>
+                                     <select
+                                         name="grade"
+                                         value={formData.grade}
+                                         onChange={handleInputChange}
+                                         required
+                                     >
+                                         <option value="">등급을 선택하세요</option>
+                                         {formData.meatKind === '소' && (
+                                             <>
+                                                 <option value="1++">1++등급 (최고급)</option>
+                                                 <option value="1+">1+등급 (고급)</option>
+                                                 <option value="1">1등급 (상급)</option>
+                                                 <option value="2">2등급 (중급)</option>
+                                                 <option value="3">3등급 (일반)</option>
+                                             </>
+                                         )}
+                                         {formData.meatKind === '돼지' && (
+                                             <>
+                                                 <option value="1+">1+등급 (고급)</option>
+                                                 <option value="1">1등급 (상급)</option>
+                                                 <option value="2">2등급 (중급)</option>
+                                                 <option value="등외">등외등급 (일반)</option>
+                                             </>
+                                         )}
+                                         {formData.meatKind === '닭' && (
+                                             <>
+                                                 <option value="1+">1+등급 (고급)</option>
+                                                 <option value="1">1등급 (상급)</option>
+                                                 <option value="2">2등급 (중급)</option>
+                                             </>
+                                         )}
+                                     </select>
+                                 </div>
                                 <div className="form-group">
                                     <label>판매 상태</label>
                                     <select
@@ -1279,7 +1298,7 @@ const ProductRegister = () => {
                             🔄 새로고침
                         </button>
                     </div>
-                    
+
                     {loading ? (
                         <div className="loading">로딩 중...</div>
                     ) : products.length === 0 ? (
@@ -1297,21 +1316,21 @@ const ProductRegister = () => {
                                                 <span className="no-image-text">이미지 없음</span>
                                             </div>
                                         )}
-                                        
+
                                         {/* 상태 배지 - 이미지가 있을 때만 표시 */}
                                         {product.imageUrl && (
                                             <div className="status-badge-overlay">
                                                 <span className={`status-badge ${product.saleStatus?.toLowerCase()}`}>
-                                                    {product.saleStatus === 'on' ? '판매중' : 
-                                                     product.saleStatus === 'draft' ? '보류중' : 
-                                                     product.saleStatus === 'off' ? '품절' : '미정'}
+                                                    {product.saleStatus === 'on' ? '판매중' :
+                                                        product.saleStatus === 'draft' ? '보류중' :
+                                                            product.saleStatus === 'off' ? '품절' : '미정'}
                                                 </span>
                                             </div>
                                         )}
                                     </div>
-                                    
-                                
-                                    
+
+
+
                                     {/* 상품 정보 영역 */}
                                     <div className="product-info-section">
                                         {/* 판매자명과 상태 배지 */}
@@ -1319,23 +1338,23 @@ const ProductRegister = () => {
                                             <div className="seller-name">{product.sellerName || '판매자'}</div>
                                             <div className="status-badge-inline">
                                                 <span className={`status-badge ${product.saleStatus?.toLowerCase()}`}>
-                                                    {product.saleStatus === 'on' ? '판매중' : 
-                                                     product.saleStatus === 'draft' ? '보류중' : 
-                                                     product.saleStatus === 'off' ? '품절' : '미정'}
+                                                    {product.saleStatus === 'on' ? '판매중' :
+                                                        product.saleStatus === 'draft' ? '보류중' :
+                                                            product.saleStatus === 'off' ? '품절' : '미정'}
                                                 </span>
                                             </div>
                                         </div>
-                                        
+
                                         {/* 카테고리 태그 */}
                                         <div className="category-tags">
                                             <span className="tag">{product.judgeKindName}</span>
                                             <span className="tag">{product.cutName}</span>
                                             {product.weight && <span className="tag">{product.weight}</span>}
                                         </div>
-                                        
+
                                         {/* 상품 제목 */}
                                         <div className="product-title">{product.title}</div>
-                                        
+
                                         {/* 가격 정보 */}
                                         <div className="price-section">
                                             <span className="price">
@@ -1343,12 +1362,12 @@ const ProductRegister = () => {
                                             </span>
                                             <span className="price-unit">(kg당)</span>
                                         </div>
-                                        
+
                                         {/* 배송 정보 */}
                                         <div className="delivery-info">
                                             <span className="delivery-badge">신선배송</span>
                                         </div>
-                                        
+
                                         {/* 재고 및 등급 정보 */}
                                         <div className="stock-grade-info">
                                             <div className="stock-info">
@@ -1363,10 +1382,10 @@ const ProductRegister = () => {
                                             )}
                                         </div>
                                     </div>
-                                    
+
                                     {/* 관리 버튼들 */}
                                     <div className="admin-actions">
-                                        <button 
+                                        <button
                                             className="edit-btn"
                                             onClick={(e) => {
                                                 e.stopPropagation();
@@ -1375,7 +1394,7 @@ const ProductRegister = () => {
                                         >
                                             ✏️ 수정
                                         </button>
-                                        <button 
+                                        <button
                                             className="delete-btn"
                                             onClick={(e) => {
                                                 e.stopPropagation();
@@ -1397,7 +1416,7 @@ const ProductRegister = () => {
             {activeTab === 'detail' && viewingProduct && (
                 <div className="product-detail-section">
                     <div className="detail-header">
-                        <button 
+                        <button
                             className="back-btn"
                             onClick={() => setActiveTab('manage')}
                         >
@@ -1405,7 +1424,7 @@ const ProductRegister = () => {
                         </button>
                         <h3>🔍 상품 상세 정보</h3>
                     </div>
-                    
+
                     <div className="detail-content">
                         <div className="detail-main">
                             <div className="detail-image-section">
@@ -1420,7 +1439,7 @@ const ProductRegister = () => {
                                     )}
                                 </div>
                                 <div className="image-actions">
-                                    <button 
+                                    <button
                                         className="btn-primary"
                                         onClick={handleImageChange}
                                     >
@@ -1428,7 +1447,7 @@ const ProductRegister = () => {
                                     </button>
                                 </div>
                             </div>
-                            
+
                             {/* 이미지 변경 입력 UI */}
                             {showImageInput && (
                                 <div className="image-change-section">
@@ -1447,14 +1466,14 @@ const ProductRegister = () => {
                                         </small>
                                     </div>
                                     <div className="image-change-actions">
-                                        <button 
+                                        <button
                                             className="btn-save"
                                             onClick={handleImageChangeSave}
                                             disabled={loading}
                                         >
                                             💾 이미지 저장
                                         </button>
-                                        <button 
+                                        <button
                                             className="btn-cancel"
                                             onClick={handleImageChangeCancel}
                                         >
@@ -1463,31 +1482,31 @@ const ProductRegister = () => {
                                     </div>
                                 </div>
                             )}
-                            
+
                             <div className="detail-info-section">
                                 <div className="info-group">
                                     <h4>기본 정보</h4>
                                     <div className="info-grid">
                                         <div className="info-item">
                                             <label>상품명</label>
-                                            <input 
-                                                type="text" 
-                                                value={viewingProduct.title || ''} 
+                                            <input
+                                                type="text"
+                                                value={viewingProduct.title || ''}
                                                 onChange={(e) => setViewingProduct({
-                                                    ...viewingProduct, 
+                                                    ...viewingProduct,
                                                     title: e.target.value
                                                 })}
                                             />
                                         </div>
                                         <div className="info-item form-group">
                                             <label>고기 종류</label>
-                                            <select 
+                                            <select
                                                 name="meatKind"
-                                                value={viewingProduct.meatKind || ''} 
+                                                value={viewingProduct.meatKind || ''}
                                                 onChange={(e) => {
                                                     const meatKind = e.target.value;
                                                     setViewingProduct({
-                                                        ...viewingProduct, 
+                                                        ...viewingProduct,
                                                         meatKind: meatKind,
                                                         cutName: '', // 부위 초기화
                                                         judgeKindName: meatKind ? `${meatKind} ${viewingProduct.cutName || ''}`.trim() : ''
@@ -1502,13 +1521,13 @@ const ProductRegister = () => {
                                         </div>
                                         <div className="info-item form-group">
                                             <label>부위</label>
-                                            <select 
+                                            <select
                                                 name="meatPart"
-                                                value={viewingProduct.cutName || ''} 
+                                                value={viewingProduct.cutName || ''}
                                                 onChange={(e) => {
                                                     const cutName = e.target.value;
                                                     setViewingProduct({
-                                                        ...viewingProduct, 
+                                                        ...viewingProduct,
                                                         cutName: cutName,
                                                         judgeKindName: viewingProduct.meatKind ? `${viewingProduct.meatKind} ${cutName}`.trim() : cutName
                                                     });
@@ -1516,56 +1535,56 @@ const ProductRegister = () => {
                                                 disabled={!viewingProduct.meatKind}
                                             >
                                                 <option value="">부위 선택</option>
-                                                {viewingProduct.meatKind && meatOptions[viewingProduct.meatKind]?.map(cut => (
+                                                {viewingProduct.meatKind && meatOptions[ viewingProduct.meatKind ]?.map(cut => (
                                                     <option key={cut} value={cut}>{cut}</option>
                                                 ))}
                                             </select>
                                         </div>
                                         <div className="info-item">
                                             <label>재고 (개)</label>
-                                            <input 
-                                                type="number" 
-                                                value={viewingProduct.qty || ''} 
+                                            <input
+                                                type="number"
+                                                value={viewingProduct.qty || ''}
                                                 onChange={(e) => setViewingProduct({
-                                                    ...viewingProduct, 
+                                                    ...viewingProduct,
                                                     qty: parseInt(e.target.value) || 0
                                                 })}
                                             />
                                         </div>
                                         <div className="info-item">
                                             <label>무게</label>
-                                            <input 
-                                                type="text" 
-                                                value={viewingProduct.weight || ''} 
+                                            <input
+                                                type="text"
+                                                value={viewingProduct.weight || ''}
                                                 onChange={(e) => setViewingProduct({
-                                                    ...viewingProduct, 
+                                                    ...viewingProduct,
                                                     weight: e.target.value
                                                 })}
                                             />
                                         </div>
                                         <div className="info-item">
                                             <label>가격 (원/kg)</label>
-                                            <input 
-                                                type="number" 
-                                                value={viewingProduct.price || ''} 
+                                            <input
+                                                type="number"
+                                                value={viewingProduct.price || ''}
                                                 onChange={(e) => setViewingProduct({
-                                                    ...viewingProduct, 
+                                                    ...viewingProduct,
                                                     price: parseInt(e.target.value) || 0
                                                 })}
                                             />
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div className="info-group">
                                     <h4>상세 정보</h4>
                                     <div className="info-grid">
                                         <div className="info-item full-width">
                                             <label>요약 설명</label>
-                                            <textarea 
-                                                value={viewingProduct.description || ''} 
+                                            <textarea
+                                                value={viewingProduct.description || ''}
                                                 onChange={(e) => setViewingProduct({
-                                                    ...viewingProduct, 
+                                                    ...viewingProduct,
                                                     description: e.target.value
                                                 })}
                                                 rows="3"
@@ -1577,7 +1596,7 @@ const ProductRegister = () => {
                                                 apiKey="ryw90ac70zjvmpwkezw0kv9oef882x9f291lx2gpzcbh5ywk"
                                                 value={viewingProduct.detailDescription || ''}
                                                 onEditorChange={(content) => setViewingProduct({
-                                                    ...viewingProduct, 
+                                                    ...viewingProduct,
                                                     detailDescription: content
                                                 })}
                                                 init={{
@@ -1602,7 +1621,7 @@ const ProductRegister = () => {
                                                 name="grade"
                                                 value={viewingProduct.grade || ''}
                                                 onChange={(e) => setViewingProduct({
-                                                    ...viewingProduct, 
+                                                    ...viewingProduct,
                                                     grade: e.target.value
                                                 })}
                                             >
@@ -1635,11 +1654,11 @@ const ProductRegister = () => {
                                         </div>
                                         <div className="info-item">
                                             <label>이력번호</label>
-                                            <input 
-                                                type="text" 
-                                                value={viewingProduct.traceabilityNum || ''} 
+                                            <input
+                                                type="text"
+                                                value={viewingProduct.traceabilityNum || ''}
                                                 onChange={(e) => setViewingProduct({
-                                                    ...viewingProduct, 
+                                                    ...viewingProduct,
                                                     traceabilityNum: e.target.value
                                                 })}
                                             />
@@ -1648,15 +1667,15 @@ const ProductRegister = () => {
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div className="detail-actions">
-                            <button 
+                            <button
                                 className="btn-save"
                                 onClick={() => handleUpdateProduct(viewingProduct)}
                             >
                                 💾 변경사항 저장
                             </button>
-                            <button 
+                            <button
                                 className="btn-cancel"
                                 onClick={() => setActiveTab('manage')}
                             >
