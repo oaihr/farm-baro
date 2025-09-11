@@ -389,36 +389,48 @@ export default function BuyerWizard() {
             </div>
           </div>
 
-          {!snsMode && (
-            <div className="row">
-              <label>인증번호</label>
-              <div className="hstack">
-                <input
-                  placeholder="6자리"
-                  value={code}
-                  onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                  maxLength={6}
-                />
-                <button
-                  type="button"
-                  onClick={verifyEmail}
-                  disabled={sending || !code || leftSec <= 0 || emailVerified}
-                >
-                  인증
-                </button>
-              </div>
-              {!emailVerified && leftSec > 0 && (
-                <p className="hint" style={{ marginTop: 8 }}>
-                  남은 시간 <b>{fmt(leftSec)}</b> 안에 인증번호를 입력해 주세요.
-                </p>
-              )}
-              {emailVerified && <p className="ok">✅ 인증 완료</p>}
-            </div>
-          )}
+           {/* ✅ 인증번호 입력 행은 인증이 끝나기 전까지만 보여주고,
+          인증 완료 후에는 입력행을 숨긴 뒤 완료 문구만 보여줍니다. */}
+    {!snsMode && (
+      <div className="row">
+        <label>인증번호</label>
 
-          {snsMode && <p className="ok" style={{ marginTop: 8 }}>✅ SNS 계정은 이메일 인증이 필요 없습니다.</p>}
-        </div>
-      )}
+        {emailVerified ? (
+          <p className="ok" style={{ marginTop: 8 }}>✅ 인증 완료</p>
+        ) : (
+          <>
+            <div className="hstack">
+              <input
+                placeholder="6자리"
+                value={code}
+                onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                maxLength={6}
+              />
+              <button
+                type="button"
+                onClick={verifyEmail}
+                disabled={sending || !code || leftSec <= 0 || emailVerified}
+              >
+                인증
+              </button>
+            </div>
+            {leftSec > 0 && (
+              <p className="hint" style={{ marginTop: 8 }}>
+                남은 시간 <b>{fmt(leftSec)}</b> 안에 인증번호를 입력해 주세요.
+              </p>
+            )}
+          </>
+        )}
+      </div>
+    )}
+
+    {snsMode && (
+      <p className="ok" style={{ marginTop: 8 }}>
+        ✅ SNS 계정은 이메일 인증이 필요 없습니다.
+      </p>
+    )}
+  </div>
+)}
 
       {/* STEP 3 */}
       {step === 3 && (

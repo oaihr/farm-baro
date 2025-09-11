@@ -57,6 +57,14 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-appl
 .form-row.between{
   display:flex;align-items:center;justify-content:space-between
 }
+.form-row.between .checkbox{
+  white-space: nowrap; /* 줄바꿈 금지 */
+  flex: 0 0 auto;      /* 폭 줄어들며 줄바꿈되는 것 방지 */
+}
+
+.form-row.between .link-btn{
+  flex: 0 0 auto;      /* 우측 링크도 고정 폭 */
+}
 
 .input{
   width:100%;

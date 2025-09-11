@@ -28,13 +28,15 @@
        2) CORS 필터
      ========================= -->
   <filter>
-    <filter-name>corsFilter</filter-name>
-    <filter-class>com.app.web.CorsFilter</filter-class>
-  </filter>
-  <filter-mapping>
-    <filter-name>corsFilter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
+  <filter-name>corsFilter</filter-name>
+  <filter-class>com.app.web.CorsFilter</filter-class>
+</filter>
+<filter-mapping>
+  <filter-name>corsFilter</filter-name>
+  <url-pattern>/api/*</url-pattern>
+  <dispatcher>REQUEST</dispatcher>
+  <dispatcher>ASYNC</dispatcher>
+</filter-mapping>
 
   <!-- =========================
        3) Spring Root Context

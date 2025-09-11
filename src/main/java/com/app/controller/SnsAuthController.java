@@ -22,26 +22,25 @@ public class SnsAuthController {
 
   private final UserMapper userMapper;
   private final HttpSession session;
-  // 굳이 빈 주입 안해도 됨. 간단히 필드 생성자로 사용
   private final RestTemplate rest = new RestTemplate();
 
-  // ===== Front routes =====
-  @Value("${oauth.front-success}") private String FRONT_SUCCESS;        // 예) http://localhost:3000/
-  @Value("${oauth.front-fail}")    private String FRONT_FAIL;           // 예) http://localhost:3000/login?error=1
-  @Value("${oauth.front-role-select:http://localhost:3000/oauth/role}") // 기본값을 /oauth/role 로 고정
+  // Front routes
+  @Value("${oauth.front-success}") private String FRONT_SUCCESS;
+  @Value("${oauth.front-fail}")    private String FRONT_FAIL;
+  @Value("${oauth.front-role-select:http://localhost:3000/oauth/role}")
   private String FRONT_ROLE_SELECT;
 
-  // ===== Kakao =====
+  // Kakao
   @Value("${oauth.kakao.client-id}")       private String KAKAO_ID;
   @Value("${oauth.kakao.client-secret:}")  private String KAKAO_SECRET;
   @Value("${oauth.kakao.redirect-uri}")    private String KAKAO_REDIRECT;
 
-  // ===== Naver =====
+  // Naver
   @Value("${oauth.naver.client-id}")       private String NAVER_ID;
   @Value("${oauth.naver.client-secret}")   private String NAVER_SECRET;
   @Value("${oauth.naver.redirect-uri}")    private String NAVER_REDIRECT;
 
-  // ===== Behavior flags =====
+  // Flags
   @Value("${oauth.sns.auto-signup:true}")      private boolean autoSignup;
   @Value("${oauth.sns.auto-link-email:false}") private boolean autoLinkEmail;
 
@@ -51,6 +50,7 @@ public class SnsAuthController {
     s.removeAttribute("LOGIN_NAME");
     s.removeAttribute("LOGIN_USER_TYPE");
     s.removeAttribute("LOGIN_PROVIDER");
+    s.removeAttribute("LOGIN_TYPE");
     s.removeAttribute("NEED_ROLE_SELECT");
   }
 
@@ -66,11 +66,10 @@ public class SnsAuthController {
     return base + (base.contains("?") ? "&" : "?") + q;
   }
 
-  // =================== Kakao ===================
+  // ============== Kakao ==============
   @GetMapping("/kakao")
   public ResponseEntity<Void> kakaoStart() {
     clearLoginSession(session);
-
     String state = UUID.randomUUID().toString();
     session.setAttribute("OAUTH_STATE:KAKAO", state);
 
@@ -80,7 +79,6 @@ public class SnsAuthController {
         + "&redirect_uri=" + URLEncoder.encode(KAKAO_REDIRECT, StandardCharsets.UTF_8)
         + "&state=" + state;
 
-    System.out.println("[KAKAO AUTH] id=" + KAKAO_ID + ", redirect=" + KAKAO_REDIRECT);
     return redirect(url);
   }
 
@@ -93,7 +91,6 @@ public class SnsAuthController {
     }
 
     try {
-      // 1) 액세스 토큰 요청 (폼-URL-인코딩 명시)
       MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
       form.add("grant_type", "authorization_code");
       form.add("client_id", KAKAO_ID);
@@ -110,7 +107,6 @@ public class SnsAuthController {
       String accessToken = token != null ? (String) token.get("access_token") : null;
       if (isBlank(accessToken)) return redirect(addQuery(FRONT_FAIL, "reason=no-token"));
 
-      // 2) 사용자 정보 조회
       HttpHeaders h = new HttpHeaders();
       h.setBearerAuth(accessToken);
       HttpEntity<Void> req = new HttpEntity<>(h);
@@ -142,7 +138,6 @@ public class SnsAuthController {
           ? addQuery(FRONT_ROLE_SELECT, "needRole=1&provider=" + provider.toLowerCase())
           : FRONT_SUCCESS;
 
-      System.out.println("[OAUTH/KAKAO] redirect -> " + to + ", userType=" + u.getUserType());
       return redirect(to);
 
     } catch (Exception ex) {
@@ -151,11 +146,10 @@ public class SnsAuthController {
     }
   }
 
-  // =================== Naver ===================
+  // ============== Naver ==============
   @GetMapping("/naver")
   public ResponseEntity<Void> naverStart() {
     clearLoginSession(session);
-
     String state = UUID.randomUUID().toString();
     session.setAttribute("OAUTH_STATE:NAVER", state);
 
@@ -177,7 +171,6 @@ public class SnsAuthController {
     }
 
     try {
-      // 1) 토큰 교환 (GET)
       String tokenUrl = "https://nid.naver.com/oauth2.0/token"
           + "?grant_type=authorization_code"
           + "&client_id=" + NAVER_ID
@@ -190,7 +183,6 @@ public class SnsAuthController {
       String accessToken = token != null ? (String) token.get("access_token") : null;
       if (isBlank(accessToken)) return redirect(addQuery(FRONT_FAIL, "reason=no-token"));
 
-      // 2) 사용자 정보 조회
       HttpHeaders h = new HttpHeaders();
       h.setBearerAuth(accessToken);
       HttpEntity<Void> req = new HttpEntity<>(h);
@@ -219,7 +211,6 @@ public class SnsAuthController {
           ? addQuery(FRONT_ROLE_SELECT, "needRole=1&provider=" + provider.toLowerCase())
           : FRONT_SUCCESS;
 
-      System.out.println("[OAUTH/NAVER] redirect -> " + to + ", userType=" + u.getUserType());
       return redirect(to);
 
     } catch (Exception ex) {
@@ -228,47 +219,39 @@ public class SnsAuthController {
     }
   }
 
-  // =================== Core ===================
-  /** SNS 로그인(또는 자동가입) 후 User 반환 */
+  // ============== Core ==============
   private User loginOrCreate(String provider, String providerId, String email, String name) {
-    // 0) provider로 기등록 여부
     User u = userMapper.findByProvider(provider, providerId);
 
-    // 1) 같은 이메일 자동 연동 (옵션)
     if (u == null && email != null && autoLinkEmail) {
       User byEmail = userMapper.findByEmail(email);
       if (byEmail != null) {
         userMapper.linkProviderByEmail(email, provider, providerId);
         u = userMapper.findByEmail(email);
-        System.out.println("[OAUTH] linked by email: " + email + " -> " + provider + "/" + providerId);
       }
     }
 
-    // 2) 자동가입: USER_TYPE 비워서 역할선택 유도
     if (u == null && autoSignup) {
       Map<String, Object> p = new HashMap<>();
       p.put("id", UUID.randomUUID().toString());
-      p.put("email", email);                       // null 허용
+      p.put("email", email);
       p.put("userName", isBlank(name) ? "" : name);
       p.put("provider", provider);
       p.put("providerId", providerId);
-      // ✅ Oracle null 바인딩 이슈 피하기 위해 기본값 지정
       p.put("address", "");
       p.put("tel", "");
       p.put("userType", null);
-      p.put("pw", "");                             // SNS계정은 내부 PW 미사용
-
+      p.put("pw", "");
       userMapper.insertSnsUser(p);
       u = userMapper.findByProvider(provider, providerId);
-      System.out.println("[OAUTH] auto-signup created: " + (u != null ? u.getId() : "NULL"));
     }
 
-    // 3) 세션 저장
     if (u != null) {
       session.setAttribute("LOGIN_ID", u.getId());
       session.setAttribute("LOGIN_EMAIL", u.getEmail());
       session.setAttribute("LOGIN_NAME", u.getUserName());
       session.setAttribute("LOGIN_USER_TYPE", u.getUserType()); // NULL일 수 있음
+      session.setAttribute("LOGIN_TYPE", u.getUserType());      // 호환
       session.setAttribute("LOGIN_PROVIDER", u.getProvider());
       session.setAttribute("NEED_ROLE_SELECT", isBlank(u.getUserType()) ? "Y" : "N");
     }
