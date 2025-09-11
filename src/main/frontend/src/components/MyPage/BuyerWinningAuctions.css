@@ -228,6 +228,10 @@
 .status-badge.pending {
     background-color: #fff3cd;
     color: #856404;
+    opacity: 0;
+}
+.auction-item-card:hover .status-badge.pending {
+    opacity: 1;
 }
 
 /* 가격 정보 */

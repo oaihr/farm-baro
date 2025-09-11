@@ -229,17 +229,10 @@ const SellerMainPage = () => {
         return new Intl.NumberFormat('ko-KR').format(price) + '원';
     };
 
-    const tabs = [
-        { id: 'dashboard', label: '대시보드', icon: '📊' },
-        { id: 'products', label: '상품관리', icon: '🥩' },
-        { id: 'orders', label: '주문관리', icon: '📋' },
-        { id: 'reviews', label: '리뷰관리', icon: '⭐' },
-        { id: 'inquiries', label: '문의관리', icon: '❓' }
-    ];
+    
 
     const quickActions = [
         { icon: '🥩', label: '상품 등록', link: `/mypage/seller/${userId}/product-register` },
-        { icon: '📋', label: '주문 현황', link: `/mypage/seller/${userId}/orders` },
         { icon: '⭐', label: '리뷰 확인', link: `/mypage/seller/${userId}/reviews` },
         { icon: '❓', label: '문의 답변', link: `/mypage/seller/${userId}/inquiries` },
         { icon: '👤', label: '정보 수정', link: `/mypage/seller/${userId}/edit` }
@@ -251,22 +244,6 @@ const SellerMainPage = () => {
             <div className="header">
                 <h1>판매자 마이페이지</h1>
                 <p>판매자 정보와 활동을 한 곳에서 관리하세요</p>
-            </div>
-
-            {/* 탭 메뉴 */}
-            <div className="tab-container">
-                <div className="tabs">
-                    {tabs.map(tab => (
-                        <button
-                            key={tab.id}
-                            className={`tab ${activeTab === tab.id ? 'active' : ''}`}
-                            onClick={() => setActiveTab(tab.id)}
-                        >
-                            <span className="tab-icon">{tab.icon}</span>
-                            {tab.label}
-                        </button>
-                    ))}
-                </div>
             </div>
 
             {/* 빠른 액션 카드 */}
@@ -360,10 +337,10 @@ const SellerMainPage = () => {
                         </p>
                     </div>
                     <div className="sales-info">
-                        <p>총 매출: <strong>0원</strong></p>
-                        <p>사용 가능 금액: <strong>0원</strong></p>
-                        <p>판매자 등급: <strong>신규</strong></p>
-                        <p>주요 판매 품목: <strong>농산물</strong></p>
+                        <div className="total-sales-large">
+                            <p>총 매출</p>
+                            <strong>{userInfo?.totalBalance || 0}원</strong>
+                        </div>
                     </div>
                 </div>
                 <div className="summary-right">
@@ -475,12 +452,6 @@ const SellerMainPage = () => {
                     onClick={() => setActiveTab('product-registration')}
                 >
                     🥩 상품 등록
-                </button>
-                <button 
-                    className={`tab-btn ${activeTab === 'orders' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('orders')}
-                >
-                    📋 주문 현황
                 </button>
                 <button 
                     className={`tab-btn ${activeTab === 'reviews' ? 'active' : ''}`}

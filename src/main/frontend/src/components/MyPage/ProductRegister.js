@@ -35,8 +35,6 @@ const ProductRegister = () => {
     const tabs = [
         { id: 'register', label: '상품 등록', icon: '📦' },
         { id: 'manage', label: '상품 관리', icon: '📋' },
-        { id: 'edit', label: '상품 수정', icon: '✏️' },
-        { id: 'detail', label: '상품 상세', icon: '🔍' },
         { id: 'analytics', label: '판매 분석', icon: '📊' }
     ];
 
@@ -199,53 +197,47 @@ const ProductRegister = () => {
         setNewImageUrls('');
     };
 
-    // 이미지 변경 저장
+    // 이미지 변경 저장 (이미지만 따로 업데이트)
     const handleImageChangeSave = async () => {
-        if (!viewingProduct) return;
+        if (!editingProduct) return;
         
         try {
             setLoading(true);
             const imageUrls = newImageUrls.split(',').map(url => url.trim()).filter(url => url);
             
-            const response = await fetch(`http://localhost:8080/api/mypage/products/${viewingProduct.saleItemId}/form`, {
+            if (imageUrls.length === 0) {
+                setMessage('이미지 URL을 입력해주세요.');
+                return;
+            }
+            
+            // 이미지만 업데이트하는 API 호출
+            const response = await fetch(`http://localhost:8080/api/mypage/products/${editingProduct.saleItemId}/images`, {
                 method: 'PUT',
-                body: (() => {
-                    const formData = new FormData();
-                    formData.append('title', viewingProduct.title);
-                    formData.append('judgeKindName', viewingProduct.judgeKindName);
-                    formData.append('cutName', viewingProduct.cutName);
-                    formData.append('qty', viewingProduct.qty);
-                    formData.append('weight', viewingProduct.weight);
-                    formData.append('price', viewingProduct.price);
-                    formData.append('description', viewingProduct.description);
-                    formData.append('detailDescription', viewingProduct.detailDescription);
-                    formData.append('grade', viewingProduct.grade);
-                    formData.append('traceabilityNum', viewingProduct.traceabilityNum);
-                    formData.append('saleStatus', viewingProduct.saleStatus);
-                    
-                    // 새로운 이미지 URL들 추가 (순서 정보 포함)
-                    imageUrls.forEach((url, index) => {
-                        formData.append('imageUrls', url);
-                        formData.append('imageOrderIndexes', index + 1); // ORDER_INDEX는 1부터 시작
-                    });
-                    
-                    return formData;
-                })()
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    imageUrls: imageUrls
+                })
             });
 
             if (response.ok) {
                 setMessage('이미지가 성공적으로 변경되었습니다.');
                 setShowImageInput(false);
                 setNewImageUrls('');
+                
                 // 상품 목록 새로고침
                 await fetchProducts();
-                // 현재 보고 있는 상품 정보도 업데이트
-                const updatedProduct = products.find(p => p.saleItemId === viewingProduct.saleItemId);
+                
+                // 현재 편집 중인 상품 정보도 업데이트
+                const updatedProduct = products.find(p => p.saleItemId === editingProduct.saleItemId);
                 if (updatedProduct) {
-                    setViewingProduct(updatedProduct);
+                    setEditingProduct(updatedProduct);
                 }
             } else {
-                setMessage('이미지 변경에 실패했습니다.');
+                const errorData = await response.json();
+                setMessage(`이미지 변경에 실패했습니다: ${errorData.message || '알 수 없는 오류'}`);
             }
         } catch (error) {
             console.error('이미지 변경 오류:', error);
@@ -1023,6 +1015,59 @@ const ProductRegister = () => {
 
                     <div className="edit-form-container">
                         <form onSubmit={handleUpdateProductForm} className="product-form">
+                            <div className="main-image">
+                                {editingProduct.imageUrl ? (
+                                    <img src={editingProduct.imageUrl} alt={editingProduct.title} />
+                                ) : (
+                                    <div className="no-image">
+                                        <span>📦</span>
+                                        <p>이미지 없음</p>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="image-actions">
+                                <button 
+                                    className="btn-primary"
+                                    onClick={handleImageChange}
+                                >
+                                    📸 이미지 변경
+                                </button>
+                            </div>
+                            
+                            {/* 이미지 변경 입력 UI */}
+                            {showImageInput && (
+                                <div className="image-change-section">
+                                    <h4>이미지 변경</h4>
+                                    <div className="form-group">
+                                        <label>새로운 이미지 URL</label>
+                                        <textarea
+                                            value={newImageUrls}
+                                            onChange={(e) => setNewImageUrls(e.target.value)}
+                                            placeholder="이미지 URL을 쉼표로 구분하여 입력하세요&#10;예: https://example.com/image1.jpg, https://example.com/image2.jpg"
+                                            rows="3"
+                                            className="url-input"
+                                        />
+                                        <small className="input-help">
+                                            여러 이미지를 쉼표(,)로 구분하여 입력하세요. 첫 번째 이미지가 대표 이미지로 설정됩니다.
+                                        </small>
+                                    </div>
+                                    <div className="image-change-actions">
+                                        <button 
+                                            className="btn-save"
+                                            onClick={handleImageChangeSave}
+                                            disabled={loading}
+                                        >
+                                            💾 이미지 저장
+                                        </button>
+                                        <button 
+                                            className="btn-cancel"
+                                            onClick={handleImageChangeCancel}
+                                        >
+                                            ❌ 취소
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                             <div className="form-row">
                                 <div className="form-group">
                                     <label>상품명 *</label>
@@ -1329,15 +1374,6 @@ const ProductRegister = () => {
                                             }}
                                         >
                                             ✏️ 수정
-                                        </button>
-                                        <button 
-                                            className="view-btn"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                viewProductDetail(product);
-                                            }}
-                                        >
-                                            상세보기
                                         </button>
                                         <button 
                                             className="delete-btn"

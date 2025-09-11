@@ -356,10 +356,10 @@ public class MyPageService {
                                  ", 가격: " + auction.getBidPrice());
             }
             
-            System.out.println("실행할 SQL: SELECT * FROM AUCTIONS WHERE WINNER_ID = '" + winnerId + "' AND AUCTION_STATUS = 'OFF'");
+            System.out.println("실행할 SQL: SELECT * FROM AUCTIONS WHERE WINNER_ID = '" + winnerId + "' AND AUCTION_STATUS = 'off'");
             
             List<BidDto> result = bidMapper.getWinningAuctionsForPayment(winnerId);
-            System.out.println("AUCTION_STATUS='OFF' 조건을 만족하는 낙찰상품 수: " + result.size());
+            System.out.println("AUCTION_STATUS='off' 조건을 만족하는 낙찰상품 수: " + result.size());
             System.out.println("매퍼 결과: " + result);
             
             return result;
@@ -806,6 +806,26 @@ public class MyPageService {
             return false;
         }
     }
+
+    // 예치금 업데이트
+    public boolean updateUserBalance(String userId, Double amount) {
+        try {
+            System.out.println("=== 예치금 업데이트 시작 ===");
+            System.out.println("userId: " + userId);
+            System.out.println("amount: " + amount);
+            
+            int result = userMapper.updateUserBalance(userId, amount);
+            System.out.println("예치금 업데이트 결과: " + result);
+            
+            boolean success = result > 0;
+            System.out.println("=== 예치금 업데이트 완료: " + success + " ===");
+            return success;
+        } catch (Exception e) {
+            System.out.println("=== 예치금 업데이트 중 오류 발생 ===");
+            e.printStackTrace();
+            return false;
+        }
+    }
     
     // 상품 이미지 삭제
     public boolean deleteProductImages(Long productId) {
@@ -835,6 +855,39 @@ public class MyPageService {
             return success;
         } catch (Exception e) {
             System.out.println("=== 이미지 저장 중 오류 발생 ===");
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    // 상품 이미지만 업데이트 (기존 이미지 삭제 후 새 이미지 등록)
+    public boolean updateProductImages(Long productId, List<String> imageUrls) {
+        try {
+            System.out.println("=== 상품 이미지 업데이트 시작 ===");
+            System.out.println("productId: " + productId);
+            System.out.println("imageUrls: " + imageUrls);
+            
+            // 1. 기존 이미지 삭제
+            boolean deleteSuccess = deleteProductImages(productId);
+            System.out.println("기존 이미지 삭제 결과: " + deleteSuccess);
+            
+            // 2. 새 이미지들 등록
+            boolean insertSuccess = true;
+            if (imageUrls != null && !imageUrls.isEmpty()) {
+                for (int i = 0; i < imageUrls.size(); i++) {
+                    String imageUrl = imageUrls.get(i);
+                    boolean isThumbnail = (i == 0); // 첫 번째 이미지를 썸네일로 설정
+                    boolean result = insertProductImage(productId, imageUrl, i + 1, isThumbnail);
+                    insertSuccess = insertSuccess && result;
+                    System.out.println("이미지 " + (i + 1) + " 등록 결과: " + result);
+                }
+            }
+            
+            boolean overallSuccess = deleteSuccess && insertSuccess;
+            System.out.println("=== 상품 이미지 업데이트 완료: " + overallSuccess + " ===");
+            return overallSuccess;
+        } catch (Exception e) {
+            System.out.println("=== 상품 이미지 업데이트 중 오류 발생 ===");
             e.printStackTrace();
             return false;
         }

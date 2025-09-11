@@ -48,4 +48,7 @@ public interface UserMapper {
     
     // 판매자 정보 업데이트
     int updateSellerInfo(Map<String, Object> params);
+    
+    // 예치금 업데이트
+    int updateUserBalance(@Param("userId") String userId, @Param("amount") Double amount);
 }

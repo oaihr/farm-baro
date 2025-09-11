@@ -150,14 +150,36 @@
 .sales-info {
     margin-top: 20px;
     padding: 20px;
-    background: #f7fafc;
     border-radius: 10px;
-    border-left: 4px solid #38761D;
+
 }
 
 .sales-info p {
     margin: 5px 0;
     color: #2d3748;
+}
+
+.total-sales-large {
+    text-align: center;
+    padding: 30px;
+    background: linear-gradient(135deg, #38761D, #4CAF50);
+    border-radius: 15px;
+    color: white;
+    box-shadow: 0 8px 25px rgba(56, 118, 29, 0.3);
+}
+
+.total-sales-large p {
+    font-size: 1.2rem;
+    margin: 0 0 15px 0;
+    font-weight: 500;
+    opacity: 0.9;
+}
+
+.total-sales-large strong {
+    font-size: 2.5rem;
+    font-weight: 700;
+    display: block;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .summary-stats {
