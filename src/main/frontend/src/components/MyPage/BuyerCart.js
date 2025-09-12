@@ -46,7 +46,7 @@ const BuyerCart = () => {
     const fetchCartItems = useCallback(async () => {
         try {
             setLoading(true);
-            const response = await fetch(`http://localhost:8080/api/mypage/cart`, {
+            const response = await fetch(`/api/mypage/cart`, {
                 credentials: 'include'
             });
             if (response.ok) {
@@ -97,7 +97,7 @@ const BuyerCart = () => {
     const handleQuantityChange = async (cartItemId, newQuantity) => {
         if (newQuantity < 1) return;
         try {
-            const response = await fetch(`http://localhost:8080/api/mypage/cart/${cartItemId}/quantity`, {
+            const response = await fetch(`/api/mypage/cart/${cartItemId}/quantity`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -127,7 +127,7 @@ const BuyerCart = () => {
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/mypage/cart/${cartItemId}`, {
+            const response = await fetch(`/api/mypage/cart/${cartItemId}`, {
                 method: 'DELETE',
                 credentials: 'include'
             });
@@ -224,7 +224,7 @@ const BuyerCart = () => {
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/mypage/cart/batch-remove`, {
+            const response = await fetch(`/api/mypage/cart/batch-remove`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',

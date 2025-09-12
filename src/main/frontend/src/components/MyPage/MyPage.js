@@ -14,7 +14,7 @@ const MyPage = () => {
 
     const fetchUserInfo = async () => {
         try {
-            const response = await fetch(`http://localhost:8080/api/mypage/${userType}/${userId}`);
+            const response = await fetch(`/api/mypage/${userType}/${userId}`);
             if (response.ok) {
                 const data = await response.json();
                 setUserInfo(data);
@@ -48,7 +48,7 @@ const MyPage = () => {
                 </div>
                 <div className="mypage-content">
                     <iframe 
-                        src={`http://localhost:8080/mypage/${userType}/${userId}`}
+                        src={`/mypage/${userType}/${userId}`}
                         width="100%" 
                         height="800px"
                         title="마이페이지 내용"

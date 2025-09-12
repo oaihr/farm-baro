@@ -18,7 +18,7 @@ const BuyerProfile = () => {
     // 사용자 정보 가져오기
     const fetchUserInfo = async () => {
         try {
-            const response = await fetch(`http://localhost:8080/mypage/api/users/${userId}`);
+            const response = await fetch(`/mypage/api/users/${userId}`);
             if (response.ok) {
                 const data = await response.json();
                 setUserInfo({
@@ -55,7 +55,7 @@ const BuyerProfile = () => {
         setMessage('');
 
         try {
-            const response = await fetch(`http://localhost:8080/mypage/api/users/${userId}`, {
+            const response = await fetch(`/mypage/api/users/${userId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -114,7 +114,7 @@ const BuyerProfile = () => {
         setMessage('');
 
         try {
-            const response = await fetch(`http://localhost:8080/mypage/api/users/${userId}/password`, {
+            const response = await fetch(`/mypage/api/users/${userId}/password`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

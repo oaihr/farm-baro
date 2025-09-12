@@ -23,7 +23,7 @@ function Sale(){
         const fetchData = async()=>{
             setLoading(true);
             try{
-                const response = await axios.get(`http://localhost:8080/api/sale/${kind}/${part}?page=${currentPage}`);
+                const response = await axios.get(`/api/sale/${kind}/${part}?page=${currentPage}`);
                 setData(response.data.content);
                 setTotalPages(response.data.totalPages);
 

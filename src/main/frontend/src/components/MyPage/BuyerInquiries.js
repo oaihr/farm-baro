@@ -14,7 +14,7 @@ const BuyerInquiries = () => {
     const fetchInquiries = async () => {
         try {
             setLoading(true);
-            const response = await fetch(`http://localhost:8080/mypage/api/buyers/${userId}/inquiries`);
+            const response = await fetch(`/mypage/api/buyers/${userId}/inquiries`);
             if (response.ok) {
                 const data = await response.json();
                 setInquiries(data);
@@ -69,7 +69,7 @@ const BuyerInquiries = () => {
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/mypage/api/inquiries/${inquiryId}/close`, {
+            const response = await fetch(`/mypage/api/inquiries/${inquiryId}/close`, {
                 method: 'PUT'
             });
 

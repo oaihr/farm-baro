@@ -39,7 +39,7 @@ function SaleDetail() {
         try {
             console.log('장바구니 추가 요청:', { saleItemId: saleId, quantity: quantity });
             
-            const response = await axios.post('http://localhost:8080/api/mypage/cart', {
+            const response = await axios.post('/api/mypage/cart', {
                 saleItemId: saleId,
                 quantity: quantity, 
             }, {
@@ -76,7 +76,7 @@ function SaleDetail() {
         }
 
         try {
-            const response = await axios.post('http://localhost:8080/api/cart/add', {
+            const response = await axios.post('/api/cart/add', {
                 userId: userId,
                 saleItemId: saleId,
                 quantity: quantity, 
@@ -97,7 +97,7 @@ function SaleDetail() {
             setLoading(true);
             try {
                 const [itemResponse] = await Promise.all([
-                    axios.get(`http://localhost:8080/api/sale/detail/${saleId}`),
+                    axios.get(`/api/sale/detail/${saleId}`),
                     dispatch(fetchCurrentUser()), // 사용자 정보 로딩 시작
                 ]);
                 setItem(itemResponse.data);

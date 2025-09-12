@@ -35,7 +35,7 @@ const Inquiries = () => {
             
             // 실제 API 호출 시도 (현재는 구현되지 않음)
             try {
-                const response = await fetch(`http://localhost:8080/mypage/seller/${userId}/inquiries`, {
+                const response = await fetch(`/mypage/seller/${userId}/inquiries`, {
                     credentials: 'include'
                 });
                 
@@ -79,7 +79,7 @@ const Inquiries = () => {
             setLoading(true);
             setMessage('');
 
-            const response = await fetch(`http://localhost:8080/api/inquiries/${replyModal.inquiryId}/reply?sellerReply=${encodeURIComponent(replyModal.replyText)}`, {
+            const response = await fetch(`/api/inquiries/${replyModal.inquiryId}/reply?sellerReply=${encodeURIComponent(replyModal.replyText)}`, {
                 method: 'PUT'
             });
 

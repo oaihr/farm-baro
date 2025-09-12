@@ -11,7 +11,7 @@ const connectWebSocket = (onConnect) => {
         return;
     }
 
-    const socket = new SockJS('http://localhost:8080/ws-stomp');
+    const socket = new SockJS('/ws-stomp');
     stompClient = Stomp.over(socket);
 
     stompClient.connect({}, () => {

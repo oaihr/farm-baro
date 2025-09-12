@@ -40,7 +40,7 @@ function AuctionDetail() {
         client.current = new StompJs.Client({
             // webSocketFactory를 사용하여 SockJS 객체 전달
             webSocketFactory: () => {
-                return new SockJS('http://localhost:8080/ws-stomp');
+                return new SockJS('/ws-stomp');
             },
             debug: function (str) {
                 console.log(str);
@@ -84,13 +84,13 @@ function AuctionDetail() {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const response = await axios.get(`http://localhost:8080/api/auction/detail/${auctionId}`);
+                const response = await axios.get(`/api/auction/detail/${auctionId}`);
                 setItem(response.data);
 
-                const currentBidResponse = await axios.get(`http://localhost:8080/api/auction/current-bid/${auctionId}`);                                
+                const currentBidResponse = await axios.get(`/api/auction/current-bid/${auctionId}`);                                
                 setCurrentBid(currentBidResponse.data);
 
-                const bidHistoryResponse = await axios.get(`http://localhost:8080/api/auction/bid-history/${auctionId}`);                                
+                const bidHistoryResponse = await axios.get(`/api/auction/bid-history/${auctionId}`);                                
                 setBidHistory(bidHistoryResponse.data);
 
                 dispatch(fetchCurrentUser());

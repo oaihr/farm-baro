@@ -41,7 +41,7 @@ const Reviews = () => {
             
             // 실제 API 호출 시도 (현재는 구현되지 않음)
             try {
-                const response = await fetch(`http://localhost:8080/api/mypage/seller/${userId}/reviews`, {
+                const response = await fetch(`/api/mypage/seller/${userId}/reviews`, {
                     credentials: 'include'
                 });
                 
@@ -89,7 +89,7 @@ const Reviews = () => {
 
             // 실제 API 호출 시도
             try {
-                const response = await fetch(`http://localhost:8080/api/mypage/reviews/${replyModal.reviewId}/reply`, {
+                const response = await fetch(`/api/mypage/reviews/${replyModal.reviewId}/reply`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
@@ -329,7 +329,7 @@ const Reviews = () => {
             
             // 실제 API 호출 시도
             try {
-                const response = await fetch(`http://localhost:8080/api/reviews/${reviewId}`, {
+                const response = await fetch(`/api/reviews/${reviewId}`, {
                     method: 'DELETE',
                     credentials: 'include'
                 });

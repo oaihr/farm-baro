@@ -73,7 +73,7 @@ const Cart = () => {
         try {
             console.log('장바구니 삭제 요청 - saleItemId:', saleItemId);
             
-            const response = await fetch(`http://localhost:8080/mypage/api/cart/${saleItemId}`, {
+            const response = await fetch(`/mypage/api/cart/${saleItemId}`, {
                 method: 'DELETE',
                 credentials: 'include' // 세션 쿠키 포함
             });

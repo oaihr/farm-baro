@@ -14,7 +14,7 @@ const BuyerAuctions = () => {
     const fetchAuctions = async () => {
         try {
             setLoading(true);
-            const response = await fetch(`http://localhost:8080/api/mypage/buyers/${userId}/auctions`);
+            const response = await fetch(`/api/mypage/buyers/${userId}/auctions`);
             if (response.ok) {
                 const data = await response.json();
                 setAuctions(data);
@@ -100,7 +100,7 @@ const BuyerAuctions = () => {
 
         try {
             // 결제 API 호출 (실제 결제 시스템 연동)
-            const response = await fetch(`http://localhost:8080/mypage/api/auctions/${auctionId}/payment`, {
+            const response = await fetch(`/mypage/api/auctions/${auctionId}/payment`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -130,7 +130,7 @@ const BuyerAuctions = () => {
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/mypage/api/auctions/${auctionId}/cancel-bid`, {
+            const response = await fetch(`/mypage/api/auctions/${auctionId}/cancel-bid`, {
                 method: 'PUT'
             });
 

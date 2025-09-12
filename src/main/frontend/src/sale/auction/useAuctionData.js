@@ -12,7 +12,7 @@ export const useAuctionData = (filter, status, currentPage = 0) => {
             try {
                 // 경매 상태와 필터에 따라 API URL을 동적으로 생성
                 const response = await axios.get(
-                    `http://localhost:8080/api/auction?page=${currentPage}` +
+                    `/api/auction?page=${currentPage}` +
                     (filter !== '' ? `&kind=${filter}` : '') +
                     (status !== '' ? `&status=${status}` : '')
                 );

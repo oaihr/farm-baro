@@ -46,7 +46,7 @@ const BuyerWinningAuctions = () => {
     const fetchWinningAuctions = useCallback(async () => {
         try {
             setLoading(true);
-            const response = await fetch(`http://localhost:8080/api/mypage/buyer/${userId}/winning-auctions`, {
+            const response = await fetch(`/api/mypage/buyer/${userId}/winning-auctions`, {
                 credentials: 'include'
             });
             if (response.ok) {
@@ -98,7 +98,7 @@ const BuyerWinningAuctions = () => {
                 
                 // 백엔드에 구매 확정 요청
                 try {
-                    const confirmResponse = await fetch(`http://localhost:8080/mypage/api/auctions/${auctionId}/purchase-confirm`, {
+                    const confirmResponse = await fetch(`/mypage/api/auctions/${auctionId}/purchase-confirm`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

@@ -37,7 +37,7 @@ const EditInfo = () => {
     const fetchUserInfo = async () => {
         try {
             setLoading(true);
-            const response = await fetch(`http://localhost:8080/api/mypage/${userType}/${userId}`);
+            const response = await fetch(`/api/mypage/${userType}/${userId}`);
             if (response.ok) {
                 const data = await response.json();
                 setUserInfo(data);
@@ -76,7 +76,7 @@ const EditInfo = () => {
                 businessNumber: formData.businessNumber
             };
 
-            const response = await fetch(`http://localhost:8080/api/mypage/${userType}/${userId}/edit`, {
+            const response = await fetch(`/api/mypage/${userType}/${userId}/edit`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

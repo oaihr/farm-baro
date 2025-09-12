@@ -19,7 +19,7 @@ const BuyerOrders = () => {
     const fetchOrders = async () => {
         try {
             setLoading(true);
-            const response = await fetch(`http://localhost:8080/api/mypage/buyers/${userId}/orders`);
+            const response = await fetch(`/api/mypage/buyers/${userId}/orders`);
             if (response.ok) {
                 const data = await response.json();
                 setOrders(data);
@@ -46,7 +46,7 @@ const BuyerOrders = () => {
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/mypage/api/orders/${orderId}/confirm`, {
+            const response = await fetch(`/mypage/api/orders/${orderId}/confirm`, {
                 method: 'PUT'
             });
 

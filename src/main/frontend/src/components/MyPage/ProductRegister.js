@@ -142,7 +142,7 @@ const ProductRegister = () => {
     const fetchProducts = async () => {
         try {
             setLoading(true);
-            const response = await fetch(`http://localhost:8080/api/mypage/seller/${userId}/products`);
+            const response = await fetch(`/api/mypage/seller/${userId}/products`);
             if (response.ok) {
                 const data = await response.json();
                 setProducts(data);
@@ -211,7 +211,7 @@ const ProductRegister = () => {
             }
             
             // 이미지만 업데이트하는 API 호출
-            const response = await fetch(`http://localhost:8080/api/mypage/products/${editingProduct.saleItemId}/images`, {
+            const response = await fetch(`/api/mypage/products/${editingProduct.saleItemId}/images`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -251,7 +251,7 @@ const ProductRegister = () => {
     const handleUpdateProduct = async (product) => {
         try {
             setLoading(true);
-            const response = await fetch(`http://localhost:8080/api/mypage/products/${product.saleItemId}`, {
+            const response = await fetch(`/api/mypage/products/${product.saleItemId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -332,7 +332,7 @@ const ProductRegister = () => {
             formDataToSend.append('grade', formData.grade);
             formDataToSend.append('traceabilityNum', formData.traceabilityNum);
 
-            const response = await fetch(`http://localhost:8080/api/mypage/products/${editingProduct.saleItemId}/form`, {
+            const response = await fetch(`/api/mypage/products/${editingProduct.saleItemId}/form`, {
                 method: 'PUT',
                 body: formDataToSend
             });
@@ -443,7 +443,7 @@ const ProductRegister = () => {
                 console.log(`${key}: ${value}`);
             }
 
-            const response = await fetch('http://localhost:8080/api/mypage/products', {
+            const response = await fetch('/api/mypage/products', {
                 method: 'POST',
                 body: formDataToSend
             });
@@ -509,7 +509,7 @@ const ProductRegister = () => {
                 });
             }
 
-                         const response = await fetch(`http://localhost:8080/api/mypage/products/${editingProduct.saleItemId}/form`, {
+                         const response = await fetch(`/api/mypage/products/${editingProduct.saleItemId}/form`, {
                 method: 'PUT',
                 body: formDataToSend
             });
@@ -561,7 +561,7 @@ const ProductRegister = () => {
             setMessage('상품을 삭제하는 중입니다...');
             
             console.log(`상품 삭제 요청: ${productId}`);
-            const response = await fetch(`http://localhost:8080/api/mypage/products/${productId}`, {
+            const response = await fetch(`/api/mypage/products/${productId}`, {
                 method: 'DELETE'
             });
 

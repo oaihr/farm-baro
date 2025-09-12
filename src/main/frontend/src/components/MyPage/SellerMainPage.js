@@ -63,7 +63,7 @@ const SellerMainPage = () => {
             console.log('주문 데이터 조회 시작 - sellerId:', userId);
             
             // 최근 주문 조회
-            const recentResponse = await fetch(`http://localhost:8080/api/mypage/sellers/${userId}/recent-orders`, {
+            const recentResponse = await fetch(`/api/mypage/sellers/${userId}/recent-orders`, {
                 credentials: 'include'
             });
             
@@ -76,7 +76,7 @@ const SellerMainPage = () => {
             }
             
             // 전체 주문 조회하여 통계 계산
-            const allOrdersResponse = await fetch(`http://localhost:8080/api/mypage/sellers/${userId}/orders`, {
+            const allOrdersResponse = await fetch(`/api/mypage/sellers/${userId}/orders`, {
                 credentials: 'include'
             });
             

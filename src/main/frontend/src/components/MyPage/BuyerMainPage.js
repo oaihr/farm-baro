@@ -48,7 +48,7 @@ const BuyerMainPage = () => {
     // 장바구니 아이템 가져오기
     const fetchCartItems = useCallback(async () => {
         try {
-            const response = await fetch(`http://localhost:8080/api/mypage/cart`, {
+            const response = await fetch(`/api/mypage/cart`, {
                 credentials: 'include'
             });
             if (response.ok) {
@@ -67,7 +67,7 @@ const BuyerMainPage = () => {
     const fetchStats = useCallback(async () => {
         try {
             // 장바구니 통계 가져오기
-            const cartResponse = await fetch(`http://localhost:8080/api/mypage/buyers/${userId}/cart/stats`, {
+            const cartResponse = await fetch(`/api/mypage/buyers/${userId}/cart/stats`, {
                 credentials: 'include'
             });
             if (cartResponse.ok) {
@@ -137,7 +137,7 @@ const BuyerMainPage = () => {
             console.log('Redux 상태:', { totalBalance, bidDeposit });
             
             // 먼저 현재 사용자 정보를 확인
-            const userCheckResponse = await fetch('http://localhost:8080/api/auth/me', {
+            const userCheckResponse = await fetch('/api/auth/me', {
                 credentials: 'include'
             });
             console.log('사용자 확인 응답:', userCheckResponse.status);
@@ -147,7 +147,7 @@ const BuyerMainPage = () => {
                 return;
             }
             
-            const response = await fetch('http://localhost:8080/api/mypage/buyer/deposit', {
+            const response = await fetch('/api/mypage/buyer/deposit', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

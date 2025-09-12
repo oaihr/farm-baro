@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './ReviewList.css';
+import report from '../images/report.png';
 
 function ReviewList({ saleId }) {
 
@@ -146,7 +147,7 @@ function ReviewList({ saleId }) {
                                         </td>
                                         <td>
                                             <div className='report-box'>
-                                                <img src="/images/report.png" /><button className='report-box-btn'>신고</button>
+                                                <img src={report} /><button className='report-box-btn'>신고</button>
                                             </div>
                                         </td>
                                     </tr>

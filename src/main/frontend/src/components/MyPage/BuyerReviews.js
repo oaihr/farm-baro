@@ -19,7 +19,7 @@ const BuyerReviews = () => {
     const fetchReviews = async () => {
         try {
             setLoading(true);
-            const response = await fetch(`http://localhost:8080/api/mypage/api/buyers/${userId}/reviews`);
+            const response = await fetch(`/api/mypage/api/buyers/${userId}/reviews`);
             if (response.ok) {
                 const data = await response.json();
                 setReviews(data);
@@ -69,7 +69,7 @@ const BuyerReviews = () => {
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/mypage/api/reviews/${editingReview.reviewId}`, {
+            const response = await fetch(`/api/mypage/api/reviews/${editingReview.reviewId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -102,7 +102,7 @@ const BuyerReviews = () => {
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/mypage/api/reviews/${reviewId}`, {
+            const response = await fetch(`/api/mypage/api/reviews/${reviewId}`, {
                 method: 'DELETE'
             });
 

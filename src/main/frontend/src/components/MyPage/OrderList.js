@@ -70,7 +70,7 @@ const OrderList = () => {
             setLoading(true);
             console.log('주문 목록 조회 시작 - sellerId:', userId);
             
-            const response = await fetch(`http://localhost:8080/api/sellers/${userId}/orders`, {
+            const response = await fetch(`/api/sellers/${userId}/orders`, {
                 credentials: 'include'
             });
             
@@ -98,7 +98,7 @@ const OrderList = () => {
             setMessage('');
             console.log('주문 상태 변경 요청 - orderId:', orderId, 'newStatus:', newStatus);
 
-            const response = await fetch(`http://localhost:8080/api/orders/${orderId}/delivery?orderStatus=${newStatus}`, {
+            const response = await fetch(`/api/orders/${orderId}/delivery?orderStatus=${newStatus}`, {
                 method: 'PUT',
                 credentials: 'include'
             });
@@ -133,7 +133,7 @@ const OrderList = () => {
             setMessage('');
             console.log('주문 확정 요청 - orderId:', orderId);
 
-            const response = await fetch(`http://localhost:8080/api/orders/${orderId}/confirm`, {
+            const response = await fetch(`/api/orders/${orderId}/confirm`, {
                 method: 'PUT',
                 credentials: 'include'
             });
