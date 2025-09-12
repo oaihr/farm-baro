@@ -125,7 +125,7 @@
 
     <!-- 상품 삭제 -->
     <delete id="deleteProduct">
-        DELETE FROM sales WHERE SALE_ITEM_ID = #{productId}
+        DELETE FROM sales WHERE sale_item_id = #{productId}
     </delete>
 
     <!-- 상품 이미지 삭제 -->

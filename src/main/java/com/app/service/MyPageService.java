@@ -435,15 +435,11 @@ public class MyPageService {
         try {
             System.out.println("=== 상품 삭제 시작: " + productId + " ===");
             
-            // 1. 먼저 장바구니 아이템들 삭제
-            int cartDeleteResult = productMapper.deleteCartItems(productId);
-            System.out.println("장바구니 아이템 삭제 결과: " + cartDeleteResult + "개 삭제됨");
-            
-            // 2. 관련 이미지들 삭제
+            // 1. 관련 이미지들 삭제
             boolean imageDeleteResult = deleteProductImages(productId);
             System.out.println("이미지 삭제 결과: " + imageDeleteResult);
             
-            // 3. 상품 삭제
+            // 2. 상품 삭제 (CASCADE로 관련 데이터도 함께 삭제됨)
             int result = productMapper.deleteProduct(productId);
             System.out.println("상품 삭제 결과: " + result + "개 행 삭제됨");
             
